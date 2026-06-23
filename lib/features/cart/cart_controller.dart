@@ -94,4 +94,8 @@ class CartController extends StateNotifier<List<CartItem>> {
           (sum, item) => sum + item.subtotal,
     );
   }
+
+  void clearCart() {
+    state = [];
+  }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import '../checkout/checkout_page.dart';
 import 'cart_provider.dart';
 
 class CartPanel extends ConsumerWidget {
@@ -155,6 +155,25 @@ class CartPanel extends ConsumerWidget {
               ),
             ],
           ),
+
+          // Checkout
+          const SizedBox(height: 12),
+
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const CheckoutPage(),
+                  ),
+                );
+              },
+              child: const Text("Checkout"),
+            ),
+          ),
+
         ],
       ),
     );
