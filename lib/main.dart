@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'features/products/product_page.dart';
 
 void main() {
   runApp(const PosFlutterApp());
@@ -17,7 +18,7 @@ class PosFlutterApp extends StatelessWidget {
           seedColor: Colors.brown,
         ),
       ),
-      home: const HomePage(),
+      home: const ProductPage(),
     );
   }
 }
