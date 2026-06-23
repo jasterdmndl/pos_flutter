@@ -66,7 +66,7 @@ class CartPanel extends ConsumerWidget {
                             IconButton(
                               icon: const Icon(Icons.delete),
                               onPressed: () {
-                                cartController.removeItem(index);
+                                cartController.removeItem(item);
                               },
                             )
                           ],
@@ -96,7 +96,7 @@ class CartPanel extends ConsumerWidget {
                             IconButton(
                               icon: const Icon(Icons.remove),
                               onPressed: () {
-                                cartController.decreaseQuantity(index);
+                                cartController.decreaseItem(item);
                               },
                             ),
 
@@ -111,7 +111,7 @@ class CartPanel extends ConsumerWidget {
                             IconButton(
                               icon: const Icon(Icons.add),
                               onPressed: () {
-                                cartController.increaseQuantity(index);
+                                cartController.increaseItem(item);
                               },
                             ),
 

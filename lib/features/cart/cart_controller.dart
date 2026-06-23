@@ -38,53 +38,53 @@ class CartController extends StateNotifier<List<CartItem>> {
     state = [...state, newItem];
   }
 
-  void increaseQuantity(int productId) {
-    final updatedCart = [...state];
+  void increaseItem(CartItem item) {
+    final updated = [...state];
 
-    final index = updatedCart.indexWhere(
-          (item) => item.product.id == productId,
+    final index = updated.indexWhere(
+          (e) => e.isSameAs(item),
     );
 
     if (index == -1) return;
 
-    final item = updatedCart[index];
+    final existing = updated[index];
 
-    updatedCart[index] = CartItem(
-      product: item.product,
-      quantity: item.quantity + 1,
+    updated[index] = CartItem(
+      product: existing.product,
+      quantity: existing.quantity + 1,
+      addons: existing.addons,
     );
 
-    state = updatedCart;
+    state = updated;
   }
 
-  void decreaseQuantity(int productId) {
-    final updatedCart = [...state];
+  void decreaseItem(CartItem item) {
+    final updated = [...state];
 
-    final index = updatedCart.indexWhere(
-          (item) => item.product.id == productId,
+    final index = updated.indexWhere(
+          (e) => e.isSameAs(item),
     );
 
     if (index == -1) return;
 
-    final item = updatedCart[index];
+    final existing = updated[index];
 
-    if (item.quantity == 1) {
-      updatedCart.removeAt(index);
-      state = updatedCart;
-      return;
+    if (existing.quantity == 1) {
+      updated.removeAt(index);
+    } else {
+      updated[index] = CartItem(
+        product: existing.product,
+        quantity: existing.quantity - 1,
+        addons: existing.addons,
+      );
     }
 
-    updatedCart[index] = CartItem(
-      product: item.product,
-      quantity: item.quantity - 1,
-    );
-
-    state = updatedCart;
+    state = updated;
   }
 
-  void removeItem(int productId) {
+  void removeItem(CartItem item) {
     state = state
-        .where((item) => item.product.id != productId)
+        .where((e) => !e.isSameAs(item))
         .toList();
   }
 
