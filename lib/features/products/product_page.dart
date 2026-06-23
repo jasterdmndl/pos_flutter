@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'product_provider.dart';
 import 'product_model.dart';
-import '../cart/cart_count_provider.dart';
+import '../cart/cart_provider.dart';
 
 class ProductPage extends ConsumerWidget {
   const ProductPage({super.key});
@@ -10,11 +10,11 @@ class ProductPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final products = ref.watch(productProvider);
-    final cartCount = ref.watch(cartCountProvider);
+    final cartItems = ref.watch(cartProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cafe POS ($cartCount)'),
+        title: Text('Cafe POS (${cartItems.length})'),
       ),
       body: GridView.builder(
         padding: const EdgeInsets.all(16),
@@ -32,7 +32,7 @@ class ProductPage extends ConsumerWidget {
             elevation: 2,
             child: InkWell(
               onTap: () {
-                ref.read(cartCountProvider.notifier).state++;
+                ref.read(cartProvider.notifier).addProduct(product);
               },
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
