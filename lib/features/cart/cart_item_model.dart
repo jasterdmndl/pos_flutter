@@ -26,4 +26,23 @@ class CartItem {
   double get subtotal {
     return unitPrice * quantity;
   }
+
+  bool isSameAs(CartItem other) {
+    if (product.id != other.product.id) return false;
+
+    if (addons.length != other.addons.length) return false;
+
+    for (final addon in addons) {
+      final match = other.addons.any(
+            (a) =>
+        a.name == addon.name &&
+            a.quantity == addon.quantity &&
+            a.price == addon.price,
+      );
+
+      if (!match) return false;
+    }
+
+    return true;
+  }
 }
