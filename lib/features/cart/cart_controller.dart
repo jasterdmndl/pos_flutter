@@ -33,4 +33,12 @@ class CartController extends StateNotifier<List<CartItem>> {
 
     state = updatedCart;
   }
+
+  double get total {
+    return state.fold(
+      0,
+          (sum, item) => sum + item.subtotal,
+    );
+  }
+
 }
