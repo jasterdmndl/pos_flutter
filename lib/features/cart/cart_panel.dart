@@ -13,7 +13,7 @@ class CartPanel extends ConsumerWidget {
 
     return Container(
       width: 320,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         border: Border(
           left: BorderSide(
@@ -25,19 +25,19 @@ class CartPanel extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Cart',
+            "Cart",
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 22,
               fontWeight: FontWeight.bold,
             ),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
 
           Expanded(
             child: cartItems.isEmpty
                 ? const Center(
-              child: Text('Cart is empty'),
+              child: Text("Cart is empty"),
             )
                 : ListView.builder(
               itemCount: cartItems.length,
@@ -47,9 +47,12 @@ class CartPanel extends ConsumerWidget {
                 return Card(
                   margin: const EdgeInsets.only(bottom: 8),
                   child: Padding(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(10),
                     child: Column(
+                      crossAxisAlignment:
+                      CrossAxisAlignment.start,
                       children: [
+                        // PRODUCT NAME + DELETE
                         Row(
                           children: [
                             Expanded(
@@ -61,48 +64,61 @@ class CartPanel extends ConsumerWidget {
                               ),
                             ),
                             IconButton(
-                              onPressed: () {
-                                cartController.removeItem(
-                                  item.product.id,
-                                );
-                              },
                               icon: const Icon(Icons.delete),
-                            ),
+                              onPressed: () {
+                                cartController.removeItem(index);
+                              },
+                            )
                           ],
                         ),
 
+                        // ADD-ONS DISPLAY
+                        if (item.addons.isNotEmpty)
+                          ...item.addons.map(
+                                (addon) => Padding(
+                              padding:
+                              const EdgeInsets.only(left: 8),
+                              child: Text(
+                                "• ${addon.name} x${addon.quantity}",
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                        const SizedBox(height: 8),
+
+                        // QUANTITY + PRICE ROW
                         Row(
                           children: [
                             IconButton(
-                              onPressed: () {
-                                cartController.decreaseQuantity(
-                                  item.product.id,
-                                );
-                              },
                               icon: const Icon(Icons.remove),
+                              onPressed: () {
+                                cartController.decreaseQuantity(index);
+                              },
                             ),
 
                             Text(
-                              '${item.quantity}',
+                              "${item.quantity}",
                               style: const TextStyle(
-                                fontSize: 18,
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
 
                             IconButton(
-                              onPressed: () {
-                                cartController.increaseQuantity(
-                                  item.product.id,
-                                );
-                              },
                               icon: const Icon(Icons.add),
+                              onPressed: () {
+                                cartController.increaseQuantity(index);
+                              },
                             ),
 
                             const Spacer(),
 
                             Text(
-                              '₱${item.subtotal.toStringAsFixed(0)}',
+                              "₱${item.subtotal.toStringAsFixed(0)}",
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -119,33 +135,25 @@ class CartPanel extends ConsumerWidget {
 
           const Divider(),
 
-          Consumer(
-            builder: (context, ref, child) {
-              final controller =
-              ref.read(cartProvider.notifier);
-
-              return Row(
-                children: [
-                  const Text(
-                    'Total',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  const Spacer(),
-
-                  Text(
-                    '₱${controller.total.toStringAsFixed(0)}',
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              );
-            },
+          // TOTAL SECTION
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Total",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                "₱${cartController.total.toStringAsFixed(0)}",
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
           ),
         ],
       ),

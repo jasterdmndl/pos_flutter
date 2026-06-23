@@ -4,6 +4,8 @@ import 'addon_dialog.dart';
 import '../cart/cart_panel.dart';
 import '../cart/cart_provider.dart';
 import 'product_provider.dart';
+import '../cart/cart_addon_model.dart';
+import 'addon_provider.dart';
 
 class ProductPage extends ConsumerWidget {
   const ProductPage({super.key});
@@ -43,7 +45,32 @@ class ProductPage extends ConsumerWidget {
                         builder: (_) => const AddonDialog(),
                       );
 
-                      print(selectedAddons);
+                      if (selectedAddons == null) {
+                        return;
+                      }
+
+                      final addons = ref
+                          .read(addonProvider)
+                          .where(
+                            (addon) =>
+                            selectedAddons.containsKey(addon.id),
+                      )
+                          .map(
+                            (addon) => CartAddon(
+                          name: addon.name,
+                          price: addon.price,
+                          quantity:
+                          selectedAddons[addon.id] ?? 0,
+                        ),
+                      )
+                          .toList();
+
+                      ref
+                          .read(cartProvider.notifier)
+                          .addProduct(
+                        product,
+                        addons,
+                      );
                     },
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
