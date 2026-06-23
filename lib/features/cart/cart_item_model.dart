@@ -12,6 +12,18 @@ class CartItem {
     this.addons = const [],
   });
 
+  CartItem copyWith({
+    Product? product,
+    int? quantity,
+    List<CartAddon>? addons,
+  }) {
+    return CartItem(
+      product: product ?? this.product,
+      quantity: quantity ?? this.quantity,
+      addons: addons ?? this.addons,
+    );
+  }
+
   double get addonTotal {
     return addons.fold(
       0,

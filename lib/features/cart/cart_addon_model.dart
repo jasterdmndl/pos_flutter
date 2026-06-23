@@ -9,7 +9,5 @@ class CartAddon {
     required this.quantity,
   });
 
-  double get subtotal {
-    return price * quantity;
-  }
+  double get subtotal => price * quantity;
 }

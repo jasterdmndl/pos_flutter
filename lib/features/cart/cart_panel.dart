@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'cart_provider.dart';
 import '../checkout/checkout_dialog.dart';
+import 'addon_edit_dialog.dart';
 
 class CartPanel extends ConsumerWidget {
   const CartPanel({super.key});
@@ -23,7 +24,7 @@ class CartPanel extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // TITLE
+          // HEADER
           const Text(
             "Cart",
             style: TextStyle(
@@ -53,7 +54,7 @@ class CartPanel extends ConsumerWidget {
                       crossAxisAlignment:
                       CrossAxisAlignment.start,
                       children: [
-                        // PRODUCT NAME + DELETE
+                        // PRODUCT NAME + ACTIONS
                         Row(
                           children: [
                             Expanded(
@@ -65,17 +66,43 @@ class CartPanel extends ConsumerWidget {
                                 ),
                               ),
                             ),
+
+                            // EDIT ADDONS BUTTON
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () async {
+                                final updatedAddons =
+                                await showDialog(
+                                  context: context,
+                                  builder: (_) =>
+                                      AddonEditDialog(
+                                        currentAddons:
+                                        item.addons,
+                                      ),
+                                );
+
+                                if (updatedAddons == null) return;
+
+                                cartController
+                                    .updateItemAddons(
+                                  item,
+                                  updatedAddons,
+                                );
+                              },
+                            ),
+
+                            // DELETE BUTTON
                             IconButton(
                               icon: const Icon(Icons.delete),
                               onPressed: () {
                                 cartController
                                     .removeItem(item);
                               },
-                            )
+                            ),
                           ],
                         ),
 
-                        // ADD-ONS
+                        // ADD-ONS LIST
                         if (item.addons.isNotEmpty)
                           ...item.addons.map(
                                 (addon) => Padding(
@@ -86,6 +113,7 @@ class CartPanel extends ConsumerWidget {
                                 "• ${addon.name} x${addon.quantity}",
                                 style: const TextStyle(
                                   fontSize: 12,
+                                  color: Colors.black87,
                                 ),
                               ),
                             ),
@@ -97,19 +125,23 @@ class CartPanel extends ConsumerWidget {
                         Row(
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.remove),
+                              icon:
+                              const Icon(Icons.remove),
                               onPressed: () {
                                 cartController
                                     .decreaseItem(item);
                               },
                             ),
+
                             Text(
                               "${item.quantity}",
                               style: const TextStyle(
+                                fontSize: 16,
                                 fontWeight:
                                 FontWeight.bold,
                               ),
                             ),
+
                             IconButton(
                               icon: const Icon(Icons.add),
                               onPressed: () {
@@ -163,7 +195,7 @@ class CartPanel extends ConsumerWidget {
 
           const SizedBox(height: 12),
 
-          // CHECKOUT BUTTON → OPENS DIALOG
+          // CHECKOUT BUTTON (DIALOG)
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
