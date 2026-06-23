@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../checkout/checkout_page.dart';
+
 import 'cart_provider.dart';
+import '../checkout/checkout_dialog.dart';
 
 class CartPanel extends ConsumerWidget {
   const CartPanel({super.key});
@@ -16,14 +17,13 @@ class CartPanel extends ConsumerWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         border: Border(
-          left: BorderSide(
-            color: Colors.grey.shade300,
-          ),
+          left: BorderSide(color: Colors.grey.shade300),
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // TITLE
           const Text(
             "Cart",
             style: TextStyle(
@@ -34,6 +34,7 @@ class CartPanel extends ConsumerWidget {
 
           const SizedBox(height: 12),
 
+          // CART ITEMS
           Expanded(
             child: cartItems.isEmpty
                 ? const Center(
@@ -59,30 +60,32 @@ class CartPanel extends ConsumerWidget {
                               child: Text(
                                 item.product.name,
                                 style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight:
+                                  FontWeight.bold,
                                 ),
                               ),
                             ),
                             IconButton(
                               icon: const Icon(Icons.delete),
                               onPressed: () {
-                                cartController.removeItem(item);
+                                cartController
+                                    .removeItem(item);
                               },
                             )
                           ],
                         ),
 
-                        // ADD-ONS DISPLAY
+                        // ADD-ONS
                         if (item.addons.isNotEmpty)
                           ...item.addons.map(
                                 (addon) => Padding(
                               padding:
-                              const EdgeInsets.only(left: 8),
+                              const EdgeInsets.only(
+                                  left: 8),
                               child: Text(
                                 "• ${addon.name} x${addon.quantity}",
                                 style: const TextStyle(
                                   fontSize: 12,
-                                  color: Colors.black87,
                                 ),
                               ),
                             ),
@@ -90,28 +93,28 @@ class CartPanel extends ConsumerWidget {
 
                         const SizedBox(height: 8),
 
-                        // QUANTITY + PRICE ROW
+                        // QUANTITY + PRICE
                         Row(
                           children: [
                             IconButton(
                               icon: const Icon(Icons.remove),
                               onPressed: () {
-                                cartController.decreaseItem(item);
+                                cartController
+                                    .decreaseItem(item);
                               },
                             ),
-
                             Text(
                               "${item.quantity}",
                               style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                                fontWeight:
+                                FontWeight.bold,
                               ),
                             ),
-
                             IconButton(
                               icon: const Icon(Icons.add),
                               onPressed: () {
-                                cartController.increaseItem(item);
+                                cartController
+                                    .increaseItem(item);
                               },
                             ),
 
@@ -120,7 +123,8 @@ class CartPanel extends ConsumerWidget {
                             Text(
                               "₱${item.subtotal.toStringAsFixed(0)}",
                               style: const TextStyle(
-                                fontWeight: FontWeight.bold,
+                                fontWeight:
+                                FontWeight.bold,
                               ),
                             ),
                           ],
@@ -135,9 +139,10 @@ class CartPanel extends ConsumerWidget {
 
           const Divider(),
 
-          // TOTAL SECTION
+          // TOTAL
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment:
+            MainAxisAlignment.spaceBetween,
             children: [
               const Text(
                 "Total",
@@ -156,24 +161,24 @@ class CartPanel extends ConsumerWidget {
             ],
           ),
 
-          // Checkout
           const SizedBox(height: 12),
 
+          // CHECKOUT BUTTON → OPENS DIALOG
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const CheckoutPage(),
-                  ),
+              onPressed: cartItems.isEmpty
+                  ? null
+                  : () {
+                showDialog(
+                  context: context,
+                  builder: (_) =>
+                  const CheckoutDialog(),
                 );
               },
               child: const Text("Checkout"),
             ),
           ),
-
         ],
       ),
     );

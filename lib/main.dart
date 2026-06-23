@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'features/products/product_page.dart';
-
+import 'features/pos/pos_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
@@ -24,7 +24,7 @@ class PosFlutterApp extends StatelessWidget {
           seedColor: Colors.brown,
         ),
       ),
-      home: const ProductPage(),
+      home: const PosScreen(),
     );
   }
 }
