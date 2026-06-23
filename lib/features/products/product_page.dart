@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'addon_dialog.dart';
 import '../cart/cart_panel.dart';
 import '../cart/cart_provider.dart';
 import 'product_provider.dart';
@@ -36,10 +36,14 @@ class ProductPage extends ConsumerWidget {
                 return Card(
                   elevation: 2,
                   child: InkWell(
-                    onTap: () {
-                      ref
-                          .read(cartProvider.notifier)
-                          .addProduct(product);
+                    onTap: () async {
+                      final selectedAddons =
+                      await showDialog<Map<int, int>>(
+                        context: context,
+                        builder: (_) => const AddonDialog(),
+                      );
+
+                      print(selectedAddons);
                     },
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
