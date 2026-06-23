@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../checkout/checkout_model.dart';
 import '../checkout/checkout_controller.dart';
+import '../discounts/discount_model.dart';
 
 class CheckoutPage extends ConsumerStatefulWidget {
   const CheckoutPage({super.key});
@@ -13,7 +14,7 @@ class CheckoutPage extends ConsumerStatefulWidget {
 class _CheckoutPageState extends ConsumerState<CheckoutPage> {
   PaymentMethod selectedMethod = PaymentMethod.cash;
 
-  double discountRate = 0;
+  DiscountType selectedDiscount = DiscountType.none;
 
   @override
   Widget build(BuildContext context) {
@@ -62,25 +63,17 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
               style: TextStyle(fontSize: 18),
             ),
 
-            DropdownButton<double>(
-              value: discountRate,
-              items: const [
-                DropdownMenuItem(
-                  value: 0,
-                  child: Text("No Discount"),
-                ),
-                DropdownMenuItem(
-                  value: 0.20,
-                  child: Text("PWD (20%)"),
-                ),
-                DropdownMenuItem(
-                  value: 0.20,
-                  child: Text("Senior (20%)"),
-                ),
-              ],
+            DropdownButton<DiscountType>(
+              value: selectedDiscount,
+              items: DiscountType.values.map((type) {
+                return DropdownMenuItem(
+                  value: type,
+                  child: Text(type.label),
+                );
+              }).toList(),
               onChanged: (value) {
                 setState(() {
-                  discountRate = value!;
+                  selectedDiscount = value!;
                 });
               },
             ),
@@ -95,7 +88,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                       .read(checkoutProvider.notifier)
                       .checkout(
                     paymentMethod: selectedMethod,
-                    discountRate: discountRate,
+                    discountType: selectedDiscount,
                   );
 
                   ScaffoldMessenger.of(context).showSnackBar(

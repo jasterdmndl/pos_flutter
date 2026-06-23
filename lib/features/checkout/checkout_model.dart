@@ -1,4 +1,5 @@
 import '../cart/cart_item_model.dart';
+import '../discounts/discount_model.dart';
 
 enum PaymentMethod {
   cash,
@@ -14,6 +15,8 @@ class Order {
   final double total;
 
   final PaymentMethod paymentMethod;
+  final DiscountType discountType;
+
   final DateTime createdAt;
 
   const Order({
@@ -23,6 +26,7 @@ class Order {
     required this.discountAmount,
     required this.total,
     required this.paymentMethod,
+    required this.discountType,
     required this.createdAt,
   });
 }
