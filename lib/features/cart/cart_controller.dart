@@ -10,14 +10,32 @@ class CartController extends StateNotifier<List<CartItem>> {
       Product product,
       List<CartAddon> addons,
       ) {
-    state = [
-      ...state,
-      CartItem(
-        product: product,
-        quantity: 1,
-        addons: addons,
-      ),
-    ];
+    final newItem = CartItem(
+      product: product,
+      quantity: 1,
+      addons: addons,
+    );
+
+    final index = state.indexWhere(
+          (item) => item.isSameAs(newItem),
+    );
+
+    if (index != -1) {
+      final updated = [...state];
+
+      final existing = updated[index];
+
+      updated[index] = CartItem(
+        product: existing.product,
+        quantity: existing.quantity + 1,
+        addons: existing.addons,
+      );
+
+      state = updated;
+      return;
+    }
+
+    state = [...state, newItem];
   }
 
   void increaseQuantity(int productId) {
