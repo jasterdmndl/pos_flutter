@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'order_details_screen.dart';
 import '../../core/database/collections/order_entity.dart';
 import 'sales_provider.dart';
 
@@ -87,6 +87,16 @@ class SalesHistoryScreen extends ConsumerWidget {
                             FontWeight.bold,
                           ),
                         ),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => OrderDetailsScreen(
+                                order: order,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     );
                   },
