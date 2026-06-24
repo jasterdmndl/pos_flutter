@@ -1,0 +1,873 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'order_entity.dart';
+
+// **************************************************************************
+// IsarCollectionGenerator
+// **************************************************************************
+
+// coverage:ignore-file
+// ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
+
+extension GetOrderEntityCollection on Isar {
+  IsarCollection<OrderEntity> get orderEntitys => this.collection();
+}
+
+const OrderEntitySchema = CollectionSchema(
+  name: r'OrderEntity',
+  id: 4301709931984059335,
+  properties: {
+    r'createdAt': PropertySchema(
+      id: 0,
+      name: r'createdAt',
+      type: IsarType.dateTime,
+    ),
+    r'discountAmount': PropertySchema(
+      id: 1,
+      name: r'discountAmount',
+      type: IsarType.double,
+    ),
+    r'paymentMethod': PropertySchema(
+      id: 2,
+      name: r'paymentMethod',
+      type: IsarType.string,
+    ),
+    r'subtotal': PropertySchema(
+      id: 3,
+      name: r'subtotal',
+      type: IsarType.double,
+    ),
+    r'total': PropertySchema(
+      id: 4,
+      name: r'total',
+      type: IsarType.double,
+    )
+  },
+  estimateSize: _orderEntityEstimateSize,
+  serialize: _orderEntitySerialize,
+  deserialize: _orderEntityDeserialize,
+  deserializeProp: _orderEntityDeserializeProp,
+  idName: r'id',
+  indexes: {},
+  links: {},
+  embeddedSchemas: {},
+  getId: _orderEntityGetId,
+  getLinks: _orderEntityGetLinks,
+  attach: _orderEntityAttach,
+  version: '3.1.0+1',
+);
+
+int _orderEntityEstimateSize(
+  OrderEntity object,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  var bytesCount = offsets.last;
+  bytesCount += 3 + object.paymentMethod.length * 3;
+  return bytesCount;
+}
+
+void _orderEntitySerialize(
+  OrderEntity object,
+  IsarWriter writer,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  writer.writeDateTime(offsets[0], object.createdAt);
+  writer.writeDouble(offsets[1], object.discountAmount);
+  writer.writeString(offsets[2], object.paymentMethod);
+  writer.writeDouble(offsets[3], object.subtotal);
+  writer.writeDouble(offsets[4], object.total);
+}
+
+OrderEntity _orderEntityDeserialize(
+  Id id,
+  IsarReader reader,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  final object = OrderEntity();
+  object.createdAt = reader.readDateTime(offsets[0]);
+  object.discountAmount = reader.readDouble(offsets[1]);
+  object.id = id;
+  object.paymentMethod = reader.readString(offsets[2]);
+  object.subtotal = reader.readDouble(offsets[3]);
+  object.total = reader.readDouble(offsets[4]);
+  return object;
+}
+
+P _orderEntityDeserializeProp<P>(
+  IsarReader reader,
+  int propertyId,
+  int offset,
+  Map<Type, List<int>> allOffsets,
+) {
+  switch (propertyId) {
+    case 0:
+      return (reader.readDateTime(offset)) as P;
+    case 1:
+      return (reader.readDouble(offset)) as P;
+    case 2:
+      return (reader.readString(offset)) as P;
+    case 3:
+      return (reader.readDouble(offset)) as P;
+    case 4:
+      return (reader.readDouble(offset)) as P;
+    default:
+      throw IsarError('Unknown property with id $propertyId');
+  }
+}
+
+Id _orderEntityGetId(OrderEntity object) {
+  return object.id;
+}
+
+List<IsarLinkBase<dynamic>> _orderEntityGetLinks(OrderEntity object) {
+  return [];
+}
+
+void _orderEntityAttach(
+    IsarCollection<dynamic> col, Id id, OrderEntity object) {
+  object.id = id;
+}
+
+extension OrderEntityQueryWhereSort
+    on QueryBuilder<OrderEntity, OrderEntity, QWhere> {
+  QueryBuilder<OrderEntity, OrderEntity, QAfterWhere> anyId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(const IdWhereClause.any());
+    });
+  }
+}
+
+extension OrderEntityQueryWhere
+    on QueryBuilder<OrderEntity, OrderEntity, QWhereClause> {
+  QueryBuilder<OrderEntity, OrderEntity, QAfterWhereClause> idEqualTo(Id id) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IdWhereClause.between(
+        lower: id,
+        upper: id,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterWhereClause> idNotEqualTo(
+      Id id) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(
+              IdWhereClause.lessThan(upper: id, includeUpper: false),
+            )
+            .addWhereClause(
+              IdWhereClause.greaterThan(lower: id, includeLower: false),
+            );
+      } else {
+        return query
+            .addWhereClause(
+              IdWhereClause.greaterThan(lower: id, includeLower: false),
+            )
+            .addWhereClause(
+              IdWhereClause.lessThan(upper: id, includeUpper: false),
+            );
+      }
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterWhereClause> idGreaterThan(Id id,
+      {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IdWhereClause.greaterThan(lower: id, includeLower: include),
+      );
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterWhereClause> idLessThan(Id id,
+      {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IdWhereClause.lessThan(upper: id, includeUpper: include),
+      );
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterWhereClause> idBetween(
+    Id lowerId,
+    Id upperId, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IdWhereClause.between(
+        lower: lowerId,
+        includeLower: includeLower,
+        upper: upperId,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+}
+
+extension OrderEntityQueryFilter
+    on QueryBuilder<OrderEntity, OrderEntity, QFilterCondition> {
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      createdAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'createdAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      createdAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'createdAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      createdAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'createdAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      createdAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'createdAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      discountAmountEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'discountAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      discountAmountGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'discountAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      discountAmountLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'discountAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      discountAmountBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'discountAmount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition> idEqualTo(
+      Id value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'id',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition> idGreaterThan(
+    Id value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'id',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition> idLessThan(
+    Id value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'id',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition> idBetween(
+    Id lower,
+    Id upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'id',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      paymentMethodEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'paymentMethod',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      paymentMethodGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'paymentMethod',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      paymentMethodLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'paymentMethod',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      paymentMethodBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'paymentMethod',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      paymentMethodStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'paymentMethod',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      paymentMethodEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'paymentMethod',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      paymentMethodContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'paymentMethod',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      paymentMethodMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'paymentMethod',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      paymentMethodIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'paymentMethod',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      paymentMethodIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'paymentMethod',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition> subtotalEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'subtotal',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      subtotalGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'subtotal',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      subtotalLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'subtotal',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition> subtotalBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'subtotal',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition> totalEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'total',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      totalGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'total',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition> totalLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'total',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition> totalBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'total',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+}
+
+extension OrderEntityQueryObject
+    on QueryBuilder<OrderEntity, OrderEntity, QFilterCondition> {}
+
+extension OrderEntityQueryLinks
+    on QueryBuilder<OrderEntity, OrderEntity, QFilterCondition> {}
+
+extension OrderEntityQuerySortBy
+    on QueryBuilder<OrderEntity, OrderEntity, QSortBy> {
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortByCreatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'createdAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortByCreatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'createdAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortByDiscountAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discountAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByDiscountAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discountAmount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortByPaymentMethod() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentMethod', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByPaymentMethodDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentMethod', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortBySubtotal() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'subtotal', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortBySubtotalDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'subtotal', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortByTotal() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'total', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortByTotalDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'total', Sort.desc);
+    });
+  }
+}
+
+extension OrderEntityQuerySortThenBy
+    on QueryBuilder<OrderEntity, OrderEntity, QSortThenBy> {
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenByCreatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'createdAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenByCreatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'createdAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenByDiscountAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discountAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByDiscountAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discountAmount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenById() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'id', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenByIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenByPaymentMethod() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentMethod', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByPaymentMethodDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentMethod', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenBySubtotal() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'subtotal', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenBySubtotalDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'subtotal', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenByTotal() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'total', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenByTotalDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'total', Sort.desc);
+    });
+  }
+}
+
+extension OrderEntityQueryWhereDistinct
+    on QueryBuilder<OrderEntity, OrderEntity, QDistinct> {
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct> distinctByCreatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'createdAt');
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct> distinctByDiscountAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'discountAmount');
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct> distinctByPaymentMethod(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'paymentMethod',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct> distinctBySubtotal() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'subtotal');
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct> distinctByTotal() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'total');
+    });
+  }
+}
+
+extension OrderEntityQueryProperty
+    on QueryBuilder<OrderEntity, OrderEntity, QQueryProperty> {
+  QueryBuilder<OrderEntity, int, QQueryOperations> idProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<OrderEntity, DateTime, QQueryOperations> createdAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'createdAt');
+    });
+  }
+
+  QueryBuilder<OrderEntity, double, QQueryOperations> discountAmountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'discountAmount');
+    });
+  }
+
+  QueryBuilder<OrderEntity, String, QQueryOperations> paymentMethodProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'paymentMethod');
+    });
+  }
+
+  QueryBuilder<OrderEntity, double, QQueryOperations> subtotalProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'subtotal');
+    });
+  }
+
+  QueryBuilder<OrderEntity, double, QQueryOperations> totalProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'total');
+    });
+  }
+}

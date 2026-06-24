@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'features/products/product_page.dart';
 import 'features/pos/pos_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'core/database/isar_service.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await IsarService.init();
+
   runApp(
     const ProviderScope(
       child: PosFlutterApp(),
