@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../checkout/checkout_model.dart';
 
+import 'pdf_receipt_service.dart';
 class ReceiptDialog extends StatelessWidget {
   final Order order;
 
@@ -107,10 +108,31 @@ class ReceiptDialog extends StatelessWidget {
       ),
       actions: [
         TextButton(
+          onPressed: () async {
+            final file =
+            await PdfReceiptService()
+                .generateReceipt(order);
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Receipt saved:\n${file.path}',
+                ),
+              ),
+            );
+          },
+          child: const Text(
+            'Save PDF',
+          ),
+        ),
+
+        TextButton(
           onPressed: () {
             Navigator.pop(context);
           },
-          child: const Text('Close'),
+          child: const Text(
+            'Close',
+          ),
         ),
       ],
     );
