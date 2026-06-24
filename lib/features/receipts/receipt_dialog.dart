@@ -108,21 +108,18 @@ class ReceiptDialog extends StatelessWidget {
       ),
       actions: [
         TextButton(
-          onPressed: () async {
-            final file =
-            await PdfReceiptService()
-                .generateReceipt(order);
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
+          onPressed: () {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(
+              const SnackBar(
                 content: Text(
-                  'Receipt saved:\n${file.path}',
+                  'Printing feature coming next',
                 ),
               ),
             );
           },
           child: const Text(
-            'Save PDF',
+            'Print Receipt',
           ),
         ),
 

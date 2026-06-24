@@ -1,14 +1,14 @@
 import 'dart:io';
-import 'package:open_filex/open_filex.dart';
+
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-import '../checkout/checkout_model.dart';
+import 'receipt_data.dart';
 
 class PdfReceiptService {
-  Future<File> generateReceipt(
-      Order order,
+  Future<List<int>> generateReceiptBytes(
+      ReceiptData receipt,
       ) async {
     final pdf = pw.Document();
 
@@ -40,8 +40,9 @@ class PdfReceiptService {
                     pw.SizedBox(height: 5),
 
                     pw.Text(
-                      order.createdAt.toString(),
-                      textAlign: pw.TextAlign.center,
+                      receipt.createdAt.toString(),
+                      textAlign:
+                      pw.TextAlign.center,
                     ),
                   ],
                 ),
@@ -51,7 +52,7 @@ class PdfReceiptService {
 
               pw.Divider(),
 
-              ...order.items.map(
+              ...receipt.items.map(
                     (item) => pw.Column(
                   crossAxisAlignment:
                   pw.CrossAxisAlignment.start,
@@ -63,7 +64,7 @@ class PdfReceiptService {
                       children: [
                         pw.Expanded(
                           child: pw.Text(
-                            '${item.product.name} x${item.quantity}',
+                            '${item.productName} x${item.quantity}',
                           ),
                         ),
 
@@ -76,8 +77,8 @@ class PdfReceiptService {
                     ...item.addons.map(
                           (addon) => pw.Padding(
                         padding:
-                        const pw.EdgeInsets.only(
-                            left: 10),
+                        const pw.EdgeInsets
+                            .only(left: 10),
                         child: pw.Text(
                           '+ ${addon.name} x${addon.quantity}',
                         ),
@@ -98,7 +99,7 @@ class PdfReceiptService {
                 children: [
                   pw.Text('Subtotal'),
                   pw.Text(
-                    'PHP ${order.subtotal.toStringAsFixed(2)}',
+                    'PHP ${receipt.subtotal.toStringAsFixed(2)}',
                   ),
                 ],
               ),
@@ -110,7 +111,7 @@ class PdfReceiptService {
                 children: [
                   pw.Text('Discount'),
                   pw.Text(
-                    'PHP ${order.discountAmount.toStringAsFixed(2)}',
+                    'PHP ${receipt.discountAmount.toStringAsFixed(2)}',
                   ),
                 ],
               ),
@@ -131,7 +132,7 @@ class PdfReceiptService {
                   ),
 
                   pw.Text(
-                    'PHP ${order.total.toStringAsFixed(2)}',
+                    'PHP ${receipt.total.toStringAsFixed(2)}',
                     style: pw.TextStyle(
                       fontWeight:
                       pw.FontWeight.bold,
@@ -143,7 +144,11 @@ class PdfReceiptService {
               pw.SizedBox(height: 10),
 
               pw.Text(
-                'Payment: ${order.paymentMethod.name.toUpperCase()}',
+                'Payment: ${receipt.paymentMethod.toUpperCase()}',
+              ),
+
+              pw.Text(
+                'Order #: ${receipt.orderId}',
               ),
 
               pw.SizedBox(height: 15),
@@ -169,18 +174,25 @@ class PdfReceiptService {
       ),
     );
 
+    return pdf.save();
+  }
+
+  Future<File> saveReceiptPdf(
+      ReceiptData receipt,
+      ) async {
+    final bytes =
+    await generateReceiptBytes(
+      receipt,
+    );
+
     final directory =
     await getApplicationDocumentsDirectory();
 
     final file = File(
-      '${directory.path}/receipt_${order.id}.pdf',
+      '${directory.path}/receipt_${receipt.orderId}.pdf',
     );
 
-    await file.writeAsBytes(
-      await pdf.save(),
-    );
-
-    await OpenFilex.open(file.path);
+    await file.writeAsBytes(bytes);
 
     return file;
   }

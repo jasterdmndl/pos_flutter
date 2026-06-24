@@ -1,0 +1,47 @@
+class ReceiptData {
+  final int orderId;
+  final double subtotal;
+  final double discountAmount;
+  final double total;
+  final String paymentMethod;
+  final DateTime createdAt;
+
+  final List<ReceiptItem> items;
+
+  const ReceiptData({
+    required this.orderId,
+    required this.subtotal,
+    required this.discountAmount,
+    required this.total,
+    required this.paymentMethod,
+    required this.createdAt,
+    required this.items,
+  });
+}
+
+class ReceiptItem {
+  final String productName;
+  final int quantity;
+  final double subtotal;
+
+  final List<ReceiptAddon> addons;
+
+  const ReceiptItem({
+    required this.productName,
+    required this.quantity,
+    required this.subtotal,
+    required this.addons,
+  });
+}
+
+class ReceiptAddon {
+  final String name;
+  final int quantity;
+  final double subtotal;
+
+  const ReceiptAddon({
+    required this.name,
+    required this.quantity,
+    required this.subtotal,
+  });
+}

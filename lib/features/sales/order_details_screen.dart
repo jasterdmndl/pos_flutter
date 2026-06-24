@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-
 import '../../core/database/collections/order_entity.dart';
 import '../../core/database/collections/order_item_entity.dart';
 import '../../core/database/collections/order_addon_entity.dart';
+import '../receipts/pdf_receipt_service.dart';
+import '../receipts/receipt_repository.dart';
+import '../receipts/receipt_data.dart';
 
 import 'sales_repository.dart';
 
@@ -43,6 +45,94 @@ class _OrderDetailsScreenState
         title: Text(
           'Order #${order.id}',
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.print),
+            tooltip: 'Print Receipt',
+            onPressed: () async {
+              try {
+                final receipt =
+                await ReceiptRepository()
+                    .getReceipt(order.id);
+
+                if (receipt == null) {
+                  return;
+                }
+
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Print feature coming next',
+                    ),
+                  ),
+                );
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Error: $e',
+                      ),
+                    ),
+                  );
+                }
+              }
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.picture_as_pdf),
+            tooltip: 'Save PDF',
+            onPressed: () async {
+              try {
+                final receipt =
+                await ReceiptRepository()
+                    .getReceipt(order.id);
+
+                if (receipt == null) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Receipt not found',
+                        ),
+                      ),
+                    );
+                  }
+                  return;
+                }
+
+                final file =
+                await PdfReceiptService()
+                    .saveReceiptPdf(receipt);
+
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'PDF saved:\n${file.path}',
+                      ),
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Error: $e',
+                      ),
+                    ),
+                  );
+                }
+              }
+            },
+          ),
+        ],
       ),
       body: FutureBuilder<List<OrderItemEntity>>(
         future: itemsFuture,
