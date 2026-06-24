@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import '../receipts/receipt_dialog.dart';
 import '../cart/cart_provider.dart';
 import '../discounts/discount_model.dart';
 import 'checkout_controller.dart';
@@ -167,17 +167,23 @@ class _CheckoutDialogState
                       discountType: selectedDiscount,
                     );
 
-                    Navigator.pop(context);
+                    final order = ref.read(checkoutProvider);
 
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(
-                      const SnackBar(
-                        content: Text("Order Completed"),
-                      ),
-                    );
+                    if (order != null && context.mounted) {
+                      await showDialog(
+                        context: context,
+                        builder: (_) => ReceiptDialog(
+                          order: order,
+                        ),
+                      );
+                    }
+
+                    if (context.mounted) {
+                      Navigator.pop(context);
+                    }
                   },
-                  child: const Text("Confirm Payment"),
-                ),
+                  child: const Text('Confirm Checkout'),
+                )
               ],
             ),
           ],
