@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -14,24 +14,42 @@ class PdfReceiptService {
 
     pdf.addPage(
       pw.Page(
-        pageFormat: PdfPageFormat.a4,
+        pageFormat: PdfPageFormat.roll80,
+        margin: const pw.EdgeInsets.all(10),
         build: (context) {
           return pw.Column(
             crossAxisAlignment:
             pw.CrossAxisAlignment.start,
             children: [
               pw.Center(
-                child: pw.Text(
-                  'CAFE POS',
-                  style: pw.TextStyle(
-                    fontSize: 24,
-                    fontWeight:
-                    pw.FontWeight.bold,
-                  ),
+                child: pw.Column(
+                  children: [
+                    pw.Text(
+                      'CAFE POS',
+                      style: pw.TextStyle(
+                        fontSize: 18,
+                        fontWeight:
+                        pw.FontWeight.bold,
+                      ),
+                    ),
+
+                    pw.Text(
+                      'Official Receipt',
+                    ),
+
+                    pw.SizedBox(height: 5),
+
+                    pw.Text(
+                      order.createdAt.toString(),
+                      textAlign: pw.TextAlign.center,
+                    ),
+                  ],
                 ),
               ),
 
-              pw.SizedBox(height: 20),
+              pw.SizedBox(height: 10),
+
+              pw.Divider(),
 
               ...order.items.map(
                     (item) => pw.Column(
@@ -43,11 +61,14 @@ class PdfReceiptService {
                       pw.MainAxisAlignment
                           .spaceBetween,
                       children: [
-                        pw.Text(
-                          '${item.product.name} x${item.quantity}',
+                        pw.Expanded(
+                          child: pw.Text(
+                            '${item.product.name} x${item.quantity}',
+                          ),
                         ),
+
                         pw.Text(
-                          '₱${item.subtotal.toStringAsFixed(2)}',
+                          'PHP ${item.subtotal.toStringAsFixed(2)}',
                         ),
                       ],
                     ),
@@ -55,47 +76,92 @@ class PdfReceiptService {
                     ...item.addons.map(
                           (addon) => pw.Padding(
                         padding:
-                        const pw.EdgeInsets
-                            .only(left: 20),
+                        const pw.EdgeInsets.only(
+                            left: 10),
                         child: pw.Text(
                           '+ ${addon.name} x${addon.quantity}',
                         ),
                       ),
                     ),
 
-                    pw.SizedBox(height: 8),
+                    pw.SizedBox(height: 5),
                   ],
                 ),
               ),
 
               pw.Divider(),
 
-              pw.Text(
-                'Subtotal: PHP ${order.subtotal.toStringAsFixed(2)}',
+              pw.Row(
+                mainAxisAlignment:
+                pw.MainAxisAlignment
+                    .spaceBetween,
+                children: [
+                  pw.Text('Subtotal'),
+                  pw.Text(
+                    'PHP ${order.subtotal.toStringAsFixed(2)}',
+                  ),
+                ],
               ),
 
-              pw.Text(
-                'Discount: PHP ${order.discountAmount.toStringAsFixed(2)}',
+              pw.Row(
+                mainAxisAlignment:
+                pw.MainAxisAlignment
+                    .spaceBetween,
+                children: [
+                  pw.Text('Discount'),
+                  pw.Text(
+                    'PHP ${order.discountAmount.toStringAsFixed(2)}',
+                  ),
+                ],
               ),
 
-              pw.SizedBox(height: 8),
+              pw.Divider(),
 
-              pw.Text(
-                'Total: PHP ${order.total.toStringAsFixed(2)}',
-                style: pw.TextStyle(
-                  fontWeight:
-                  pw.FontWeight.bold,
-                ),
+              pw.Row(
+                mainAxisAlignment:
+                pw.MainAxisAlignment
+                    .spaceBetween,
+                children: [
+                  pw.Text(
+                    'TOTAL',
+                    style: pw.TextStyle(
+                      fontWeight:
+                      pw.FontWeight.bold,
+                    ),
+                  ),
+
+                  pw.Text(
+                    'PHP ${order.total.toStringAsFixed(2)}',
+                    style: pw.TextStyle(
+                      fontWeight:
+                      pw.FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
 
-              pw.SizedBox(height: 20),
+              pw.SizedBox(height: 10),
 
               pw.Text(
                 'Payment: ${order.paymentMethod.name.toUpperCase()}',
               ),
 
-              pw.Text(
-                order.createdAt.toString(),
+              pw.SizedBox(height: 15),
+
+              pw.Center(
+                child: pw.Text(
+                  'Thank You!',
+                  style: pw.TextStyle(
+                    fontWeight:
+                    pw.FontWeight.bold,
+                  ),
+                ),
+              ),
+
+              pw.Center(
+                child: pw.Text(
+                  'Please Come Again',
+                ),
               ),
             ],
           );
@@ -113,6 +179,8 @@ class PdfReceiptService {
     await file.writeAsBytes(
       await pdf.save(),
     );
+
+    await OpenFilex.open(file.path);
 
     return file;
   }
