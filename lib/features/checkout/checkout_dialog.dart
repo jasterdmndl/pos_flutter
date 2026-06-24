@@ -159,8 +159,8 @@ class _CheckoutDialogState
                 const SizedBox(width: 10),
 
                 ElevatedButton(
-                  onPressed: () {
-                    ref
+                  onPressed: () async {
+                    await ref
                         .read(checkoutProvider.notifier)
                         .checkout(
                       paymentMethod: selectedMethod,

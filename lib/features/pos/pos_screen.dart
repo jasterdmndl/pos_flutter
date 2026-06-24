@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import '../sales/sales_history_screen.dart';
 import '../products/product_page.dart';
 import '../cart/cart_panel.dart';
 
@@ -22,6 +22,24 @@ class PosScreen extends StatelessWidget {
 
           // RIGHT SIDE - CART
           const CartPanel(),
+        ],
+      ),
+
+      appBar: AppBar(
+        title: const Text('Cafe POS'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.history),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) =>
+                  const SalesHistoryScreen(),
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
