@@ -1,9 +1,9 @@
 import 'dart:io';
-
+import 'package:printing/printing.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-
+import 'dart:typed_data';
 import 'receipt_data.dart';
 
 class PdfReceiptService {
@@ -195,5 +195,16 @@ class PdfReceiptService {
     await file.writeAsBytes(bytes);
 
     return file;
+  }
+  Future<void> printReceipt(
+      ReceiptData receipt,
+      ) async {
+    final bytes =
+    await generateReceiptBytes(receipt);
+
+    await Printing.layoutPdf(
+      onLayout: (format) async =>
+          Uint8List.fromList(bytes),
+    );
   }
 }

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../checkout/checkout_model.dart';
-
+import 'receipt_data.dart';
 import 'pdf_receipt_service.dart';
+
 class ReceiptDialog extends StatelessWidget {
   final Order order;
 
@@ -108,15 +109,53 @@ class ReceiptDialog extends StatelessWidget {
       ),
       actions: [
         TextButton(
-          onPressed: () {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(
-              const SnackBar(
-                content: Text(
-                  'Printing feature coming next',
-                ),
-              ),
-            );
+          onPressed: () async {
+            try {
+              final receipt = ReceiptData(
+                orderId: int.tryParse(order.id) ?? 0,
+                subtotal: order.subtotal,
+                discountAmount: order.discountAmount,
+                total: order.total,
+                paymentMethod:
+                order.paymentMethod.name,
+                createdAt: order.createdAt,
+                items: order.items.map((item) {
+                  return ReceiptItem(
+                    productName:
+                    item.product.name,
+                    quantity:
+                    item.quantity,
+                    subtotal:
+                    item.subtotal,
+                    addons:
+                    item.addons.map((addon) {
+                      return ReceiptAddon(
+                        name: addon.name,
+                        quantity:
+                        addon.quantity,
+                        subtotal:
+                        addon.subtotal,
+                      );
+                    }).toList(),
+                  );
+                }).toList(),
+              );
+
+              await PdfReceiptService()
+                  .printReceipt(receipt);
+
+            } catch (e) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Printing Error: $e',
+                    ),
+                  ),
+                );
+              }
+            }
           },
           child: const Text(
             'Print Receipt',

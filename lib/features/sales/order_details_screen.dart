@@ -6,6 +6,7 @@ import '../receipts/pdf_receipt_service.dart';
 import '../receipts/receipt_repository.dart';
 import '../receipts/receipt_data.dart';
 
+
 import 'sales_repository.dart';
 
 class OrderDetailsScreen extends StatefulWidget {
@@ -59,14 +60,8 @@ class _OrderDetailsScreenState
                   return;
                 }
 
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Print feature coming next',
-                    ),
-                  ),
-                );
+                await PdfReceiptService()
+                    .printReceipt(receipt);
               } catch (e) {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context)
