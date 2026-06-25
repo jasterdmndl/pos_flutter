@@ -13,4 +13,12 @@ class OrderEntity {
   late String paymentMethod;
 
   late DateTime createdAt;
+
+  @ignore
+  String get receiptNumber {
+    final year = createdAt.year;
+
+    return 'OR-$year-${id.toString().padLeft(6, '0')}';
+  }
 }
+

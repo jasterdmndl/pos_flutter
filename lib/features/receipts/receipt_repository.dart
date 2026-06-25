@@ -60,6 +60,7 @@ class ReceiptRepository {
       paymentMethod: order.paymentMethod,
       createdAt: order.createdAt,
       items: items,
+      receiptNumber: 'OR-${order.createdAt.year}-${order.id.toString().padLeft(6, '0')}',
     );
   }
 }

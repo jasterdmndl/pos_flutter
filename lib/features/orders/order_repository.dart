@@ -6,13 +6,16 @@ import '../../core/database/collections/order_addon_entity.dart';
 import '../cart/cart_item_model.dart';
 
 class OrderRepository {
-  Future<void> saveOrder({
+  Future<int> saveOrder({
     required List<CartItem> cartItems,
     required double subtotal,
     required double discountAmount,
     required double total,
     required String paymentMethod,
   }) async {
+
+    late int savedOrderId;
+
     await IsarService.isar.writeTxn(() async {
       // =====================
       // SAVE ORDER
@@ -25,8 +28,7 @@ class OrderRepository {
         ..paymentMethod = paymentMethod
         ..createdAt = DateTime.now();
 
-      final orderId =
-      await IsarService.isar.orderEntitys.put(order);
+      final orderId = await IsarService.isar.orderEntitys.put(order);
 
       // =====================
       // SAVE ITEMS
@@ -39,6 +41,8 @@ class OrderRepository {
           ..basePrice = cartItem.product.price
           ..quantity = cartItem.quantity
           ..subtotal = cartItem.subtotal;
+
+        savedOrderId = await IsarService.isar.orderEntitys.put(order);
 
         final orderItemId =
         await IsarService.isar.orderItemEntitys
@@ -61,5 +65,7 @@ class OrderRepository {
         }
       }
     });
+    return savedOrderId;
   }
+
 }

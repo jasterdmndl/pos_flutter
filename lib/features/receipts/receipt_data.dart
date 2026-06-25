@@ -1,8 +1,12 @@
 class ReceiptData {
   final int orderId;
+
+  final String receiptNumber;
+
   final double subtotal;
   final double discountAmount;
   final double total;
+
   final String paymentMethod;
   final DateTime createdAt;
 
@@ -10,11 +14,16 @@ class ReceiptData {
 
   const ReceiptData({
     required this.orderId,
+
+    required this.receiptNumber,
+
     required this.subtotal,
     required this.discountAmount,
     required this.total,
+
     required this.paymentMethod,
     required this.createdAt,
+
     required this.items,
   });
 }

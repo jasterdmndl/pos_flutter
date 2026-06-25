@@ -148,7 +148,7 @@ class PdfReceiptService {
               ),
 
               pw.Text(
-                'Order #: ${receipt.orderId}',
+                receipt.receiptNumber,
               ),
 
               pw.SizedBox(height: 15),

@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../orders/order_provider.dart';
 import '../cart/cart_provider.dart';
-import '../cart/cart_item_model.dart';
 import '../discounts/discount_model.dart';
 import 'checkout_model.dart';
 import '../sales/sales_provider.dart';
@@ -33,10 +32,20 @@ class CheckoutController extends StateNotifier<Order?> {
 
     final total = subtotal - discountAmount;
 
+    final repository =
+      ref.read(orderRepositoryProvider);
+
+    final savedOrderId =
+    await repository.saveOrder(
+      cartItems: cartItems,
+      subtotal: subtotal,
+      discountAmount: discountAmount,
+      total: total,
+      paymentMethod: paymentMethod.name,
+    );
+
     final order = Order(
-      id: DateTime.now()
-          .millisecondsSinceEpoch
-          .toString(),
+      id: savedOrderId.toString(),
       items: cartItems,
       subtotal: subtotal,
       discountAmount: discountAmount,
@@ -50,16 +59,6 @@ class CheckoutController extends StateNotifier<Order?> {
     // SAVE TO ISAR
     // ==========================
 
-    final repository =
-    ref.read(orderRepositoryProvider);
-
-    await repository.saveOrder(
-      cartItems: cartItems,
-      subtotal: subtotal,
-      discountAmount: discountAmount,
-      total: total,
-      paymentMethod: paymentMethod.name,
-    );
 
     ref.invalidate(salesHistoryProvider);
 

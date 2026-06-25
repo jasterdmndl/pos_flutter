@@ -36,6 +36,18 @@ class ReceiptDialog extends StatelessWidget {
 
               const Divider(),
 
+              Center(
+                child: Text(
+                  'OR-${order.createdAt.year}-${order.id.padLeft(6, '0')}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
               ...order.items.map(
                     (item) => Padding(
                   padding:
@@ -113,28 +125,25 @@ class ReceiptDialog extends StatelessWidget {
             try {
               final receipt = ReceiptData(
                 orderId: int.tryParse(order.id) ?? 0,
+
+                receiptNumber:
+                'OR-${order.createdAt.year}-${order.id.padLeft(6, '0')}',
+
                 subtotal: order.subtotal,
                 discountAmount: order.discountAmount,
                 total: order.total,
-                paymentMethod:
-                order.paymentMethod.name,
+                paymentMethod: order.paymentMethod.name,
                 createdAt: order.createdAt,
                 items: order.items.map((item) {
                   return ReceiptItem(
-                    productName:
-                    item.product.name,
-                    quantity:
-                    item.quantity,
-                    subtotal:
-                    item.subtotal,
-                    addons:
-                    item.addons.map((addon) {
+                    productName: item.product.name,
+                    quantity: item.quantity,
+                    subtotal: item.subtotal,
+                    addons: item.addons.map((addon) {
                       return ReceiptAddon(
                         name: addon.name,
-                        quantity:
-                        addon.quantity,
-                        subtotal:
-                        addon.subtotal,
+                        quantity: addon.quantity,
+                        subtotal: addon.subtotal,
                       );
                     }).toList(),
                   );

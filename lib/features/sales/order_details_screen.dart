@@ -4,7 +4,6 @@ import '../../core/database/collections/order_item_entity.dart';
 import '../../core/database/collections/order_addon_entity.dart';
 import '../receipts/pdf_receipt_service.dart';
 import '../receipts/receipt_repository.dart';
-import '../receipts/receipt_data.dart';
 
 
 import 'sales_repository.dart';
@@ -44,7 +43,7 @@ class _OrderDetailsScreenState
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Order #${order.id}',
+          order.receiptNumber,
         ),
         actions: [
           IconButton(
@@ -162,7 +161,7 @@ class _OrderDetailsScreenState
                     CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Order #${order.id}',
+                        order.receiptNumber,
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,

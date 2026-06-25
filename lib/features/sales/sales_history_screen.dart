@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'order_details_screen.dart';
-import '../../core/database/collections/order_entity.dart';
 import 'sales_provider.dart';
 
 class SalesHistoryScreen extends ConsumerWidget {
@@ -73,7 +72,7 @@ class SalesHistoryScreen extends ConsumerWidget {
                       ),
                       child: ListTile(
                         title: Text(
-                          'Order #${order.id}',
+                          order.receiptNumber,
                         ),
                         subtitle: Text(
                           order.createdAt
