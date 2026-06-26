@@ -46,6 +46,9 @@ dependencies:
   intl: ^0.20.2
   supabase_flutter: ^2.15.0
   flutter_dotenv: ^6.0.1
+  google_fonts: ^8.1.0
+  flutter_animate: ^4.5.2
+  animate_do: ^5.1.0
 
 dev_dependencies:
   flutter_test:

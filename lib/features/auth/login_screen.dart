@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import '../../core/theme/app_theme.dart';
 import 'auth_provider.dart';
 import '../pos/pos_screen.dart';
 
@@ -20,16 +23,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please enter both email and password")),
-      );
+      _showError("Please enter both email and password");
       return;
     }
 
     setState(() => _isLoading = true);
-
     final success = await ref.read(authProvider.notifier).login(email, password);
-
     setState(() => _isLoading = false);
 
     if (success) {
@@ -40,109 +39,160 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         );
       }
     } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Login Unsuccessful."),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (mounted) _showError("Login Unsuccessful. Check credentials.");
     }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: GoogleFonts.spaceGrotesk()),
+        backgroundColor: AppTheme.error,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
-      backgroundColor: Colors.brown[50],
-      body: Center(
-        child: Container(
-          width: 450,
-          padding: const EdgeInsets.all(40),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.brown.withValues(alpha: 0.1),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.coffee, size: 80, color: Colors.brown),
-              const SizedBox(height: 24),
-              const Text(
-                "Mire Sunset",
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.brown,
-                ),
-              ),
-              const Text(
-                "Point of Sale System",
-                style: TextStyle(color: Colors.grey),
-              ),
-              const SizedBox(height: 40),
-              TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: "Email",
-                  hintText: "Email@gmail.com",
-                  prefixIcon: const Icon(Icons.email_outlined),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: "Password",
-                  prefixIcon: const Icon(Icons.lock_outline),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _handleLogin,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.brown,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+      body: Row(
+        children: [
+          // LEFT SIDE - BRANDING (BOUTIQUE SPLIT)
+          Expanded(
+            flex: 6,
+            child: Container(
+              color: AppTheme.emerald,
+              child: Stack(
+                children: [
+                  Positioned(
+                    bottom: 60,
+                    left: 60,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "MIRE\nSUNSET",
+                          style: GoogleFonts.fraunces(
+                            fontSize: 100,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                            height: 0.9,
+                          ),
+                        ).animate().fadeIn(duration: 800.ms).slideX(begin: -0.2),
+                        const SizedBox(height: 20),
+                        Container(
+                          width: 80,
+                          height: 6,
+                          color: Colors.white,
+                        ).animate().scaleX(begin: 0, alignment: Alignment.centerLeft, delay: 500.ms),
+                        const SizedBox(height: 20),
+                        Text(
+                          "POS System",
+                          style: GoogleFonts.spaceGrotesk(
+                            fontSize: 16,
+                            letterSpacing: 4,
+                            color: Colors.white.withOpacity(0.7),
+                          ),
+                        ).animate().fadeIn(delay: 800.ms),
+                      ],
                     ),
                   ),
-                  child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
-                          "Login",
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ],
+              ),
+            ),
+          ),
+          
+          // RIGHT SIDE - LOGIN FORM
+          Expanded(
+            flex: 5,
+            child: Container(
+              color: AppTheme.bone,
+              padding: const EdgeInsets.symmetric(horizontal: 80),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Welcome Back",
+                      style: theme.textTheme.headlineLarge,
+                    ).animate().fadeIn().slideY(begin: 0.2),
+                    const SizedBox(height: 8),
+                    Text(
+                      "Sign in to access your store terminal",
+                      style: theme.textTheme.bodyMedium?.copyWith(color: AppTheme.ink.withOpacity(0.5)),
+                    ).animate().fadeIn(delay: 200.ms),
+                    
+                    const SizedBox(height: 48),
+                    
+                    Text("ACCOUNT EMAIL", style: theme.textTheme.labelLarge),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(
+                        hintText: "email@gmail.com",
+                        prefixIcon: Icon(Icons.alternate_email_rounded, size: 20),
+                      ),
+                    ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1),
+                    
+                    const SizedBox(height: 24),
+                    
+                    Text("PASSWORD", style: theme.textTheme.labelLarge),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: _passwordController,
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.lock_outline_rounded, size: 20),
+                      ),
+                    ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.1),
+                    
+                    const SizedBox(height: 48),
+                    
+                    SizedBox(
+                      width: double.infinity,
+                      height: 60,
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _handleLogin,
+                        child: _isLoading
+                            ? const SizedBox(
+                                height: 24, 
+                                width: 24, 
+                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                              )
+                            : const Text("Sign In"),
+                      ),
+                    ).animate().fadeIn(delay: 800.ms).scaleXY(begin: 0.95),
+                    
+                    const SizedBox(height: 32),
+                    const Divider(),
+                    const SizedBox(height: 32),
+                    
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.verified_user_outlined, size: 16, color: AppTheme.emerald),
+                        const SizedBox(width: 8),
+                        Text(
+                          "SECURED BY SUPABASE CLOUD",
+                          style: GoogleFonts.spaceGrotesk(
+                            fontSize: 10,
+                            letterSpacing: 2,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.emerald,
+                          ),
                         ),
+                      ],
+                    ).animate().fadeIn(delay: 1.seconds),
+                  ],
                 ),
               ),
-              const SizedBox(height: 24),
-              const Divider(),
-              const SizedBox(height: 16),
-              const Text(
-                "Cloud-Connected Authentication",
-                style: TextStyle(color: Colors.grey, fontSize: 12),
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

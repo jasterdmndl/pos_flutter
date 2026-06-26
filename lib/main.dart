@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'core/database/isar_service.dart';
 import 'core/services/supabase_service.dart';
+import 'core/theme/app_theme.dart';
 import 'features/auth/login_screen.dart';
 
 Future<void> main() async {
@@ -27,13 +28,7 @@ class PosFlutterApp extends StatelessWidget {
     return MaterialApp(
       title: 'Mire Sunset POS',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.brown,
-          primary: Colors.brown,
-        ),
-      ),
+      theme: AppTheme.boutiqueTheme,
       home: const LoginScreen(),
     );
   }

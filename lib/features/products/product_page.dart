@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
+import '../../core/theme/app_theme.dart';
 import 'addon_dialog.dart';
 import '../cart/cart_provider.dart';
 import 'product_provider.dart';
@@ -15,50 +18,55 @@ class ProductPage extends ConsumerWidget {
     final productsAsync = ref.watch(productProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
     final selectedCategory = ref.watch(selectedCategoryProvider);
-    final cartItems = ref.watch(cartProvider);
+    final theme = Theme.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // HEADER
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Mire Sunset (${cartItems.length})',
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              // Optional: Search bar could go here
-            ],
-          ),
-        ),
-
         // CATEGORIES BAR
-        SizedBox(
-          height: 50,
+        Container(
+          height: 80,
+          color: Colors.white,
           child: categoriesAsync.when(
             data: (categories) => ListView.builder(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               itemCount: categories.length + 1,
               itemBuilder: (context, index) {
-                if (index == 0) {
-                  return CategoryChip(
-                    label: 'All',
-                    isSelected: selectedCategory == null,
-                    onSelected: () => ref.read(selectedCategoryProvider.notifier).state = null,
-                  );
-                }
-                final category = categories[index - 1];
-                return CategoryChip(
-                  label: category.name,
-                  isSelected: selectedCategory == category.id,
-                  onSelected: () => ref.read(selectedCategoryProvider.notifier).state = category.id,
+                final isAll = index == 0;
+                final category = isAll ? null : categories[index - 1];
+                final isSelected = isAll 
+                  ? selectedCategory == null 
+                  : selectedCategory == category?.id;
+
+                return Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: InkWell(
+                    onTap: () => ref.read(selectedCategoryProvider.notifier).state = category?.id,
+                    child: AnimatedContainer(
+                      duration: 200.ms,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isSelected ? AppTheme.emerald : Colors.white,
+                        borderRadius: BorderRadius.circular(40),
+                        border: Border.all(
+                          color: isSelected ? AppTheme.emerald : AppTheme.ink.withOpacity(0.1),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          isAll ? 'ALL ITEMS' : category!.name.toUpperCase(),
+                          style: GoogleFonts.spaceGrotesk(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1,
+                            color: isSelected ? Colors.white : AppTheme.ink.withOpacity(0.6),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 );
               },
             ),
@@ -71,83 +79,22 @@ class ProductPage extends ConsumerWidget {
         Expanded(
           child: productsAsync.when(
             data: (products) => GridView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(24),
               itemCount: products.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 1.3,
+                crossAxisSpacing: 20,
+                mainAxisSpacing: 20,
+                childAspectRatio: 0.8,
               ),
               itemBuilder: (context, index) {
                 final product = products[index];
 
-                return Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(12),
-                    onTap: () async {
-                      final selectedAddons = await showDialog<Map<int, int>>(
-                        context: context,
-                        builder: (_) => const AddonDialog(),
-                      );
-
-                      if (selectedAddons == null) return;
-
-                      final addonsAsync = ref.read(addonProvider);
-                      final allAddons = addonsAsync.value ?? [];
-
-                      final addons = allAddons
-                          .where((addon) => selectedAddons.containsKey(addon.id))
-                          .map((addon) => CartAddon(
-                                name: addon.name,
-                                price: addon.price,
-                                quantity: selectedAddons[addon.id] ?? 0,
-                              ))
-                          .where((addon) => addon.quantity > 0)
-                          .toList();
-
-                      ref.read(cartProvider.notifier).addProduct(product, addons);
-
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("${product.name} added"),
-                            duration: const Duration(milliseconds: 600),
-                          ),
-                        );
-                      }
-                    },
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          product.name,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '₱${product.price.toStringAsFixed(0)}',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
+                return _ProductCard(product: product, index: index);
               },
             ),
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, __) => Center(child: Text('Error: $err')),
+            error: (err, _) => Center(child: Text('Error: $err')),
           ),
         ),
       ],
@@ -155,32 +102,100 @@ class ProductPage extends ConsumerWidget {
   }
 }
 
-class CategoryChip extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-  final VoidCallback onSelected;
-
-  const CategoryChip({
-    super.key,
-    required this.label,
-    required this.isSelected,
-    required this.onSelected,
-  });
+class _ProductCard extends ConsumerWidget {
+  final dynamic product;
+  final int index;
+  const _ProductCard({required this.product, required this.index});
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
-      child: ChoiceChip(
-        label: Text(label),
-        selected: isSelected,
-        onSelected: (_) => onSelected(),
-        selectedColor: Theme.of(context).primaryColor,
-        labelStyle: TextStyle(
-          color: isSelected ? Colors.white : Colors.black,
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-        ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        side: BorderSide(color: AppTheme.ink.withOpacity(0.08), width: 1.5),
       ),
+      child: InkWell(
+        onTap: () async {
+          final selectedAddons = await showDialog<Map<int, int>>(
+            context: context,
+            builder: (_) => const AddonDialog(),
+          );
+
+          if (selectedAddons == null) return;
+
+          final addonsAsync = ref.read(addonProvider);
+          final allAddons = addonsAsync.value ?? [];
+
+          final addons = allAddons
+              .where((addon) => selectedAddons.containsKey(addon.id))
+              .map((addon) => CartAddon(
+                    name: addon.name,
+                    price: addon.price,
+                    quantity: selectedAddons[addon.id] ?? 0,
+                  ))
+              .where((addon) => addon.quantity > 0)
+              .toList();
+
+          ref.read(cartProvider.notifier).addProduct(product, addons);
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              flex: 4,
+              child: Container(
+                color: AppTheme.bone,
+                child: Center(
+                  child: Text(
+                    product.name[0],
+                    style: GoogleFonts.fraunces(
+                      fontSize: 48,
+                      fontWeight: FontWeight.w900,
+                      color: AppTheme.emerald.withOpacity(0.2),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              height: 1.5,
+              color: AppTheme.ink.withOpacity(0.08),
+            ),
+            Expanded(
+              flex: 3,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      product.name.toUpperCase(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.spaceGrotesk(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 14,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '₱${product.price.toStringAsFixed(2)}',
+                      style: GoogleFonts.spaceGrotesk(
+                        fontSize: 16,
+                        color: AppTheme.emerald,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ).animate().fadeIn(delay: (index * 50).ms).slideY(begin: 0.1, curve: Curves.easeOut),
     );
   }
 }

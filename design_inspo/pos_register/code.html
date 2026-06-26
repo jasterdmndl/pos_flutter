@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GreenBrew POS - Register</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface": "#f4fcf0",
+                      "surface-container-high": "#e3eadf",
+                      "on-error": "#ffffff",
+                      "primary-fixed": "#7ffc97",
+                      "on-surface": "#171d16",
+                      "surface-container-highest": "#dde5d9",
+                      "outline": "#6e7b6c",
+                      "on-tertiary-container": "#fffbff",
+                      "surface-container-low": "#eff6ea",
+                      "tertiary-container": "#c74668",
+                      "tertiary-fixed-dim": "#ffb2bf",
+                      "on-background": "#171d16",
+                      "surface-container": "#e9f0e5",
+                      "primary-container": "#00873a",
+                      "primary-fixed-dim": "#62df7d",
+                      "on-primary-fixed-variant": "#005320",
+                      "on-secondary-container": "#007233",
+                      "on-tertiary": "#ffffff",
+                      "surface-bright": "#f4fcf0",
+                      "outline-variant": "#bdcaba",
+                      "secondary-fixed-dim": "#79db8d",
+                      "on-tertiary-fixed-variant": "#8a143c",
+                      "tertiary-fixed": "#ffd9de",
+                      "inverse-surface": "#2b322b",
+                      "secondary-container": "#92f5a4",
+                      "secondary": "#006d30",
+                      "on-primary": "#ffffff",
+                      "on-secondary-fixed": "#00210a",
+                      "on-surface-variant": "#3e4a3d",
+                      "surface-variant": "#dde5d9",
+                      "inverse-on-surface": "#ecf3e7",
+                      "on-tertiary-fixed": "#3f0016",
+                      "secondary-fixed": "#95f8a7",
+                      "on-secondary": "#ffffff",
+                      "primary": "#006b2c",
+                      "on-secondary-fixed-variant": "#005323",
+                      "on-primary-fixed": "#002109",
+                      "error": "#ba1a1a",
+                      "error-container": "#ffdad6",
+                      "surface-tint": "#006e2d",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary": "#a72d51",
+                      "surface-dim": "#d5dcd1",
+                      "on-error-container": "#93000a",
+                      "inverse-primary": "#62df7d",
+                      "background": "#f4fcf0",
+                      "on-primary-container": "#f7fff2"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xs": "4px",
+                      "lg": "24px",
+                      "grid-gutter": "16px",
+                      "md": "16px",
+                      "xl": "32px",
+                      "grid-margin": "24px",
+                      "touch-target-min": "44px",
+                      "sm": "8px",
+                      "2xl": "48px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "display-lg": [
+                              "Geist"
+                      ],
+                      "headline-lg-mobile": [
+                              "Geist"
+                      ],
+                      "label-md": [
+                              "Geist"
+                      ],
+                      "body-lg": [
+                              "Geist"
+                      ],
+                      "label-lg": [
+                              "Geist"
+                      ],
+                      "body-md": [
+                              "Geist"
+                      ],
+                      "headline-lg": [
+                              "Geist"
+                      ],
+                      "headline-md": [
+                              "Geist"
+                      ],
+                      "body-lg-mobile": [
+                              "Geist"
+                      ]
+              },
+              "fontSize": {
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-lg": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg-mobile": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col pb-[140px] md:pb-[80px]">
+<!-- TopAppBar from JSON -->
+<header class="bg-surface w-full top-0 sticky border-b border-outline-variant flat no shadows z-40">
+<div class="flex items-center justify-between px-grid-margin h-touch-target-min">
+<div class="flex items-center gap-sm">
+<!-- Leading Avatar placeholder -->
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden flex-shrink-0">
+<img alt="Staff Profile" class="w-full h-full object-cover" data-alt="A tightly cropped, high-quality photograph of a professional barista wearing a modern, minimalist green apron, standing in a brightly lit, clean coffee shop environment with a modern aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8YqNFfKkx05awL-mbkg5GV7UZkSzLxzB6zxh6ukcFMWcZvoWuivbwAPamF7jzER7LtuSLjWyoAY25T2U7wUmgkCPhQdvrss30-UarIQAJUpPXdSoE1-y7OVtNRKIx5ezvoZAJq-Z2qas755xEOQipt-8VLGsIU5M6FgIIWIK_lS0XzPT_Y10sAku5eUp0DHfZee6e4aH-kfG8cwedHDesSo1EVffTkZ6AQH5Zkdg2E-LnOU3VkNS2c0i7hvzB4FKIeqDUeu8CT_8"/>
+</div>
+</div>
+<div class="font-display-lg text-headline-md-mobile text-primary tracking-tight font-extrabold text-center flex-1 mx-4 truncate">
+                GreenBrew POS
+            </div>
+<button class="w-touch-target-min h-touch-target-min flex items-center justify-center text-primary rounded-full hover:bg-surface-container-high transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+</div>
+</header>
+<main class="flex-1 flex flex-col md:flex-row w-full max-w-7xl mx-auto">
+<!-- Left Side: Categories & Product Grid -->
+<div class="flex-1 flex flex-col w-full px-grid-margin py-md space-y-md">
+<!-- Category Pills -->
+<div class="flex overflow-x-auto space-x-sm scrollbar-hide py-2">
+<button class="px-6 py-3 rounded-full bg-primary text-on-primary font-label-lg text-label-lg whitespace-nowrap active:scale-95 duration-150 flex items-center h-touch-target-min">
+                    Coffee
+                </button>
+<button class="px-6 py-3 rounded-full bg-surface-container text-on-surface-variant font-label-lg text-label-lg whitespace-nowrap hover:bg-surface-container-highest transition-colors active:scale-95 duration-150 flex items-center h-touch-target-min">
+                    Non-Coffee
+                </button>
+<button class="px-6 py-3 rounded-full bg-surface-container text-on-surface-variant font-label-lg text-label-lg whitespace-nowrap hover:bg-surface-container-highest transition-colors active:scale-95 duration-150 flex items-center h-touch-target-min">
+                    Tea
+                </button>
+<button class="px-6 py-3 rounded-full bg-surface-container text-on-surface-variant font-label-lg text-label-lg whitespace-nowrap hover:bg-surface-container-highest transition-colors active:scale-95 duration-150 flex items-center h-touch-target-min">
+                    Pastries
+                </button>
+<button class="px-6 py-3 rounded-full bg-surface-container text-on-surface-variant font-label-lg text-label-lg whitespace-nowrap hover:bg-surface-container-highest transition-colors active:scale-95 duration-150 flex items-center h-touch-target-min">
+                    Meals
+                </button>
+</div>
+<!-- Product Grid -->
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-md">
+<!-- Product Card 1 -->
+<button class="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden flex flex-col items-center hover:shadow-[0_4px_12px_rgba(15,23,42,0.08)] transition-shadow active:scale-[0.98] duration-150 text-left w-full">
+<div class="w-full aspect-[4/3] bg-surface-container relative">
+<img alt="Cafe Latte" class="w-full h-full object-cover" data-alt="A top-down, high-resolution photograph of a perfectly crafted cafe latte in a minimalist white ceramic cup, featuring intricate rosetta latte art. The cup sits on a light wood counter in a bright, modern cafe setting with soft, natural lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHHDbJ8SV1Yrqskj1D1AVOufyAKqgnWGH5jizPIoGxkoDMqraDmm0oynuOmD78nR2j-1RyPgSG7skqcmeZg1kapUgDm8RfRGZ4PjNg-4e8exzkSfDZ0QUoixr7_iG-hm8X_NALqh6US-YNDRNwYLKRJwCbvem688Iq0kiQXf57ziIrp7Mux80SnXOmz3Yx0b18yUoFraoHf2dfapomu44QcZeiVG3UTSfxNxkkXFhgEWm8O-wkXTtrZnhyZyW099b7XM0qftpvjvg"/>
+</div>
+<div class="p-sm w-full">
+<h3 class="font-headline-md text-headline-md-mobile text-on-surface font-bold truncate">Cafe Latte</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">₱180</p>
+</div>
+</button>
+<!-- Product Card 2 -->
+<button class="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden flex flex-col items-center hover:shadow-[0_4px_12px_rgba(15,23,42,0.08)] transition-shadow active:scale-[0.98] duration-150 text-left w-full">
+<div class="w-full aspect-[4/3] bg-surface-container relative">
+<img alt="Americano" class="w-full h-full object-cover" data-alt="A close-up, high-quality image of a rich, dark iced Americano in a clear glass, with condensation on the outside. The drink sits on a modern, clean surface with a soft, minimalist light-mode aesthetic, emphasizing the deep color of the coffee." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOL3kTTj-0T5HYNFnRDCAI7RH6S3QjgXzav96y4kDBQjMpV9swgqQRNUXvuORxvZCGzkPZhzi-0p0Gf5Ur_wuT7D5FPqZoOpit-8mIbAgZnKIm0YBhbtDD4Hg7RIJ9B2kj7Kg_iIsGaJC3X1xefXZueCtX1oZLdr-Yig8ltPCWZqt-SpzAD4nD-BkoqcSpgTRZbOv9Q6u7a3-Pe2uxvnn0LFKAAkciagw7Q_0Ow7Tg4AC_q4DQj4os4WhcYMEHFxsqLrBI846zVhA"/>
+</div>
+<div class="p-sm w-full">
+<h3 class="font-headline-md text-headline-md-mobile text-on-surface font-bold truncate">Americano</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">₱150</p>
+</div>
+</button>
+<!-- Product Card 3 -->
+<button class="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden flex flex-col items-center hover:shadow-[0_4px_12px_rgba(15,23,42,0.08)] transition-shadow active:scale-[0.98] duration-150 text-left w-full">
+<div class="w-full aspect-[4/3] bg-surface-container relative">
+<img alt="Matcha Latte" class="w-full h-full object-cover" data-alt="A vibrant, top-down shot of a vibrant green matcha latte in a modern ceramic mug with elegant foam art. The mug is placed on a pristine white marble table in a bright, airy environment, reflecting a clean, organic aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbNCzPqswgNd1m-rx_0rEccfo0rdrR6c8IC8JI_VYiiS-MQtd2ENHMSNp9PRiPpUoRzoaZFhVMwR_jsYeF9gllnfhuXlRRVMJqNLwSZ-ZfFScEODd56ZleETFu-NKErAi-241kSTSGxEJ3R9P-w_AWt1QFFEJXSuO9xmFpH2CrS0-G1B8PSfJYCwRmD_Cq1glw3By9TFGArX8n93yKahhtCuoiSYaRZXSlsj97Sre5lI4a2ImmKfjyLvoEz20Ic1nAkkA8NHsN8KY"/>
+</div>
+<div class="p-sm w-full">
+<h3 class="font-headline-md text-headline-md-mobile text-on-surface font-bold truncate">Matcha Latte</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">₱190</p>
+</div>
+</button>
+<!-- Product Card 4 -->
+<button class="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden flex flex-col items-center hover:shadow-[0_4px_12px_rgba(15,23,42,0.08)] transition-shadow active:scale-[0.98] duration-150 text-left w-full">
+<div class="w-full aspect-[4/3] bg-surface-container relative">
+<img alt="Cappuccino" class="w-full h-full object-cover" data-alt="A beautifully photographed cappuccino in a wide-brimmed modern cup, showing a thick layer of creamy microfoam dusted with cocoa powder. The setting is highly lit, clean, and minimalist, emphasizing the premium quality of the beverage." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAafBzsPGsYvrtTKW-d-9LNb3hQv-zui8RPkQ3XO3XYCJYAALhoKuyUsSR-HzvpBn2co5knTsDaKQwHUjkXPHsyB_s-tt3Uma1NQgw9afAwb34O8q3vS2N74GEzhcnquDRp2IuhtLFKgXmCnyLNQBvouWYcKwlhmbVsfuUctvM4rn-glEAA3j9DLySoeETJgk2zgMRPgocFcWxXn_Bj0ihL83Xz-0kBURoV-nXmAOwL7q4T5vqVZDKk0FUHwAXH8RzvUivcU52ZQxk"/>
+</div>
+<div class="p-sm w-full">
+<h3 class="font-headline-md text-headline-md-mobile text-on-surface font-bold truncate">Cappuccino</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">₱175</p>
+</div>
+</button>
+</div>
+</div>
+</main>
+<!-- Cart Preview (Sticky Bottom for Mobile, mostly hidden on Desktop if a real sidebar existed, but fulfilling prompt) -->
+<div class="fixed bottom-[80px] md:bottom-0 left-0 w-full bg-surface-container-lowest border-t border-outline-variant shadow-[0_-4px_12px_rgba(15,23,42,0.08)] p-md z-40 md:relative md:border-t-0 md:shadow-none md:border-l md:w-80 md:h-[calc(100vh-64px)] md:flex-shrink-0 md:flex md:flex-col justify-end">
+<div class="flex items-center justify-between max-w-7xl mx-auto w-full md:flex-col md:gap-md md:items-stretch">
+<div class="flex flex-col md:text-center">
+<span class="font-label-lg text-label-lg text-on-surface-variant">2 Items</span>
+<span class="font-headline-md text-headline-md-mobile text-on-surface font-bold">₱370</span>
+</div>
+<button class="bg-primary text-on-primary font-label-lg text-label-lg px-xl py-3 rounded-lg h-2xl min-h-[48px] active:scale-95 duration-150 flex items-center justify-center w-auto md:w-full">
+                View Cart
+            </button>
+</div>
+</div>
+<!-- BottomNavBar from JSON -->
+<nav class="bg-surface w-full fixed bottom-0 z-50 md:hidden bg-surface flex justify-around items-center py-2 px-4 shadow-lg border-t border-outline-variant">
+<button class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 hover:text-primary active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="grid_view" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+<span class="font-label-md text-label-md mt-1">Register</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="font-label-md text-label-md mt-1">Orders</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="table_restaurant">table_restaurant</span>
+<span class="font-label-md text-label-md mt-1">Tables</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
+<span class="font-label-md text-label-md mt-1">Dashboard</span>
+</button>
+</nav>
+</body></html>
