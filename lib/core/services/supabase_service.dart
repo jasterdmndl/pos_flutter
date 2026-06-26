@@ -1,13 +1,15 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SupabaseService {
   static Future<void> init() async {
-    // These should ideally be in a .env file or secure storage
-    // For now, providing placeholders as per standard Flutter Supabase setup
-    const String supabaseUrl = 'YOUR_SUPABASE_URL';
-    const String supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
+    final String supabaseUrl = dotenv.get('SUPABASE_URL', fallback: '');
+    final String supabaseKey = dotenv.get('SUPABASE_ANON_KEY', fallback: '');
 
-    if (supabaseUrl == 'YOUR_SUPABASE_URL') return;
+    if (supabaseUrl.isEmpty || supabaseKey.isEmpty) {
+      print('Supabase credentials not found in .env file. Sync will be disabled.');
+      return;
+    }
 
     await Supabase.initialize(
       url: supabaseUrl,

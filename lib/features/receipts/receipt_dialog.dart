@@ -25,7 +25,7 @@ class ReceiptDialog extends StatelessWidget {
             children: [
               const Center(
                 child: Text(
-                  'CAFE POS',
+                  'MIRE SUNSET',
                   style: TextStyle(
                     fontWeight:
                     FontWeight.bold,

@@ -11,30 +11,27 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  String pin = "";
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _isLoading = false;
 
-  void _onNumberPressed(String number) {
-    if (pin.length < 4) {
-      setState(() {
-        pin += number;
-      });
+  Future<void> _handleLogin() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter both email and password")),
+      );
+      return;
     }
 
-    if (pin.length == 4) {
-      _login();
-    }
-  }
+    setState(() => _isLoading = true);
 
-  void _onDelete() {
-    if (pin.isNotEmpty) {
-      setState(() {
-        pin = pin.substring(0, pin.length - 1);
-      });
-    }
-  }
+    final success = await ref.read(authProvider.notifier).login(email, password);
 
-  Future<void> _login() async {
-    final success = await ref.read(authProvider.notifier).login(pin);
+    setState(() => _isLoading = false);
+
     if (success) {
       if (mounted) {
         Navigator.pushReplacement(
@@ -45,11 +42,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Invalid PIN")),
+          const SnackBar(
+            content: Text("Login Unsuccessful."),
+            backgroundColor: Colors.red,
+          ),
         );
-        setState(() {
-          pin = "";
-        });
       }
     }
   }
@@ -57,92 +54,95 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.brown[50],
       body: Center(
         child: Container(
-          width: 400,
-          padding: const EdgeInsets.all(32),
+          width: 450,
+          padding: const EdgeInsets.all(40),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.brown.withValues(alpha: 0.1),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.lock_outline, size: 80, color: Colors.blue),
+              const Icon(Icons.coffee, size: 80, color: Colors.brown),
               const SizedBox(height: 24),
               const Text(
-                "Enter Cashier PIN",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                "Mire Sunset",
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.brown,
+                ),
               ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(4, (index) {
-                  return Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 8),
-                    width: 20,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: index < pin.length ? Colors.blue : Colors.grey[300],
-                    ),
-                  );
-                }),
+              const Text(
+                "Point of Sale System",
+                style: TextStyle(color: Colors.grey),
+              ),
+              const SizedBox(height: 40),
+              TextField(
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  labelText: "Email",
+                  hintText: "Email@gmail.com",
+                  prefixIcon: const Icon(Icons.email_outlined),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: "Password",
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
               ),
               const SizedBox(height: 32),
-              GridView.count(
-                shrinkWrap: true,
-                crossAxisCount: 3,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                children: [
-                  ...List.generate(9, (index) {
-                    final num = (index + 1).toString();
-                    return _PinButton(
-                      label: num,
-                      onPressed: () => _onNumberPressed(num),
-                    );
-                  }),
-                  const SizedBox(),
-                  _PinButton(
-                    label: "0",
-                    onPressed: () => _onNumberPressed("0"),
+              SizedBox(
+                width: double.infinity,
+                height: 55,
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _handleLogin,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.brown,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  _PinButton(
-                    label: "⌫",
-                    onPressed: _onDelete,
-                    color: Colors.red[100],
-                  ),
-                ],
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                          "Login with Supabase",
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              const Divider(),
+              const SizedBox(height: 16),
+              const Text(
+                "Cloud-Connected Authentication",
+                style: TextStyle(color: Colors.grey, fontSize: 12),
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _PinButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onPressed;
-  final Color? color;
-
-  const _PinButton({
-    required this.label,
-    required this.onPressed,
-    this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color ?? Colors.grey[100],
-        foregroundColor: Colors.black,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        elevation: 0,
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
       ),
     );
   }

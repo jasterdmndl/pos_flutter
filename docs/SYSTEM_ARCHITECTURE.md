@@ -1,4 +1,4 @@
-# Cafe POS System ☕
+# Mire Sunset ☕
 
 Offline-First Cafe Point of Sale System built with Flutter, Riverpod, Isar, and Supabase.
 
@@ -6,7 +6,7 @@ Offline-First Cafe Point of Sale System built with Flutter, Riverpod, Isar, and 
 
 ## Overview
 
-Cafe POS System is a modern POS solution designed specifically for small cafe businesses.
+Mire Sunset is a modern POS solution designed specifically for small cafe businesses.
 
 The system prioritizes:
 

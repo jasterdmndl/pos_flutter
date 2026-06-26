@@ -45,6 +45,7 @@ dependencies:
   fl_chart: ^1.2.0
   intl: ^0.20.2
   supabase_flutter: ^2.15.0
+  flutter_dotenv: ^6.0.1
 
 dev_dependencies:
   flutter_test:
@@ -80,6 +81,8 @@ flutter:
 
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/to/asset-from-package
+  assets:
+    - .env
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

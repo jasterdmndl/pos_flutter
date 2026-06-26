@@ -8,7 +8,9 @@ class UserEntity {
 
   late String name;
 
-  late String pin; // Simple 4-digit PIN
+  late String username;
+
+  late String password;
 
   late String role; // 'admin' or 'cashier'
 }

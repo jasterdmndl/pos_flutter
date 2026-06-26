@@ -1,10 +1,10 @@
-# Cafe POS System - Project Overview
+# Mire Sunset - Project Overview
 
 ## Project Information
 
 ### Project Name
 
-Cafe POS System
+Mire Sunset
 
 ### Project Type
 
@@ -24,7 +24,7 @@ Single-Branch Cafe / Coffee Shop
 
 # Executive Summary
 
-The Cafe POS System is a modern offline-first point-of-sale solution specifically designed for small and medium-sized cafes. The system prioritizes cashier speed, reliability, and real-world coffee shop workflows while remaining simple enough for daily operations.
+Mire Sunset is a modern offline-first point-of-sale solution specifically designed for small and medium-sized cafes. The system prioritizes cashier speed, reliability, and real-world coffee shop workflows while remaining simple enough for daily operations.
 
 Unlike traditional retail POS systems, this solution supports beverage customizations such as milk substitutions, syrup pumps, and additional espresso shots.
 

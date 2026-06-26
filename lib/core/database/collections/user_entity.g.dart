@@ -22,14 +22,19 @@ const UserEntitySchema = CollectionSchema(
       name: r'name',
       type: IsarType.string,
     ),
-    r'pin': PropertySchema(
+    r'password': PropertySchema(
       id: 1,
-      name: r'pin',
+      name: r'password',
       type: IsarType.string,
     ),
     r'role': PropertySchema(
       id: 2,
       name: r'role',
+      type: IsarType.string,
+    ),
+    r'username': PropertySchema(
+      id: 3,
+      name: r'username',
       type: IsarType.string,
     )
   },
@@ -54,8 +59,9 @@ int _userEntityEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.name.length * 3;
-  bytesCount += 3 + object.pin.length * 3;
+  bytesCount += 3 + object.password.length * 3;
   bytesCount += 3 + object.role.length * 3;
+  bytesCount += 3 + object.username.length * 3;
   return bytesCount;
 }
 
@@ -66,8 +72,9 @@ void _userEntitySerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeString(offsets[0], object.name);
-  writer.writeString(offsets[1], object.pin);
+  writer.writeString(offsets[1], object.password);
   writer.writeString(offsets[2], object.role);
+  writer.writeString(offsets[3], object.username);
 }
 
 UserEntity _userEntityDeserialize(
@@ -79,8 +86,9 @@ UserEntity _userEntityDeserialize(
   final object = UserEntity();
   object.id = id;
   object.name = reader.readString(offsets[0]);
-  object.pin = reader.readString(offsets[1]);
+  object.password = reader.readString(offsets[1]);
   object.role = reader.readString(offsets[2]);
+  object.username = reader.readString(offsets[3]);
   return object;
 }
 
@@ -96,6 +104,8 @@ P _userEntityDeserializeProp<P>(
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
+      return (reader.readString(offset)) as P;
+    case 3:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -376,20 +386,21 @@ extension UserEntityQueryFilter
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> pinEqualTo(
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> passwordEqualTo(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'pin',
+        property: r'password',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> pinGreaterThan(
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      passwordGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -397,14 +408,14 @@ extension UserEntityQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'pin',
+        property: r'password',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> pinLessThan(
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> passwordLessThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -412,14 +423,14 @@ extension UserEntityQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'pin',
+        property: r'password',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> pinBetween(
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> passwordBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -428,7 +439,7 @@ extension UserEntityQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'pin',
+        property: r'password',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -438,69 +449,72 @@ extension UserEntityQueryFilter
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> pinStartsWith(
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      passwordStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'pin',
+        property: r'password',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> pinEndsWith(
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> passwordEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'pin',
+        property: r'password',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> pinContains(
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> passwordContains(
       String value,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
-        property: r'pin',
+        property: r'password',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> pinMatches(
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> passwordMatches(
       String pattern,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
-        property: r'pin',
+        property: r'password',
         wildcard: pattern,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> pinIsEmpty() {
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      passwordIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'pin',
+        property: r'password',
         value: '',
       ));
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> pinIsNotEmpty() {
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      passwordIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'pin',
+        property: r'password',
         value: '',
       ));
     });
@@ -635,6 +649,140 @@ extension UserEntityQueryFilter
       ));
     });
   }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> usernameEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'username',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      usernameGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'username',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> usernameLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'username',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> usernameBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'username',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      usernameStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'username',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> usernameEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'username',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> usernameContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'username',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> usernameMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'username',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      usernameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'username',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      usernameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'username',
+        value: '',
+      ));
+    });
+  }
 }
 
 extension UserEntityQueryObject
@@ -657,15 +805,15 @@ extension UserEntityQuerySortBy
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> sortByPin() {
+  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> sortByPassword() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'pin', Sort.asc);
+      return query.addSortBy(r'password', Sort.asc);
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> sortByPinDesc() {
+  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> sortByPasswordDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'pin', Sort.desc);
+      return query.addSortBy(r'password', Sort.desc);
     });
   }
 
@@ -678,6 +826,18 @@ extension UserEntityQuerySortBy
   QueryBuilder<UserEntity, UserEntity, QAfterSortBy> sortByRoleDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'role', Sort.desc);
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> sortByUsername() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'username', Sort.asc);
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> sortByUsernameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'username', Sort.desc);
     });
   }
 }
@@ -708,15 +868,15 @@ extension UserEntityQuerySortThenBy
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> thenByPin() {
+  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> thenByPassword() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'pin', Sort.asc);
+      return query.addSortBy(r'password', Sort.asc);
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> thenByPinDesc() {
+  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> thenByPasswordDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'pin', Sort.desc);
+      return query.addSortBy(r'password', Sort.desc);
     });
   }
 
@@ -731,6 +891,18 @@ extension UserEntityQuerySortThenBy
       return query.addSortBy(r'role', Sort.desc);
     });
   }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> thenByUsername() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'username', Sort.asc);
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> thenByUsernameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'username', Sort.desc);
+    });
+  }
 }
 
 extension UserEntityQueryWhereDistinct
@@ -742,10 +914,10 @@ extension UserEntityQueryWhereDistinct
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QDistinct> distinctByPin(
+  QueryBuilder<UserEntity, UserEntity, QDistinct> distinctByPassword(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'pin', caseSensitive: caseSensitive);
+      return query.addDistinctBy(r'password', caseSensitive: caseSensitive);
     });
   }
 
@@ -753,6 +925,13 @@ extension UserEntityQueryWhereDistinct
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'role', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QDistinct> distinctByUsername(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'username', caseSensitive: caseSensitive);
     });
   }
 }
@@ -771,15 +950,21 @@ extension UserEntityQueryProperty
     });
   }
 
-  QueryBuilder<UserEntity, String, QQueryOperations> pinProperty() {
+  QueryBuilder<UserEntity, String, QQueryOperations> passwordProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'pin');
+      return query.addPropertyName(r'password');
     });
   }
 
   QueryBuilder<UserEntity, String, QQueryOperations> roleProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'role');
+    });
+  }
+
+  QueryBuilder<UserEntity, String, QQueryOperations> usernameProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'username');
     });
   }
 }

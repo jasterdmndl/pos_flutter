@@ -1,4 +1,4 @@
-# Cafe POS System - Development Roadmap
+# Mire Sunset - Development Roadmap
 
 ## Project Status
 

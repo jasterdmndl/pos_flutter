@@ -25,7 +25,7 @@ class PdfReceiptService {
                 child: pw.Column(
                   children: [
                     pw.Text(
-                      'CAFE POS',
+                      'MIRE SUNSET',
                       style: pw.TextStyle(
                         fontSize: 18,
                         fontWeight:

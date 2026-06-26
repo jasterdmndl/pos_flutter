@@ -32,7 +32,7 @@ class PosScreen extends ConsumerWidget {
       ),
 
       appBar: AppBar(
-        title: const Text('Cafe POS'),
+        title: const Text('Mire Sunset'),
         actions: [
           IconButton(
             icon: const Icon(Icons.dashboard_customize_outlined),

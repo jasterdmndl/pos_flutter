@@ -27,7 +27,7 @@ class ProductPage extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Cafe POS (${cartItems.length})',
+                'Mire Sunset (${cartItems.length})',
                 style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
