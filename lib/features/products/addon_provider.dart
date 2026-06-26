@@ -1,37 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'addon_model.dart';
+import 'product_provider.dart';
 
-final addonProvider = Provider<List<Addon>>((ref) {
-  return const [
-    Addon(
-      id: 1,
-      name: 'Oat Milk',
-      price: 15,
-      isPerUnit: false,
-    ),
-    Addon(
-      id: 2,
-      name: 'Soy Milk',
-      price: 10,
-      isPerUnit: false,
-    ),
-    Addon(
-      id: 3,
-      name: 'Extra Shot',
-      price: 20,
-      isPerUnit: false,
-    ),
-    Addon(
-      id: 4,
-      name: 'Vanilla Syrup',
-      price: 5,
-      isPerUnit: true,
-    ),
-    Addon(
-      id: 5,
-      name: 'Caramel Syrup',
-      price: 5,
-      isPerUnit: true,
-    ),
-  ];
+final addonProvider = FutureProvider<List<Addon>>((ref) async {
+  final repo = ref.watch(productRepositoryProvider);
+  final entities = await repo.getAddons();
+  
+  return entities.map((e) => Addon(
+    id: e.id,
+    name: e.name,
+    price: e.price,
+    isPerUnit: e.isPerUnit,
+  )).toList();
 });

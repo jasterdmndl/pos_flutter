@@ -366,15 +366,19 @@ Completed:
 * Cart Total Calculation
 * Product Grid UI
 * Cart Panel UI
-
-In Progress:
-
 * Product Add-ons
 * Checkout Flow
 * Discounts
 * Isar Integration
 * Receipt Printing
 * Supabase Synchronization
+* Detailed Reporting
+* Product Management (CRUD)
+* Inventory Tracking
+
+In Progress:
+
+* Production Deployment Testing
 
 ---
 

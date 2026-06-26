@@ -1,9 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../dashboard/dashboard_provider.dart';
 import '../orders/order_provider.dart';
 import '../cart/cart_provider.dart';
 import '../discounts/discount_model.dart';
 import 'checkout_model.dart';
 import '../sales/sales_provider.dart';
+import '../inventory/inventory_repository.dart';
+import '../auth/auth_provider.dart';
+import '../sync/sync_provider.dart';
+
+final inventoryRepositoryProvider = Provider((ref) => InventoryRepository());
 
 final checkoutProvider =
 StateNotifierProvider<CheckoutController, Order?>(
@@ -35,6 +41,11 @@ class CheckoutController extends StateNotifier<Order?> {
     final repository =
       ref.read(orderRepositoryProvider);
 
+    final inventoryRepository =
+      ref.read(inventoryRepositoryProvider);
+    
+    final cashier = ref.read(authProvider);
+
     final savedOrderId =
     await repository.saveOrder(
       cartItems: cartItems,
@@ -42,7 +53,13 @@ class CheckoutController extends StateNotifier<Order?> {
       discountAmount: discountAmount,
       total: total,
       paymentMethod: paymentMethod.name,
+      cashierId: cashier?.id,
     );
+
+    // Deduct Inventory
+    for (final item in cartItems) {
+      await inventoryRepository.deductInventory(item.product.id, item.quantity);
+    }
 
     final order = Order(
       id: savedOrderId.toString(),
@@ -60,7 +77,11 @@ class CheckoutController extends StateNotifier<Order?> {
     // ==========================
 
 
+    ref.invalidate(dashboardProvider);
     ref.invalidate(salesHistoryProvider);
+
+    // Trigger background sync
+    ref.read(syncProvider.notifier).syncNow();
 
     // ==========================
     // UPDATE STATE

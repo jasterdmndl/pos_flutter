@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/database/collections/order_entity.dart';
 import '../../core/database/collections/order_item_entity.dart';
 import '../../core/database/collections/order_addon_entity.dart';
 import '../receipts/pdf_receipt_service.dart';
 import '../receipts/receipt_repository.dart';
-
-
+import '../orders/order_provider.dart';
+import '../dashboard/dashboard_provider.dart';
+import 'sales_provider.dart';
 import 'sales_repository.dart';
 
-class OrderDetailsScreen extends StatefulWidget {
+class OrderDetailsScreen extends ConsumerStatefulWidget {
   final OrderEntity order;
 
   const OrderDetailsScreen({
@@ -17,12 +19,12 @@ class OrderDetailsScreen extends StatefulWidget {
   });
 
   @override
-  State<OrderDetailsScreen> createState() =>
+  ConsumerState<OrderDetailsScreen> createState() =>
       _OrderDetailsScreenState();
 }
 
 class _OrderDetailsScreenState
-    extends State<OrderDetailsScreen> {
+    extends ConsumerState<OrderDetailsScreen> {
   final repository = SalesRepository();
 
   late Future<List<OrderItemEntity>> itemsFuture;
@@ -180,6 +182,21 @@ class _OrderDetailsScreenState
                         'Payment: ${order.paymentMethod}',
                       ),
 
+                      if (order.isVoided) ...[
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.red[100],
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            'VOIDED: ${order.voidReason}',
+                            style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+
                       const Divider(),
 
                       Text(
@@ -223,11 +240,64 @@ class _OrderDetailsScreenState
                   item: item,
                 ),
               ),
+
+              if (!order.isVoided) ...[
+                const SizedBox(height: 32),
+                ElevatedButton.icon(
+                  onPressed: () => _showVoidDialog(context),
+                  icon: const Icon(Icons.cancel),
+                  label: const Text('Void Order'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red[50],
+                    foregroundColor: Colors.red,
+                  ),
+                ),
+              ],
             ],
           );
         },
       ),
     );
+  }
+
+  Future<void> _showVoidDialog(BuildContext context) async {
+    final reasonController = TextEditingController();
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Void Order'),
+        content: TextField(
+          controller: reasonController,
+          decoration: const InputDecoration(
+            labelText: 'Reason for voiding',
+            hintText: 'e.g., Wrong item selected',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            child: const Text('Confirm Void'),
+          ),
+        ],
+      ),
+    );
+
+    if (result == true && reasonController.text.isNotEmpty) {
+      final repo = ref.read(orderRepositoryProvider);
+      await repo.voidOrder(widget.order.id, reasonController.text);
+      
+      ref.invalidate(salesHistoryProvider);
+      ref.invalidate(dashboardProvider);
+
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
+    }
   }
 }
 

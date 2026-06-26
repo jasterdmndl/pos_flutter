@@ -1,32 +1,27 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'product_model.dart';
+import 'product_repository.dart';
+import '../../core/database/collections/category_entity.dart';
 
-final productProvider = Provider<List<Product>>((ref) {
-  return [
-    const Product(
-      id: 1,
-      name: 'Latte',
-      price: 120,
-      isActive: true,
-    ),
-    const Product(
-      id: 2,
-      name: 'Mocha',
-      price: 140,
-      isActive: true,
-    ),
-    const Product(
-      id: 3,
-      name: 'Americano',
-      price: 100,
-      isActive: true,
-    ),
-    const Product(
-      id: 4,
-      name: 'Cappuccino',
-      price: 130,
-      isActive: true,
-    ),
-  ];
+final productRepositoryProvider = Provider((ref) => ProductRepository());
+
+final categoriesProvider = FutureProvider<List<CategoryEntity>>((ref) async {
+  final repo = ref.watch(productRepositoryProvider);
+  await repo.seedInitialData(); // Ensure we have data
+  return await repo.getCategories();
+});
+
+final selectedCategoryProvider = StateProvider<int?>((ref) => null);
+
+final productProvider = FutureProvider<List<Product>>((ref) async {
+  final repo = ref.watch(productRepositoryProvider);
+  final selectedCategory = ref.watch(selectedCategoryProvider);
+
+  if (selectedCategory == null) {
+    final entities = await repo.getAllProducts();
+    return entities.map((e) => Product.fromEntity(e)).toList();
+  } else {
+    final entities = await repo.getProductsByCategory(selectedCategory);
+    return entities.map((e) => Product.fromEntity(e)).toList();
+  }
 });

@@ -23,7 +23,8 @@ class SalesHistoryScreen extends ConsumerWidget {
             );
           }
 
-          final totalRevenue = orders.fold<double>(
+          final activeOrders = orders.where((o) => !o.isVoided).toList();
+          final totalRevenue = activeOrders.fold<double>(
             0,
                 (sum, order) => sum + order.total,
           );
@@ -33,13 +34,13 @@ class SalesHistoryScreen extends ConsumerWidget {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
-                color: Colors.grey.shade100,
+                color: Colors.brown.shade50,
                 child: Column(
                   crossAxisAlignment:
                   CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Orders: ${orders.length}',
+                      'Valid Orders: ${activeOrders.length} / Total: ${orders.length}',
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight:
@@ -47,11 +48,12 @@ class SalesHistoryScreen extends ConsumerWidget {
                       ),
                     ),
                     Text(
-                      'Revenue: ₱${totalRevenue.toStringAsFixed(2)}',
+                      'Net Revenue: ₱${totalRevenue.toStringAsFixed(2)}',
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight:
                         FontWeight.bold,
+                        color: Colors.brown,
                       ),
                     ),
                   ],
@@ -70,9 +72,25 @@ class SalesHistoryScreen extends ConsumerWidget {
                         horizontal: 12,
                         vertical: 6,
                       ),
+                      color: order.isVoided ? Colors.red[50] : null,
                       child: ListTile(
-                        title: Text(
-                          order.receiptNumber,
+                        title: Row(
+                          children: [
+                            Text(
+                              order.receiptNumber,
+                            ),
+                            if (order.isVoided) ...[
+                              const SizedBox(width: 8),
+                              const Text(
+                                '[VOIDED]',
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                         subtitle: Text(
                           order.createdAt

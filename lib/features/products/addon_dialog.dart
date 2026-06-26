@@ -15,83 +15,72 @@ class _AddonDialogState extends ConsumerState<AddonDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final addons = ref.watch(addonProvider);
+    final addonsAsync = ref.watch(addonProvider);
 
     return AlertDialog(
       title: const Text('Customize Drink'),
-
       content: SizedBox(
         width: 400,
-        child: ListView.builder(
-          shrinkWrap: true,
-          itemCount: addons.length,
-          itemBuilder: (context, index) {
-            final addon = addons[index];
+        child: addonsAsync.when(
+          data: (addons) => ListView.builder(
+            shrinkWrap: true,
+            itemCount: addons.length,
+            itemBuilder: (context, index) {
+              final addon = addons[index];
+              final quantity = selectedAddons[addon.id] ?? 0;
 
-            final quantity =
-                selectedAddons[addon.id] ?? 0;
-
-            return Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment:
-                        CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            addon.name,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
+              return Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              addon.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-
-                          Text(
-                            '₱${addon.price.toStringAsFixed(0)}',
-                          ),
-                        ],
+                            Text(
+                              '₱${addon.price.toStringAsFixed(0)}',
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-
-                    IconButton(
-                      onPressed: () {
-                        if (quantity == 0) return;
-
-                        setState(() {
-                          selectedAddons[addon.id] =
-                              quantity - 1;
-
-                          if (selectedAddons[addon.id] == 0) {
-                            selectedAddons.remove(addon.id);
-                          }
-                        });
-                      },
-                      icon: const Icon(Icons.remove),
-                    ),
-
-                    Text(
-                      quantity.toString(),
-                    ),
-
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          selectedAddons[addon.id] =
-                              quantity + 1;
-                        });
-                      },
-                      icon: const Icon(Icons.add),
-                    ),
-                  ],
+                      IconButton(
+                        onPressed: () {
+                          if (quantity == 0) return;
+                          setState(() {
+                            selectedAddons[addon.id] = quantity - 1;
+                            if (selectedAddons[addon.id] == 0) {
+                              selectedAddons.remove(addon.id);
+                            }
+                          });
+                        },
+                        icon: const Icon(Icons.remove),
+                      ),
+                      Text(quantity.toString()),
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            selectedAddons[addon.id] = quantity + 1;
+                          });
+                        },
+                        icon: const Icon(Icons.add),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (err, _) => Center(child: Text('Error: $err')),
         ),
       ),
-
       actions: [
         TextButton(
           onPressed: () {
@@ -99,7 +88,6 @@ class _AddonDialogState extends ConsumerState<AddonDialog> {
           },
           child: const Text('Cancel'),
         ),
-
         ElevatedButton(
           onPressed: () {
             Navigator.pop(

@@ -17,30 +17,50 @@ const OrderEntitySchema = CollectionSchema(
   name: r'OrderEntity',
   id: 4301709931984059335,
   properties: {
-    r'createdAt': PropertySchema(
+    r'cashierId': PropertySchema(
       id: 0,
+      name: r'cashierId',
+      type: IsarType.long,
+    ),
+    r'createdAt': PropertySchema(
+      id: 1,
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
     r'discountAmount': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'discountAmount',
       type: IsarType.double,
     ),
+    r'isSynced': PropertySchema(
+      id: 3,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
+    r'isVoided': PropertySchema(
+      id: 4,
+      name: r'isVoided',
+      type: IsarType.bool,
+    ),
     r'paymentMethod': PropertySchema(
-      id: 2,
+      id: 5,
       name: r'paymentMethod',
       type: IsarType.string,
     ),
     r'subtotal': PropertySchema(
-      id: 3,
+      id: 6,
       name: r'subtotal',
       type: IsarType.double,
     ),
     r'total': PropertySchema(
-      id: 4,
+      id: 7,
       name: r'total',
       type: IsarType.double,
+    ),
+    r'voidReason': PropertySchema(
+      id: 8,
+      name: r'voidReason',
+      type: IsarType.string,
     )
   },
   estimateSize: _orderEntityEstimateSize,
@@ -64,6 +84,12 @@ int _orderEntityEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.paymentMethod.length * 3;
+  {
+    final value = object.voidReason;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   return bytesCount;
 }
 
@@ -73,11 +99,15 @@ void _orderEntitySerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDateTime(offsets[0], object.createdAt);
-  writer.writeDouble(offsets[1], object.discountAmount);
-  writer.writeString(offsets[2], object.paymentMethod);
-  writer.writeDouble(offsets[3], object.subtotal);
-  writer.writeDouble(offsets[4], object.total);
+  writer.writeLong(offsets[0], object.cashierId);
+  writer.writeDateTime(offsets[1], object.createdAt);
+  writer.writeDouble(offsets[2], object.discountAmount);
+  writer.writeBool(offsets[3], object.isSynced);
+  writer.writeBool(offsets[4], object.isVoided);
+  writer.writeString(offsets[5], object.paymentMethod);
+  writer.writeDouble(offsets[6], object.subtotal);
+  writer.writeDouble(offsets[7], object.total);
+  writer.writeString(offsets[8], object.voidReason);
 }
 
 OrderEntity _orderEntityDeserialize(
@@ -87,12 +117,16 @@ OrderEntity _orderEntityDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = OrderEntity();
-  object.createdAt = reader.readDateTime(offsets[0]);
-  object.discountAmount = reader.readDouble(offsets[1]);
+  object.cashierId = reader.readLongOrNull(offsets[0]);
+  object.createdAt = reader.readDateTime(offsets[1]);
+  object.discountAmount = reader.readDouble(offsets[2]);
   object.id = id;
-  object.paymentMethod = reader.readString(offsets[2]);
-  object.subtotal = reader.readDouble(offsets[3]);
-  object.total = reader.readDouble(offsets[4]);
+  object.isSynced = reader.readBool(offsets[3]);
+  object.isVoided = reader.readBool(offsets[4]);
+  object.paymentMethod = reader.readString(offsets[5]);
+  object.subtotal = reader.readDouble(offsets[6]);
+  object.total = reader.readDouble(offsets[7]);
+  object.voidReason = reader.readStringOrNull(offsets[8]);
   return object;
 }
 
@@ -104,15 +138,23 @@ P _orderEntityDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 1:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readDateTime(offset)) as P;
     case 2:
-      return (reader.readString(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 3:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 4:
+      return (reader.readBool(offset)) as P;
+    case 5:
+      return (reader.readString(offset)) as P;
+    case 6:
       return (reader.readDouble(offset)) as P;
+    case 7:
+      return (reader.readDouble(offset)) as P;
+    case 8:
+      return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -211,6 +253,80 @@ extension OrderEntityQueryWhere
 
 extension OrderEntityQueryFilter
     on QueryBuilder<OrderEntity, OrderEntity, QFilterCondition> {
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      cashierIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'cashierId',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      cashierIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'cashierId',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      cashierIdEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'cashierId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      cashierIdGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'cashierId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      cashierIdLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'cashierId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      cashierIdBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'cashierId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
       createdAtEqualTo(DateTime value) {
     return QueryBuilder.apply(this, (query) {
@@ -382,6 +498,26 @@ extension OrderEntityQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition> isSyncedEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition> isVoidedEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isVoided',
+        value: value,
       ));
     });
   }
@@ -648,6 +784,160 @@ extension OrderEntityQueryFilter
       ));
     });
   }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      voidReasonIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'voidReason',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      voidReasonIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'voidReason',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      voidReasonEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'voidReason',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      voidReasonGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'voidReason',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      voidReasonLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'voidReason',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      voidReasonBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'voidReason',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      voidReasonStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'voidReason',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      voidReasonEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'voidReason',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      voidReasonContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'voidReason',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      voidReasonMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'voidReason',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      voidReasonIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'voidReason',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      voidReasonIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'voidReason',
+        value: '',
+      ));
+    });
+  }
 }
 
 extension OrderEntityQueryObject
@@ -658,6 +948,18 @@ extension OrderEntityQueryLinks
 
 extension OrderEntityQuerySortBy
     on QueryBuilder<OrderEntity, OrderEntity, QSortBy> {
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortByCashierId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'cashierId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortByCashierIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'cashierId', Sort.desc);
+    });
+  }
+
   QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.asc);
@@ -680,6 +982,30 @@ extension OrderEntityQuerySortBy
       sortByDiscountAmountDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'discountAmount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortByIsVoided() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isVoided', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortByIsVoidedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isVoided', Sort.desc);
     });
   }
 
@@ -719,10 +1045,34 @@ extension OrderEntityQuerySortBy
       return query.addSortBy(r'total', Sort.desc);
     });
   }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortByVoidReason() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'voidReason', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortByVoidReasonDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'voidReason', Sort.desc);
+    });
+  }
 }
 
 extension OrderEntityQuerySortThenBy
     on QueryBuilder<OrderEntity, OrderEntity, QSortThenBy> {
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenByCashierId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'cashierId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenByCashierIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'cashierId', Sort.desc);
+    });
+  }
+
   QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.asc);
@@ -757,6 +1107,30 @@ extension OrderEntityQuerySortThenBy
   QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenByIsVoided() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isVoided', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenByIsVoidedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isVoided', Sort.desc);
     });
   }
 
@@ -796,10 +1170,28 @@ extension OrderEntityQuerySortThenBy
       return query.addSortBy(r'total', Sort.desc);
     });
   }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenByVoidReason() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'voidReason', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenByVoidReasonDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'voidReason', Sort.desc);
+    });
+  }
 }
 
 extension OrderEntityQueryWhereDistinct
     on QueryBuilder<OrderEntity, OrderEntity, QDistinct> {
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct> distinctByCashierId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'cashierId');
+    });
+  }
+
   QueryBuilder<OrderEntity, OrderEntity, QDistinct> distinctByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'createdAt');
@@ -809,6 +1201,18 @@ extension OrderEntityQueryWhereDistinct
   QueryBuilder<OrderEntity, OrderEntity, QDistinct> distinctByDiscountAmount() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'discountAmount');
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct> distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct> distinctByIsVoided() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isVoided');
     });
   }
 
@@ -831,6 +1235,13 @@ extension OrderEntityQueryWhereDistinct
       return query.addDistinctBy(r'total');
     });
   }
+
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct> distinctByVoidReason(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'voidReason', caseSensitive: caseSensitive);
+    });
+  }
 }
 
 extension OrderEntityQueryProperty
@@ -838,6 +1249,12 @@ extension OrderEntityQueryProperty
   QueryBuilder<OrderEntity, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<OrderEntity, int?, QQueryOperations> cashierIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'cashierId');
     });
   }
 
@@ -850,6 +1267,18 @@ extension OrderEntityQueryProperty
   QueryBuilder<OrderEntity, double, QQueryOperations> discountAmountProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'discountAmount');
+    });
+  }
+
+  QueryBuilder<OrderEntity, bool, QQueryOperations> isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
+    });
+  }
+
+  QueryBuilder<OrderEntity, bool, QQueryOperations> isVoidedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isVoided');
     });
   }
 
@@ -868,6 +1297,12 @@ extension OrderEntityQueryProperty
   QueryBuilder<OrderEntity, double, QQueryOperations> totalProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'total');
+    });
+  }
+
+  QueryBuilder<OrderEntity, String?, QQueryOperations> voidReasonProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'voidReason');
     });
   }
 }

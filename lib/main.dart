@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import 'features/pos/pos_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/database/isar_service.dart';
+import 'core/services/supabase_service.dart';
+import 'features/auth/login_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await IsarService.init();
+  await SupabaseService.init();
 
   runApp(
     const ProviderScope(
@@ -21,36 +23,16 @@ class PosFlutterApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'POS Flutter',
+      title: 'Cafe POS System',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.brown,
+          primary: Colors.brown,
         ),
       ),
-      home: const PosScreen(),
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Cafe POS'),
-      ),
-      body: const Center(
-        child: Text(
-          'Cafe POS System',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
+      home: const LoginScreen(),
     );
   }
 }

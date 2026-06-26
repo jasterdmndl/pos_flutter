@@ -14,6 +14,13 @@ class OrderEntity {
 
   late DateTime createdAt;
 
+  int? cashierId;
+
+  bool isVoided = false;
+  String? voidReason;
+
+  bool isSynced = false;
+
   @ignore
   String get receiptNumber {
     final year = createdAt.year;
