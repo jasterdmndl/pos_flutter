@@ -34,32 +34,31 @@ class PosScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Mire Sunset'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.dashboard_customize_outlined),
-            tooltip: 'Business Dashboard',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const DashboardScreen(),
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.history),
-            tooltip: 'Sales History',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) =>
-                  const SalesHistoryScreen(),
-                ),
-              );
-            },
-          ),
-          if (user?.role == 'admin')
+          if (user?.role == 'admin') ...[
+            IconButton(
+              icon: const Icon(Icons.dashboard_customize_outlined),
+              tooltip: 'Business Dashboard',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const DashboardScreen(),
+                  ),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.history),
+              tooltip: 'Sales History',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const SalesHistoryScreen(),
+                  ),
+                );
+              },
+            ),
             IconButton(
               icon: const Icon(Icons.settings_outlined),
               tooltip: 'Management',
@@ -72,6 +71,7 @@ class PosScreen extends ConsumerWidget {
                 );
               },
             ),
+          ],
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Logout',
