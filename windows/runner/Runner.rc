@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.jhester.posflutter" "\0"
-            VALUE "FileDescription", "pos_flutter" "\0"
+            VALUE "CompanyName", "Mire Sunset" "\0"
+            VALUE "FileDescription", "Mire Sunset POS System" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "pos_flutter" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.jhester.posflutter. All rights reserved." "\0"
-            VALUE "OriginalFilename", "pos_flutter.exe" "\0"
-            VALUE "ProductName", "pos_flutter" "\0"
+            VALUE "InternalName", "mire_sunset_pos" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2024 Mire Sunset. All rights reserved." "\0"
+            VALUE "OriginalFilename", "mire_sunset_pos.exe" "\0"
+            VALUE "ProductName", "Mire Sunset POS" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
