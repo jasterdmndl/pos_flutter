@@ -5,6 +5,7 @@ import '../products/product_page.dart';
 import '../cart/cart_panel.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../auth/auth_provider.dart';
+import '../auth/login_screen.dart';
 import 'management_screen.dart';
 
 class PosScreen extends ConsumerWidget {
@@ -76,8 +77,14 @@ class PosScreen extends ConsumerWidget {
             icon: const Icon(Icons.logout),
             tooltip: 'Logout',
             onPressed: () {
+              // 1. Perform logout in state
               ref.read(authProvider.notifier).logout();
-              Navigator.of(context).popUntil((route) => route.isFirst);
+              
+              // 2. Clear navigation stack and go back to LoginScreen (the home)
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                (route) => false,
+              );
             },
           ),
         ],

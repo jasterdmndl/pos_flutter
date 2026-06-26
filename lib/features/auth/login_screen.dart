@@ -128,7 +128,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
                       : const Text(
-                          "Login with Supabase",
+                          "Login",
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                 ),
