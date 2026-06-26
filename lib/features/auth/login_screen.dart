@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/services/supabase_service.dart';
 import 'auth_provider.dart';
 import '../pos/pos_screen.dart';
 
@@ -39,7 +40,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         );
       }
     } else {
-      if (mounted) _showError("Login Unsuccessful. Check credentials.");
+      if (mounted) {
+        final error = ref.read(authErrorProvider);
+        _showError(error ?? "Login Unsuccessful. Check credentials.");
+      }
     }
   }
 
@@ -59,6 +63,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final size = MediaQuery.of(context).size;
     final isMobile = size.width < 800;
     
+    final isSupabaseReady = SupabaseService.isInitialized;
+    final supabaseError = SupabaseService.initializationError;
+
     return Scaffold(
       body: Row(
         children: [
@@ -129,6 +136,44 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            if (!isSupabaseReady)
+                              Container(
+                                margin: const EdgeInsets.only(bottom: 32),
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Colors.red[50],
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: Colors.red.withValues(alpha: 0.2), width: 2),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.cloud_off_rounded, color: Colors.red),
+                                        const SizedBox(width: 12),
+                                        Text(
+                                          "CONFIGURATION ERROR",
+                                          style: GoogleFonts.spaceGrotesk(
+                                            fontWeight: FontWeight.w900,
+                                            letterSpacing: 1,
+                                            color: Colors.red[900],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      supabaseError ?? "The app could not find your .env file or the keys inside it are empty.",
+                                      style: GoogleFonts.spaceGrotesk(
+                                        fontSize: 12,
+                                        height: 1.5,
+                                        color: Colors.red[700],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ).animate().shake(),
                             if (isMobile) ...[
                               Text(
                                 "MIRE SUNSET",
@@ -156,6 +201,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             const SizedBox(height: 12),
                             TextField(
                               controller: _emailController,
+                              enabled: isSupabaseReady,
                               decoration: const InputDecoration(
                                 hintText: "email@gmail.com",
                                 prefixIcon: Icon(Icons.alternate_email_rounded, size: 20),
@@ -169,6 +215,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             TextField(
                               controller: _passwordController,
                               obscureText: true,
+                              enabled: isSupabaseReady,
                               decoration: const InputDecoration(
                                 prefixIcon: Icon(Icons.lock_outline_rounded, size: 20),
                               ),
@@ -180,7 +227,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               width: double.infinity,
                               height: 60,
                               child: ElevatedButton(
-                                onPressed: _isLoading ? null : _handleLogin,
+                                onPressed: (_isLoading || !isSupabaseReady) ? null : _handleLogin,
                                 child: _isLoading
                                     ? const SizedBox(
                                         height: 24, 
@@ -199,15 +246,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.verified_user_outlined, size: 16, color: AppTheme.emerald),
+                                Icon(
+                                  isSupabaseReady ? Icons.verified_user_outlined : Icons.cloud_off_outlined, 
+                                  size: 16, 
+                                  color: isSupabaseReady ? AppTheme.emerald : Colors.red,
+                                ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  "SECURED BY SUPABASE CLOUD",
+                                  isSupabaseReady ? "SECURED BY SUPABASE CLOUD" : "OFFLINE / CONFIG MISSING",
                                   style: GoogleFonts.spaceGrotesk(
                                     fontSize: 10,
                                     letterSpacing: 2,
                                     fontWeight: FontWeight.bold,
-                                    color: AppTheme.emerald,
+                                    color: isSupabaseReady ? AppTheme.emerald : Colors.red,
                                   ),
                                 ),
                               ],

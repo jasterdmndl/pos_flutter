@@ -1,37 +1,44 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/database/collections/user_entity.dart';
+import '../../core/services/supabase_service.dart';
+
+final authErrorProvider = StateProvider<String?>((ref) => null);
 
 final authProvider = StateNotifierProvider<AuthNotifier, UserEntity?>((ref) {
-  return AuthNotifier();
+  return AuthNotifier(ref);
 });
 
 class AuthNotifier extends StateNotifier<UserEntity?> {
-  AuthNotifier() : super(null);
-
-  final _supabase = Supabase.instance.client;
+  final Ref ref;
+  AuthNotifier(this.ref) : super(null);
 
   Future<bool> login(String email, String password) async {
+    ref.read(authErrorProvider.notifier).state = null;
+
+    if (!SupabaseService.isInitialized) {
+      ref.read(authErrorProvider.notifier).state = 'Supabase not initialized. Check .env file.';
+      return false;
+    }
+
+    final supabase = SupabaseService.client;
+
     try {
-      print('Attempting Supabase login for: $email');
-      
       // 1. Authenticate with Supabase
-      final response = await _supabase.auth.signInWithPassword(
+      final response = await supabase.auth.signInWithPassword(
         email: email,
         password: password,
       );
 
       final user = response.user;
       if (user == null) {
-        print('Login failed: User object is null');
+        ref.read(authErrorProvider.notifier).state = 'Auth failed: User object is null.';
         return false;
       }
 
-      print('Supabase Auth successful for UID: ${user.id}. Fetching profile...');
-
       // 2. Fetch User Profile/Role from Supabase 'profiles' table
       try {
-        final profileData = await _supabase
+        final profileData = await supabase
             .from('profiles')
             .select()
             .eq('id', user.id)
@@ -45,29 +52,36 @@ class AuthNotifier extends StateNotifier<UserEntity?> {
           ..password = ''
           ..role = (profileData['role'] as String).toLowerCase();
 
-        print('Profile loaded successfully. Role: ${state?.role}');
         return true;
       } on PostgrestException catch (pgError) {
-        print('Postgrest Error: ${pgError.message} (Code: ${pgError.code})');
         if (pgError.code == 'PGRST116') {
-          print('Error Details: No rows found in "profiles" for this UID. This usually means the row exists but RLS is blocking you from reading it, or the row was never inserted.');
+          ref.read(authErrorProvider.notifier).state = 'Profile not found in database. Run the SQL script for UID: ${user.id}';
+        } else {
+          ref.read(authErrorProvider.notifier).state = 'Database Error: ${pgError.message}';
         }
         return false;
       } catch (profileError) {
-        print('Unexpected Profile Error: $profileError');
+        ref.read(authErrorProvider.notifier).state = 'Unexpected Profile Error: $profileError';
         return false;
       }
     } on AuthException catch (e) {
-      print('Supabase Auth Error: ${e.message}');
+      ref.read(authErrorProvider.notifier).state = 'Login Failed: ${e.message}';
       return false;
     } catch (e) {
-      print('Unexpected Login Error: $e');
+      final errorStr = e.toString();
+      if (errorStr.contains('Failed host lookup') || errorStr.contains('connection')) {
+        ref.read(authErrorProvider.notifier).state = 'No Internet Connection. Please check your WiFi.';
+      } else {
+        ref.read(authErrorProvider.notifier).state = 'Unexpected Error: $e';
+      }
       return false;
     }
   }
 
   void logout() async {
-    await _supabase.auth.signOut();
+    if (SupabaseService.isInitialized) {
+      await SupabaseService.client.auth.signOut();
+    }
     state = null;
   }
 }
