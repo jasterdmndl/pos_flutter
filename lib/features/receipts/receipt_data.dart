@@ -10,6 +10,9 @@ class ReceiptData {
   final double vatAmount;
   final double exemptSales;
 
+  final double amountReceived;
+  final double changeDue;
+
   final String paymentMethod;
   final DateTime createdAt;
 
@@ -24,6 +27,8 @@ class ReceiptData {
     this.vatableSales = 0,
     this.vatAmount = 0,
     this.exemptSales = 0,
+    this.amountReceived = 0,
+    this.changeDue = 0,
     required this.paymentMethod,
     required this.createdAt,
     required this.items,

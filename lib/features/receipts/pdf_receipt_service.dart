@@ -148,6 +148,26 @@ class PdfReceiptService {
               pw.Divider(),
               pw.SizedBox(height: 5),
 
+              if (receipt.paymentMethod.toLowerCase() == 'cash') ...[
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Text('Amount Received'),
+                    pw.Text('PHP ${receipt.amountReceived.toStringAsFixed(2)}'),
+                  ],
+                ),
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Text('Change Due'),
+                    pw.Text('PHP ${receipt.changeDue.toStringAsFixed(2)}'),
+                  ],
+                ),
+                pw.SizedBox(height: 5),
+                pw.Divider(),
+                pw.SizedBox(height: 5),
+              ],
+
               _vatRow('VATable Sales', receipt.vatableSales),
               _vatRow('VAT Amount (12%)', receipt.vatAmount),
               _vatRow('VAT Exempt Sales', receipt.exemptSales),

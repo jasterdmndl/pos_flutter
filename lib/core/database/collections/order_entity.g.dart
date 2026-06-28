@@ -17,63 +17,73 @@ const OrderEntitySchema = CollectionSchema(
   name: r'OrderEntity',
   id: 4301709931984059335,
   properties: {
-    r'cashierId': PropertySchema(
+    r'amountReceived': PropertySchema(
       id: 0,
+      name: r'amountReceived',
+      type: IsarType.double,
+    ),
+    r'cashierId': PropertySchema(
+      id: 1,
       name: r'cashierId',
       type: IsarType.long,
     ),
+    r'changeDue': PropertySchema(
+      id: 2,
+      name: r'changeDue',
+      type: IsarType.double,
+    ),
     r'createdAt': PropertySchema(
-      id: 1,
+      id: 3,
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
     r'discountAmount': PropertySchema(
-      id: 2,
+      id: 4,
       name: r'discountAmount',
       type: IsarType.double,
     ),
     r'exemptSales': PropertySchema(
-      id: 3,
+      id: 5,
       name: r'exemptSales',
       type: IsarType.double,
     ),
     r'isSynced': PropertySchema(
-      id: 4,
+      id: 6,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'isVoided': PropertySchema(
-      id: 5,
+      id: 7,
       name: r'isVoided',
       type: IsarType.bool,
     ),
     r'paymentMethod': PropertySchema(
-      id: 6,
+      id: 8,
       name: r'paymentMethod',
       type: IsarType.string,
     ),
     r'subtotal': PropertySchema(
-      id: 7,
+      id: 9,
       name: r'subtotal',
       type: IsarType.double,
     ),
     r'total': PropertySchema(
-      id: 8,
+      id: 10,
       name: r'total',
       type: IsarType.double,
     ),
     r'vatAmount': PropertySchema(
-      id: 9,
+      id: 11,
       name: r'vatAmount',
       type: IsarType.double,
     ),
     r'vatableSales': PropertySchema(
-      id: 10,
+      id: 12,
       name: r'vatableSales',
       type: IsarType.double,
     ),
     r'voidReason': PropertySchema(
-      id: 11,
+      id: 13,
       name: r'voidReason',
       type: IsarType.string,
     )
@@ -114,18 +124,20 @@ void _orderEntitySerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeLong(offsets[0], object.cashierId);
-  writer.writeDateTime(offsets[1], object.createdAt);
-  writer.writeDouble(offsets[2], object.discountAmount);
-  writer.writeDouble(offsets[3], object.exemptSales);
-  writer.writeBool(offsets[4], object.isSynced);
-  writer.writeBool(offsets[5], object.isVoided);
-  writer.writeString(offsets[6], object.paymentMethod);
-  writer.writeDouble(offsets[7], object.subtotal);
-  writer.writeDouble(offsets[8], object.total);
-  writer.writeDouble(offsets[9], object.vatAmount);
-  writer.writeDouble(offsets[10], object.vatableSales);
-  writer.writeString(offsets[11], object.voidReason);
+  writer.writeDouble(offsets[0], object.amountReceived);
+  writer.writeLong(offsets[1], object.cashierId);
+  writer.writeDouble(offsets[2], object.changeDue);
+  writer.writeDateTime(offsets[3], object.createdAt);
+  writer.writeDouble(offsets[4], object.discountAmount);
+  writer.writeDouble(offsets[5], object.exemptSales);
+  writer.writeBool(offsets[6], object.isSynced);
+  writer.writeBool(offsets[7], object.isVoided);
+  writer.writeString(offsets[8], object.paymentMethod);
+  writer.writeDouble(offsets[9], object.subtotal);
+  writer.writeDouble(offsets[10], object.total);
+  writer.writeDouble(offsets[11], object.vatAmount);
+  writer.writeDouble(offsets[12], object.vatableSales);
+  writer.writeString(offsets[13], object.voidReason);
 }
 
 OrderEntity _orderEntityDeserialize(
@@ -135,19 +147,21 @@ OrderEntity _orderEntityDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = OrderEntity();
-  object.cashierId = reader.readLongOrNull(offsets[0]);
-  object.createdAt = reader.readDateTime(offsets[1]);
-  object.discountAmount = reader.readDouble(offsets[2]);
-  object.exemptSales = reader.readDouble(offsets[3]);
+  object.amountReceived = reader.readDouble(offsets[0]);
+  object.cashierId = reader.readLongOrNull(offsets[1]);
+  object.changeDue = reader.readDouble(offsets[2]);
+  object.createdAt = reader.readDateTime(offsets[3]);
+  object.discountAmount = reader.readDouble(offsets[4]);
+  object.exemptSales = reader.readDouble(offsets[5]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[4]);
-  object.isVoided = reader.readBool(offsets[5]);
-  object.paymentMethod = reader.readString(offsets[6]);
-  object.subtotal = reader.readDouble(offsets[7]);
-  object.total = reader.readDouble(offsets[8]);
-  object.vatAmount = reader.readDouble(offsets[9]);
-  object.vatableSales = reader.readDouble(offsets[10]);
-  object.voidReason = reader.readStringOrNull(offsets[11]);
+  object.isSynced = reader.readBool(offsets[6]);
+  object.isVoided = reader.readBool(offsets[7]);
+  object.paymentMethod = reader.readString(offsets[8]);
+  object.subtotal = reader.readDouble(offsets[9]);
+  object.total = reader.readDouble(offsets[10]);
+  object.vatAmount = reader.readDouble(offsets[11]);
+  object.vatableSales = reader.readDouble(offsets[12]);
+  object.voidReason = reader.readStringOrNull(offsets[13]);
   return object;
 }
 
@@ -159,28 +173,32 @@ P _orderEntityDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 1:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 2:
       return (reader.readDouble(offset)) as P;
     case 3:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readDateTime(offset)) as P;
     case 4:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 5:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 6:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 7:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 8:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 9:
       return (reader.readDouble(offset)) as P;
     case 10:
       return (reader.readDouble(offset)) as P;
     case 11:
+      return (reader.readDouble(offset)) as P;
+    case 12:
+      return (reader.readDouble(offset)) as P;
+    case 13:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -281,6 +299,72 @@ extension OrderEntityQueryWhere
 extension OrderEntityQueryFilter
     on QueryBuilder<OrderEntity, OrderEntity, QFilterCondition> {
   QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      amountReceivedEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'amountReceived',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      amountReceivedGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'amountReceived',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      amountReceivedLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'amountReceived',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      amountReceivedBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'amountReceived',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
       cashierIdIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -350,6 +434,72 @@ extension OrderEntityQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      changeDueEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'changeDue',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      changeDueGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'changeDue',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      changeDueLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'changeDue',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      changeDueBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'changeDue',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
       ));
     });
   }
@@ -1173,6 +1323,19 @@ extension OrderEntityQueryLinks
 
 extension OrderEntityQuerySortBy
     on QueryBuilder<OrderEntity, OrderEntity, QSortBy> {
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortByAmountReceived() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'amountReceived', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByAmountReceivedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'amountReceived', Sort.desc);
+    });
+  }
+
   QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortByCashierId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'cashierId', Sort.asc);
@@ -1182,6 +1345,18 @@ extension OrderEntityQuerySortBy
   QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortByCashierIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'cashierId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortByChangeDue() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'changeDue', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortByChangeDueDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'changeDue', Sort.desc);
     });
   }
 
@@ -1323,6 +1498,19 @@ extension OrderEntityQuerySortBy
 
 extension OrderEntityQuerySortThenBy
     on QueryBuilder<OrderEntity, OrderEntity, QSortThenBy> {
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenByAmountReceived() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'amountReceived', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByAmountReceivedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'amountReceived', Sort.desc);
+    });
+  }
+
   QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenByCashierId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'cashierId', Sort.asc);
@@ -1332,6 +1520,18 @@ extension OrderEntityQuerySortThenBy
   QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenByCashierIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'cashierId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenByChangeDue() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'changeDue', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenByChangeDueDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'changeDue', Sort.desc);
     });
   }
 
@@ -1485,9 +1685,21 @@ extension OrderEntityQuerySortThenBy
 
 extension OrderEntityQueryWhereDistinct
     on QueryBuilder<OrderEntity, OrderEntity, QDistinct> {
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct> distinctByAmountReceived() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'amountReceived');
+    });
+  }
+
   QueryBuilder<OrderEntity, OrderEntity, QDistinct> distinctByCashierId() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'cashierId');
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct> distinctByChangeDue() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'changeDue');
     });
   }
 
@@ -1569,9 +1781,21 @@ extension OrderEntityQueryProperty
     });
   }
 
+  QueryBuilder<OrderEntity, double, QQueryOperations> amountReceivedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'amountReceived');
+    });
+  }
+
   QueryBuilder<OrderEntity, int?, QQueryOperations> cashierIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'cashierId');
+    });
+  }
+
+  QueryBuilder<OrderEntity, double, QQueryOperations> changeDueProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'changeDue');
     });
   }
 

@@ -24,6 +24,8 @@ class CheckoutController extends StateNotifier<Order?> {
   Future<void> checkout({
     required PaymentMethod paymentMethod,
     required DiscountType discountType,
+    double amountReceived = 0,
+    double changeDue = 0,
   }) async {
     final cartItems = ref.read(cartProvider);
     final cartController = ref.read(cartProvider.notifier);
@@ -39,14 +41,11 @@ class CheckoutController extends StateNotifier<Order?> {
     final total = subtotal - discountAmount;
 
     // BIR VAT Calculations (12% VAT)
-    // Formula: VATable Sales = Total / 1.12
-    // VAT Amount = Total - VATable Sales
     final double vatableSales;
     final double vatAmount;
     final double exemptSales;
 
     if (discountType == DiscountType.senior || discountType == DiscountType.pwd) {
-      // SC/PWD are VAT Exempt in the Philippines
       vatableSales = 0;
       vatAmount = 0;
       exemptSales = total;
@@ -56,16 +55,11 @@ class CheckoutController extends StateNotifier<Order?> {
       exemptSales = 0;
     }
 
-    final repository =
-      ref.read(orderRepositoryProvider);
-
-    final inventoryRepository =
-      ref.read(inventoryRepositoryProvider);
-    
+    final repository = ref.read(orderRepositoryProvider);
+    final inventoryRepository = ref.read(inventoryRepositoryProvider);
     final cashier = ref.read(authProvider);
 
-    final savedOrderId =
-    await repository.saveOrder(
+    final savedOrderId = await repository.saveOrder(
       cartItems: cartItems,
       subtotal: subtotal,
       discountAmount: discountAmount,
@@ -74,6 +68,8 @@ class CheckoutController extends StateNotifier<Order?> {
       vatAmount: vatAmount,
       exemptSales: exemptSales,
       paymentMethod: paymentMethod.name,
+      amountReceived: amountReceived,
+      changeDue: changeDue,
       cashierId: cashier?.id,
     );
 
@@ -84,19 +80,16 @@ class CheckoutController extends StateNotifier<Order?> {
 
     final order = Order(
       id: savedOrderId.toString(),
-      items: cartItems,
+      items: List.from(cartItems),
       subtotal: subtotal,
       discountAmount: discountAmount,
       total: total,
       paymentMethod: paymentMethod,
       discountType: discountType,
+      amountReceived: amountReceived,
+      changeDue: changeDue,
       createdAt: DateTime.now(),
     );
-
-    // ==========================
-    // SAVE TO ISAR
-    // ==========================
-
 
     ref.invalidate(dashboardProvider);
     ref.invalidate(salesHistoryProvider);
@@ -104,16 +97,7 @@ class CheckoutController extends StateNotifier<Order?> {
     // Trigger background sync
     ref.read(syncProvider.notifier).syncNow();
 
-    // ==========================
-    // UPDATE STATE
-    // ==========================
-
     state = order;
-
-    // ==========================
-    // CLEAR CART
-    // ==========================
-
     cartController.clearCart();
   }
 }

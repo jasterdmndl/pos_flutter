@@ -17,6 +17,9 @@ class Order {
   final PaymentMethod paymentMethod;
   final DiscountType discountType;
 
+  final double amountReceived;
+  final double changeDue;
+
   final DateTime createdAt;
 
   const Order({
@@ -27,6 +30,8 @@ class Order {
     required this.total,
     required this.paymentMethod,
     required this.discountType,
+    required this.amountReceived,
+    required this.changeDue,
     required this.createdAt,
   });
 }

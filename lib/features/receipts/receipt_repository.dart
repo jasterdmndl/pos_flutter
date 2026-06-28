@@ -60,10 +60,12 @@ class ReceiptRepository {
       vatableSales: order.vatableSales,
       vatAmount: order.vatAmount,
       exemptSales: order.exemptSales,
+      amountReceived: order.amountReceived,
+      changeDue: order.changeDue,
       paymentMethod: order.paymentMethod,
       createdAt: order.createdAt,
       items: items,
-      receiptNumber: 'OR-${order.createdAt.year}-${order.id.toString().padLeft(6, '0')}',
+      receiptNumber: 'INV-${order.createdAt.year}-${order.id.toString().padLeft(6, '0')}',
     );
   }
 }

@@ -101,9 +101,16 @@ class ReceiptDialog extends StatelessWidget {
                 ],
               ),
 
+              if (order.paymentMethod == PaymentMethod.cash) ...[
+                const SizedBox(height: 12),
+                _SummaryRow(label: 'Amount Received', value: order.amountReceived),
+                _SummaryRow(label: 'Change Due', value: order.changeDue),
+              ],
+
               const Divider(height: 32),
               const Text('TAX BREAKDOWN', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
               const SizedBox(height: 4),
+              // We'll calculate display values here for the UI
               _TaxRow(label: 'VATable Sales', value: order.total / 1.12),
               _TaxRow(label: 'VAT Amount (12%)', value: order.total - (order.total / 1.12)),
 
@@ -136,6 +143,8 @@ class ReceiptDialog extends StatelessWidget {
                 vatAmount: order.total - (order.total / 1.12),
                 exemptSales: 0,
                 paymentMethod: order.paymentMethod.name,
+                amountReceived: order.amountReceived,
+                changeDue: order.changeDue,
                 createdAt: order.createdAt,
                 items: order.items.map((item) {
                   return ReceiptItem(
@@ -198,8 +207,7 @@ class _TaxRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: const TextStyle(fontSize: 12)),
+      children: [Text(label, style: const TextStyle(fontSize: 12)),
         Text('₱${value.toStringAsFixed(2)}', style: const TextStyle(fontSize: 12)),
       ],
     );

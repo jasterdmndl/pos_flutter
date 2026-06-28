@@ -25,6 +25,9 @@ class OrderEntity {
 
   bool isSynced = false;
 
+  double amountReceived = 0;
+  double changeDue = 0;
+
   @ignore
   String get receiptNumber {
     final year = createdAt.year;
@@ -32,4 +35,3 @@ class OrderEntity {
     return 'OR-$year-${id.toString().padLeft(6, '0')}';
   }
 }
-

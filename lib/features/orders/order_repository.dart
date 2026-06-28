@@ -19,6 +19,8 @@ class OrderRepository {
     required double vatAmount,
     required double exemptSales,
     required String paymentMethod,
+    double amountReceived = 0,
+    double changeDue = 0,
     int? cashierId,
   }) async {
     return await IsarService.isar.writeTxn(() async {
@@ -31,6 +33,8 @@ class OrderRepository {
         ..vatAmount = vatAmount
         ..exemptSales = exemptSales
         ..paymentMethod = paymentMethod
+        ..amountReceived = amountReceived
+        ..changeDue = changeDue
         ..createdAt = DateTime.now()
         ..cashierId = cashierId;
 

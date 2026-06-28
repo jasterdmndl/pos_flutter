@@ -113,7 +113,7 @@ class _CheckoutDialogState extends ConsumerState<CheckoutDialog> {
                                   ),
                                   Text(
                                     "QTY: ${item.quantity}",
-                                    style: GoogleFonts.spaceGrotesk(color: Colors.white.withOpacity(0.5), fontSize: 12),
+                                    style: GoogleFonts.spaceGrotesk(color: Colors.white.withValues(alpha: 0.5), fontSize: 12),
                                   ),
                                 ],
                               ),
@@ -190,7 +190,7 @@ class _CheckoutDialogState extends ConsumerState<CheckoutDialog> {
                               contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: AppTheme.ink.withOpacity(0.1), width: 2),
+                                borderSide: BorderSide(color: AppTheme.ink.withValues(alpha: 0.1), width: 2),
                               ),
                             ),
                             items: DiscountType.values.map((type) {
@@ -215,6 +215,8 @@ class _CheckoutDialogState extends ConsumerState<CheckoutDialog> {
                               await ref.read(checkoutProvider.notifier).checkout(
                                 paymentMethod: selectedMethod,
                                 discountType: selectedDiscount,
+                                amountReceived: received,
+                                changeDue: _changeDue,
                               );
 
                               final order = ref.read(checkoutProvider);
@@ -271,7 +273,7 @@ class _CheckoutDialogState extends ConsumerState<CheckoutDialog> {
                               decoration: BoxDecoration(
                                 color: AppTheme.bone,
                                 borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: AppTheme.ink.withOpacity(0.08), width: 2),
+                                border: Border.all(color: AppTheme.ink.withValues(alpha: 0.08), width: 2),
                               ),
                               child: Row(
                                 children: [
@@ -283,7 +285,7 @@ class _CheckoutDialogState extends ConsumerState<CheckoutDialog> {
                                       style: GoogleFonts.spaceGrotesk(
                                         fontSize: 32, 
                                         fontWeight: FontWeight.w900,
-                                        color: receivedAmount.isEmpty ? AppTheme.ink.withOpacity(0.2) : AppTheme.ink,
+                                        color: receivedAmount.isEmpty ? AppTheme.ink.withValues(alpha: 0.2) : AppTheme.ink,
                                       ),
                                     ),
                                   ),
@@ -316,7 +318,7 @@ class _CheckoutDialogState extends ConsumerState<CheckoutDialog> {
                               onPressed: () => _onNumpadPressed("clear", total),
                               style: OutlinedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(vertical: 20),
-                                side: BorderSide(color: AppTheme.ink.withOpacity(0.1)),
+                                side: BorderSide(color: AppTheme.ink.withValues(alpha: 0.1)),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                               ),
                               child: Text("CLEAR AMOUNT", style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.bold, letterSpacing: 1)),
@@ -359,7 +361,7 @@ class _NumpadButton extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppTheme.ink.withOpacity(0.08), width: 1.5),
+            border: Border.all(color: AppTheme.ink.withValues(alpha: 0.08), width: 1.5),
           ),
           child: Center(
             child: Text(
@@ -403,7 +405,7 @@ class _BoutiquePaymentOption extends StatelessWidget {
             color: isSelected ? AppTheme.emerald : Colors.white,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isSelected ? AppTheme.emerald : AppTheme.ink.withOpacity(0.1),
+              color: isSelected ? AppTheme.emerald : AppTheme.ink.withValues(alpha: 0.1),
               width: 2,
             ),
           ),
@@ -451,7 +453,7 @@ class _WhiteAmountRow extends StatelessWidget {
         Text(
           label,
           style: GoogleFonts.spaceGrotesk(
-            color: (color ?? Colors.white).withOpacity(isBold ? 1 : 0.5),
+            color: (color ?? Colors.white).withValues(alpha: isBold ? 1 : 0.5),
             fontWeight: isBold ? FontWeight.w900 : FontWeight.bold,
             fontSize: isBold ? 24 : 14,
           ),
