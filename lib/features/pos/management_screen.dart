@@ -4,6 +4,8 @@ import '../products/category_management_screen.dart';
 import '../products/addon_management_screen.dart';
 import '../inventory/inventory_screen.dart';
 import '../reports/reports_screen.dart';
+import '../reports/z_reading_screen.dart';
+import '../settings/developer_settings_screen.dart';
 
 class ManagementScreen extends StatelessWidget {
   const ManagementScreen({super.key});
@@ -58,6 +60,22 @@ class ManagementScreen extends StatelessWidget {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const ReportsScreen()),
+            ),
+          ),
+          _MenuCard(
+            title: 'End of Day',
+            icon: Icons.lock_clock_outlined,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ZReadingScreen()),
+            ),
+          ),
+          _MenuCard(
+            title: 'Developer Tools',
+            icon: Icons.bug_report_outlined,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const DeveloperSettingsScreen()),
             ),
           ),
         ],

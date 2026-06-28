@@ -15,6 +15,9 @@ class OrderRepository {
     required double subtotal,
     required double discountAmount,
     required double total,
+    required double vatableSales,
+    required double vatAmount,
+    required double exemptSales,
     required String paymentMethod,
     int? cashierId,
   }) async {
@@ -24,6 +27,9 @@ class OrderRepository {
         ..subtotal = subtotal
         ..discountAmount = discountAmount
         ..total = total
+        ..vatableSales = vatableSales
+        ..vatAmount = vatAmount
+        ..exemptSales = exemptSales
         ..paymentMethod = paymentMethod
         ..createdAt = DateTime.now()
         ..cashierId = cashierId;

@@ -8,6 +8,7 @@ import 'package:pos_flutter/core/database/collections/ingredient_entity.dart';
 import 'package:pos_flutter/core/database/collections/product_ingredient_entity.dart';
 import 'package:pos_flutter/core/database/collections/user_entity.dart';
 import 'package:pos_flutter/core/database/collections/product_addon_entity.dart';
+import 'package:pos_flutter/core/database/collections/z_reading_entity.dart';
 
 import 'collections/order_entity.dart';
 
@@ -28,6 +29,7 @@ class IsarService {
         ProductIngredientEntitySchema,
         UserEntitySchema,
         ProductAddonEntitySchema,
+        ZReadingEntitySchema,
       ],
       directory: dir.path,
     );

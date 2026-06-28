@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../checkout/checkout_model.dart';
 import 'receipt_data.dart';
@@ -15,7 +16,7 @@ class ReceiptDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Receipt'),
+      title: Text('SALES INVOICE', style: GoogleFonts.fraunces(fontWeight: FontWeight.bold)),
       content: SizedBox(
         width: 400,
         child: SingleChildScrollView(
@@ -27,18 +28,19 @@ class ReceiptDialog extends StatelessWidget {
                 child: Text(
                   'MIRE SUNSET',
                   style: TextStyle(
-                    fontWeight:
-                    FontWeight.bold,
+                    fontWeight: FontWeight.bold,
                     fontSize: 20,
                   ),
                 ),
               ),
+              const Center(child: Text('123 Cafe Street, Manila', style: TextStyle(fontSize: 12))),
+              const Center(child: Text('TIN: 000-000-000-000', style: TextStyle(fontSize: 12))),
 
-              const Divider(),
+              const Divider(height: 32),
 
               Center(
                 child: Text(
-                  'OR-${order.createdAt.year}-${order.id.padLeft(6, '0')}',
+                  'INV-${order.createdAt.year}-${order.id.padLeft(6, '0')}',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -77,6 +79,7 @@ class ReceiptDialog extends StatelessWidget {
                               left: 16),
                           child: Text(
                             '+ ${addon.name} x${addon.quantity}',
+                            style: const TextStyle(fontSize: 12, color: Colors.grey),
                           ),
                         ),
                       ),
@@ -87,33 +90,33 @@ class ReceiptDialog extends StatelessWidget {
 
               const Divider(),
 
-              Text(
-                'Subtotal: ₱${order.subtotal.toStringAsFixed(2)}',
-              ),
-
-              Text(
-                'Discount: ₱${order.discountAmount.toStringAsFixed(2)}',
-              ),
-
+              _SummaryRow(label: 'Subtotal', value: order.subtotal),
+              _SummaryRow(label: 'Discount', value: order.discountAmount),
               const SizedBox(height: 8),
-
-              Text(
-                'Total: ₱${order.total.toStringAsFixed(2)}',
-                style: const TextStyle(
-                  fontWeight:
-                  FontWeight.bold,
-                  fontSize: 18,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('TOTAL', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  Text('₱${order.total.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                ],
               ),
 
-              const SizedBox(height: 12),
+              const Divider(height: 32),
+              const Text('TAX BREAKDOWN', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
+              const SizedBox(height: 4),
+              _TaxRow(label: 'VATable Sales', value: order.total / 1.12),
+              _TaxRow(label: 'VAT Amount (12%)', value: order.total - (order.total / 1.12)),
+
+              const SizedBox(height: 24),
 
               Text(
                 'Payment: ${order.paymentMethod.name.toUpperCase()}',
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
 
               Text(
-                order.createdAt.toString(),
+                order.createdAt.toString().split('.')[0],
+                style: const TextStyle(color: Colors.grey, fontSize: 12),
               ),
             ],
           ),
@@ -125,13 +128,13 @@ class ReceiptDialog extends StatelessWidget {
             try {
               final receipt = ReceiptData(
                 orderId: int.tryParse(order.id) ?? 0,
-
-                receiptNumber:
-                'OR-${order.createdAt.year}-${order.id.padLeft(6, '0')}',
-
+                receiptNumber: 'INV-${order.createdAt.year}-${order.id.padLeft(6, '0')}',
                 subtotal: order.subtotal,
                 discountAmount: order.discountAmount,
                 total: order.total,
+                vatableSales: order.total / 1.12,
+                vatAmount: order.total - (order.total / 1.12),
+                exemptSales: 0,
                 paymentMethod: order.paymentMethod.name,
                 createdAt: order.createdAt,
                 items: order.items.map((item) {
@@ -150,35 +153,54 @@ class ReceiptDialog extends StatelessWidget {
                 }).toList(),
               );
 
-              await PdfReceiptService()
-                  .printReceipt(receipt);
+              await PdfReceiptService().printReceipt(receipt);
 
             } catch (e) {
               if (context.mounted) {
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Printing Error: $e',
-                    ),
-                  ),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Printing Error: $e')));
               }
             }
           },
-          child: const Text(
-            'Print Receipt',
-          ),
+          child: const Text('Print Invoice'),
         ),
-
         TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: const Text(
-            'Close',
-          ),
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Close'),
         ),
+      ],
+    );
+  }
+}
+
+class _SummaryRow extends StatelessWidget {
+  final String label;
+  final double value;
+  const _SummaryRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label),
+        Text('₱${value.toStringAsFixed(2)}'),
+      ],
+    );
+  }
+}
+
+class _TaxRow extends StatelessWidget {
+  final String label;
+  final double value;
+  const _TaxRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 12)),
+        Text('₱${value.toStringAsFixed(2)}', style: const TextStyle(fontSize: 12)),
       ],
     );
   }

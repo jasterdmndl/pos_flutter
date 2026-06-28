@@ -38,6 +38,24 @@ class CheckoutController extends StateNotifier<Order?> {
 
     final total = subtotal - discountAmount;
 
+    // BIR VAT Calculations (12% VAT)
+    // Formula: VATable Sales = Total / 1.12
+    // VAT Amount = Total - VATable Sales
+    final double vatableSales;
+    final double vatAmount;
+    final double exemptSales;
+
+    if (discountType == DiscountType.senior || discountType == DiscountType.pwd) {
+      // SC/PWD are VAT Exempt in the Philippines
+      vatableSales = 0;
+      vatAmount = 0;
+      exemptSales = total;
+    } else {
+      vatableSales = total / 1.12;
+      vatAmount = total - vatableSales;
+      exemptSales = 0;
+    }
+
     final repository =
       ref.read(orderRepositoryProvider);
 
@@ -52,6 +70,9 @@ class CheckoutController extends StateNotifier<Order?> {
       subtotal: subtotal,
       discountAmount: discountAmount,
       total: total,
+      vatableSales: vatableSales,
+      vatAmount: vatAmount,
+      exemptSales: exemptSales,
       paymentMethod: paymentMethod.name,
       cashierId: cashier?.id,
     );

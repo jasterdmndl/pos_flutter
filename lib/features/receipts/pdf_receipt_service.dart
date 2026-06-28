@@ -32,15 +32,20 @@ class PdfReceiptService {
                         pw.FontWeight.bold,
                       ),
                     ),
+                    pw.Text('123 Cafe Street, Manila'),
+                    pw.Text('TIN: 000-000-000-000'),
+                    pw.Text('MIN: 240000000'),
 
+                    pw.SizedBox(height: 5),
                     pw.Text(
-                      'Official Receipt',
+                      'SALES INVOICE',
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 14),
                     ),
 
                     pw.SizedBox(height: 5),
 
                     pw.Text(
-                      receipt.createdAt.toString(),
+                      receipt.createdAt.toString().split('.')[0],
                       textAlign:
                       pw.TextAlign.center,
                     ),
@@ -116,8 +121,6 @@ class PdfReceiptService {
                 ],
               ),
 
-              pw.Divider(),
-
               pw.Row(
                 mainAxisAlignment:
                 pw.MainAxisAlignment
@@ -142,16 +145,28 @@ class PdfReceiptService {
               ),
 
               pw.SizedBox(height: 10),
+              pw.Divider(),
+              pw.SizedBox(height: 5),
+
+              _vatRow('VATable Sales', receipt.vatableSales),
+              _vatRow('VAT Amount (12%)', receipt.vatAmount),
+              _vatRow('VAT Exempt Sales', receipt.exemptSales),
+
+              pw.SizedBox(height: 10),
 
               pw.Text(
                 'Payment: ${receipt.paymentMethod.toUpperCase()}',
               ),
 
               pw.Text(
-                receipt.receiptNumber,
+                'Invoice No: ${receipt.receiptNumber}',
               ),
 
               pw.SizedBox(height: 15),
+              
+              pw.Text('Accreditation No: 000-000000000-000'),
+              pw.Text('Date Issued: MM/DD/YYYY'),
+              pw.SizedBox(height: 10),
 
               pw.Center(
                 child: pw.Text(
@@ -168,6 +183,15 @@ class PdfReceiptService {
                   'Please Come Again',
                 ),
               ),
+              
+              pw.SizedBox(height: 10),
+              pw.Center(
+                child: pw.Text(
+                  'BIR EOPT COMPLIANT SYSTEM',
+                  textAlign: pw.TextAlign.center,
+                  style: const pw.TextStyle(fontSize: 8),
+                ),
+              ),
             ],
           );
         },
@@ -175,6 +199,19 @@ class PdfReceiptService {
     );
 
     return pdf.save();
+  }
+
+  pw.Widget _vatRow(String label, double amount) {
+    return pw.Padding(
+      padding: const pw.EdgeInsets.only(bottom: 2),
+      child: pw.Row(
+        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+        children: [
+          pw.Text(label, style: const pw.TextStyle(fontSize: 10)),
+          pw.Text(amount.toStringAsFixed(2), style: const pw.TextStyle(fontSize: 10)),
+        ],
+      ),
+    );
   }
 
   Future<File> saveReceiptPdf(
@@ -189,7 +226,7 @@ class PdfReceiptService {
     await getApplicationDocumentsDirectory();
 
     final file = File(
-      '${directory.path}/receipt_${receipt.orderId}.pdf',
+      '${directory.path}/invoice_${receipt.orderId}.pdf',
     );
 
     await file.writeAsBytes(bytes);

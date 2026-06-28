@@ -10,6 +10,10 @@ class OrderEntity {
   late double discountAmount;
   late double total;
 
+  late double vatableSales;
+  late double vatAmount;
+  late double exemptSales;
+
   late String paymentMethod;
 
   late DateTime createdAt;
