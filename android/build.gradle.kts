@@ -17,7 +17,7 @@ subprojects {
 }
 
 // =========================================================================
-// FIX FOR ISAR & MODERN ANDROID SDK (SDK 36)
+// FIX FOR ISAR & MODERN ANDROID SDK (FORCED SDK 36)
 // =========================================================================
 subprojects {
     afterEvaluate {
@@ -30,8 +30,8 @@ subprojects {
                 android.namespace = "dev.isar.isar_flutter_libs"
             }
             
-            // 2. Force Compile SDK to 36 to satisfy latest androidx dependencies
-            // Modern Flutter packages are starting to require the newest Android 16 (API 36)
+            // 2. Force Compile SDK to 36 to satisfy latest dependencies
+            // This must match the version in app/build.gradle.kts
             android.compileSdkVersion(36)
         }
     }

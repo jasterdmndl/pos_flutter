@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.jhester.posflutter.pos_flutter"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 36 // Strictly forced to 36 to satisfy latest dependencies
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -20,7 +20,7 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = 36 // Synchronized with compileSdk
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
@@ -30,8 +30,8 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
-            minifyEnabled = true
-            shrinkResources = true
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
