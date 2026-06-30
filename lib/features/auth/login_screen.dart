@@ -59,9 +59,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: GoogleFonts.spaceGrotesk()),
+        content: Text(message, style: GoogleFonts.spaceGrotesk(fontSize: 12)),
         backgroundColor: AppTheme.error,
         behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
       ),
     );
   }
@@ -71,14 +72,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final theme = Theme.of(context);
     final size = MediaQuery.of(context).size;
     final isMobile = size.width < 800;
+    final isPhone = size.width < 500;
     
     final isSupabaseReady = SupabaseService.isInitialized;
     final supabaseError = SupabaseService.initializationError;
 
     return Scaffold(
+      backgroundColor: AppTheme.bone,
       body: Row(
         children: [
-          // LEFT SIDE - BRANDING (BOUTIQUE SPLIT) - Hides on small mobile
+          // LEFT SIDE - BRANDING (Only on Desktop/Tablet)
           if (!isMobile)
             Expanded(
               flex: 6,
@@ -102,20 +105,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                           ).animate().fadeIn(duration: 800.ms).slideX(begin: -0.2),
                           const SizedBox(height: 20),
-                          Container(
-                            width: 80,
-                            height: 6,
-                            color: Colors.white,
-                          ).animate().scaleX(begin: 0, alignment: Alignment.centerLeft, delay: 500.ms),
+                          Container(width: 80, height: 6, color: Colors.white),
                           const SizedBox(height: 20),
                           Text(
-                            "POS System",
+                            "ESTABLISHED 2024\nPREMIUM HOSPITALITY POS",
                             style: GoogleFonts.spaceGrotesk(
                               fontSize: 16,
                               letterSpacing: 4,
                               color: Colors.white.withValues(alpha: 0.7),
                             ),
-                          ).animate().fadeIn(delay: 800.ms),
+                          ),
                         ],
                       ),
                     ),
@@ -124,7 +123,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
             ),
           
-          // RIGHT SIDE - LOGIN FORM
+          // RIGHT SIDE - LOGIN FORM (Optimized for Mobile/Phone)
           Expanded(
             flex: 5,
             child: Container(
@@ -133,7 +132,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 builder: (context, constraints) {
                   return SingleChildScrollView(
                     padding: EdgeInsets.symmetric(
-                      horizontal: isMobile ? 40 : 80,
+                      horizontal: isPhone ? 24 : (isMobile ? 48 : 80),
                       vertical: 40,
                     ),
                     child: ConstrainedBox(
@@ -143,114 +142,78 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       child: IntrinsicHeight(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            if (!isSupabaseReady)
-                              Container(
-                                margin: const EdgeInsets.only(bottom: 32),
-                                padding: const EdgeInsets.all(20),
-                                decoration: BoxDecoration(
-                                  color: Colors.red[50],
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: Colors.red.withValues(alpha: 0.2), width: 2),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        const Icon(Icons.cloud_off_rounded, color: Colors.red),
-                                        const SizedBox(width: 12),
-                                        Text(
-                                          "CONFIGURATION ERROR",
-                                          style: GoogleFonts.spaceGrotesk(
-                                            fontWeight: FontWeight.w900,
-                                            letterSpacing: 1,
-                                            color: Colors.red[900],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      supabaseError ?? "The app could not find your .env file or the keys inside it are empty.",
-                                      style: GoogleFonts.spaceGrotesk(
-                                        fontSize: 12,
-                                        height: 1.5,
-                                        color: Colors.red[700],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ).animate().shake(),
-                            if (isMobile) ...[
-                              Text(
-                                "MIRE SUNSET",
-                                style: GoogleFonts.fraunces(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.w900,
-                                  color: AppTheme.emerald,
-                                ),
-                              ).animate().fadeIn(),
-                              const SizedBox(height: 32),
-                            ],
-                            Text(
-                              "Welcome Back",
-                              style: theme.textTheme.headlineLarge,
-                            ).animate().fadeIn().slideY(begin: 0.2),
-                            const SizedBox(height: 8),
-                            Text(
-                              "Sign in to access your store terminal",
-                              style: theme.textTheme.bodyMedium?.copyWith(color: AppTheme.ink.withValues(alpha: 0.5)),
-                            ).animate().fadeIn(delay: 200.ms),
-                            
-                            const SizedBox(height: 48),
-                            
-                            Text("ACCOUNT EMAIL", style: theme.textTheme.labelLarge),
-                            const SizedBox(height: 12),
-                            TextField(
-                              controller: _emailController,
-                              enabled: isSupabaseReady,
-                              decoration: const InputDecoration(
-                                hintText: "email@gmail.com",
-                                prefixIcon: Icon(Icons.alternate_email_rounded, size: 20),
+                            // Mobile/Phone Logo
+                            Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: AppTheme.emerald.withValues(alpha: 0.05),
+                                shape: BoxShape.circle,
                               ),
-                            ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1),
+                              child: const Icon(Icons.coffee_rounded, size: 48, color: AppTheme.emerald),
+                            ).animate().scale(delay: 200.ms),
+                            
+                            const SizedBox(height: 32),
+                            
+                            Text(
+                              "MIRE SUNSET",
+                              style: GoogleFonts.fraunces(
+                                fontSize: isPhone ? 32 : 48,
+                                fontWeight: FontWeight.w900,
+                                color: AppTheme.ink,
+                                letterSpacing: 1,
+                              ),
+                            ).animate().fadeIn(delay: 400.ms),
+                            
+                            Text(
+                              "MANAGEMENT TERMINAL",
+                              style: GoogleFonts.spaceGrotesk(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 2,
+                                color: AppTheme.emerald,
+                              ),
+                            ).animate().fadeIn(delay: 600.ms),
+
+                            const SizedBox(height: 48),
+
+                            if (!isSupabaseReady) 
+                              _ConfigErrorBox(error: supabaseError),
+
+                            _LoginField(
+                              label: "ACCOUNT EMAIL",
+                              controller: _emailController,
+                              icon: Icons.alternate_email_rounded,
+                              hint: "email@mireset.com",
+                              enabled: isSupabaseReady,
+                            ).animate().fadeIn(delay: 800.ms),
                             
                             const SizedBox(height: 24),
                             
-                            Text("PASSWORD", style: theme.textTheme.labelLarge),
-                            const SizedBox(height: 12),
-                            TextField(
+                            _LoginField(
+                              label: "PASSWORD",
                               controller: _passwordController,
-                              obscureText: true,
+                              icon: Icons.lock_outline_rounded,
+                              isPassword: true,
                               enabled: isSupabaseReady,
-                              decoration: const InputDecoration(
-                                prefixIcon: Icon(Icons.lock_outline_rounded, size: 20),
-                              ),
-                            ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.1),
+                            ).animate().fadeIn(delay: 1000.ms),
                             
                             const SizedBox(height: 48),
                             
                             SizedBox(
                               width: double.infinity,
-                              height: 60,
+                              height: 64,
                               child: ElevatedButton(
                                 onPressed: (_isLoading || !isSupabaseReady) ? null : _handleLogin,
                                 child: _isLoading
-                                    ? const SizedBox(
-                                        height: 24, 
-                                        width: 24, 
-                                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                                      )
-                                    : const Text("SIGN IN"),
+                                    ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                                    : const Text("SIGN IN TO CLOUD"),
                               ),
-                            ).animate().fadeIn(delay: 800.ms).scaleXY(begin: 0.95),
+                            ).animate().fadeIn(delay: 1.2.seconds),
                             
                             const Spacer(),
-                            const SizedBox(height: 32),
-                            const Divider(),
-                            const SizedBox(height: 32),
+                            const SizedBox(height: 48),
                             
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -260,18 +223,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   size: 16, 
                                   color: isSupabaseReady ? AppTheme.emerald : Colors.red,
                                 ),
-                                const SizedBox(width: 8),
+                                const SizedBox(width: 12),
                                 Text(
-                                  isSupabaseReady ? "SECURED BY SUPABASE CLOUD" : "OFFLINE / CONFIG MISSING",
+                                  isSupabaseReady ? "ENCRYPTED SESSION" : "OFFLINE TERMINAL",
                                   style: GoogleFonts.spaceGrotesk(
                                     fontSize: 10,
                                     letterSpacing: 2,
-                                    fontWeight: FontWeight.bold,
-                                    color: isSupabaseReady ? AppTheme.emerald : Colors.red,
+                                    fontWeight: FontWeight.w900,
+                                    color: isSupabaseReady ? AppTheme.ink.withValues(alpha: 0.3) : Colors.red,
                                   ),
                                 ),
                               ],
-                            ).animate().fadeIn(delay: 1.seconds),
+                            ).animate().fadeIn(delay: 1.5.seconds),
                           ],
                         ),
                       ),
@@ -284,5 +247,91 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         ],
       ),
     );
+  }
+}
+
+class _LoginField extends StatelessWidget {
+  final String label;
+  final String? hint;
+  final TextEditingController controller;
+  final IconData icon;
+  final bool isPassword;
+  final bool enabled;
+
+  const _LoginField({
+    required this.label,
+    required this.controller,
+    required this.icon,
+    this.hint,
+    this.isPassword = false,
+    this.enabled = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label, 
+          style: GoogleFonts.spaceGrotesk(
+            fontSize: 10, 
+            fontWeight: FontWeight.w900, 
+            letterSpacing: 1.5,
+            color: AppTheme.ink.withValues(alpha: 0.4),
+          ),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: controller,
+          obscureText: isPassword,
+          enabled: enabled,
+          style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.bold),
+          decoration: InputDecoration(
+            hintText: hint,
+            prefixIcon: Icon(icon, size: 20),
+            contentPadding: const EdgeInsets.all(20),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ConfigErrorBox extends StatelessWidget {
+  final String? error;
+  const _ConfigErrorBox({this.error});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 32),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.red[50],
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.red.withValues(alpha: 0.2), width: 2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.cloud_off_rounded, color: Colors.red, size: 20),
+              const SizedBox(width: 12),
+              Text(
+                "CONFIG ERROR",
+                style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w900, letterSpacing: 1, color: Colors.red[900]),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            error ?? "App credentials missing.",
+            style: GoogleFonts.spaceGrotesk(fontSize: 11, height: 1.5, color: Colors.red[700]),
+          ),
+        ],
+      ),
+    ).animate().shake();
   }
 }
