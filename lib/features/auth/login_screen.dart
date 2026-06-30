@@ -108,7 +108,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           Container(width: 80, height: 6, color: Colors.white),
                           const SizedBox(height: 20),
                           Text(
-                            "ESTABLISHED 2024\nPREMIUM HOSPITALITY POS",
+                            "POS System",
                             style: GoogleFonts.spaceGrotesk(
                               fontSize: 16,
                               letterSpacing: 4,
@@ -185,7 +185,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               label: "ACCOUNT EMAIL",
                               controller: _emailController,
                               icon: Icons.alternate_email_rounded,
-                              hint: "email@mireset.com",
+                              hint: "email@gmail.com",
                               enabled: isSupabaseReady,
                             ).animate().fadeIn(delay: 800.ms),
                             
@@ -208,7 +208,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 onPressed: (_isLoading || !isSupabaseReady) ? null : _handleLogin,
                                 child: _isLoading
                                     ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                                    : const Text("SIGN IN TO CLOUD"),
+                                    : const Text("SIGN IN"),
                               ),
                             ).animate().fadeIn(delay: 1.2.seconds),
                             
