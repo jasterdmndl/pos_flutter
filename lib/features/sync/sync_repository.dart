@@ -23,6 +23,13 @@ class SyncRepository {
     }
   }
 
+  Future<void> syncOrderById(int orderId) async {
+    final order = await IsarService.isar.orderEntitys.get(orderId);
+    if (order != null && !order.isSynced) {
+      await _syncOrder(order);
+    }
+  }
+
   Future<void> _syncOrder(OrderEntity order) async {
     // 1. Sync Order
     final orderData = {

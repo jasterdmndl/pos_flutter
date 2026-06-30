@@ -94,8 +94,13 @@ class CheckoutController extends StateNotifier<Order?> {
     ref.invalidate(dashboardProvider);
     ref.invalidate(salesHistoryProvider);
 
-    // Trigger background sync
-    ref.read(syncProvider.notifier).syncNow();
+    // Instant Cloud Push (Directly trigger sync for this specific order)
+    try {
+      await ref.read(syncRepositoryProvider).syncOrderById(savedOrderId);
+    } catch (e) {
+      print('Instant sync failed, falling back to background queue: $e');
+      ref.read(syncProvider.notifier).syncNow();
+    }
 
     state = order;
     cartController.clearCart();
