@@ -23,7 +23,7 @@ class MobileOwnerDashboard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final liveOrders = ref.watch(liveOrdersProvider);
-    final summaryAsync = ref.watch(dashboardProvider);
+    final summaryAsync = ref.watch(remoteDashboardProvider);
     final user = ref.watch(authProvider);
 
     return Scaffold(

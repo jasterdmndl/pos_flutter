@@ -1,5 +1,6 @@
 import 'package:isar/isar.dart';
 import 'package:intl/intl.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../core/database/isar_service.dart';
 import '../../core/database/collections/order_entity.dart';
@@ -8,9 +9,13 @@ import '../../core/database/collections/order_item_entity.dart';
 import 'dashboard_summary.dart';
 
 class DashboardRepository {
+  final _supabase = Supabase.instance.client;
+
   Future<DashboardSummary> getSummary() async {
+    // Existing Local Isar Logic
     final now = DateTime.now();
     final startOfDay = DateTime(now.year, now.month, now.day);
+    final sevenDaysAgo = DateTime(now.year, now.month, now.day - 6);
 
     final ordersToday = await IsarService.isar.orderEntitys
         .filter()
@@ -40,6 +45,99 @@ class DashboardRepository {
       salesTrends: salesTrends,
       paymentBreakdowns: paymentBreakdowns,
     );
+  }
+
+  Future<DashboardSummary> getRemoteSummary() async {
+    // New Supabase Cloud Logic for Remote Monitoring
+    final now = DateTime.now();
+    final startOfDay = DateTime(now.year, now.month, now.day).toIso8601String();
+    final sevenDaysAgo = DateTime(now.year, now.month, now.day - 6).toIso8601String();
+
+    // 1. Fetch Today's Orders from Cloud
+    final ordersTodayResponse = await _supabase
+        .from('orders')
+        .select()
+        .gte('created_at', startOfDay)
+        .eq('is_voided', false);
+
+    final List<dynamic> ordersToday = ordersTodayResponse;
+    double salesToday = 0;
+    for (var o in ordersToday) {
+      salesToday += (o['total'] as num).toDouble();
+    }
+
+    final totalOrdersToday = ordersToday.length;
+    final double averageOrderToday = totalOrdersToday == 0 ? 0 : salesToday / totalOrdersToday;
+
+    // 2. Fetch Top Products (Simplified aggregation in Dart for now)
+    final topProducts = await _getRemoteTopProducts();
+    
+    // 3. Fetch Sales Trends (7 days)
+    final salesTrends = await _getRemoteSalesTrends(sevenDaysAgo);
+
+    // 4. Payment Breakdown
+    final Map<String, double> paymentMap = {};
+    for (var o in ordersToday) {
+      final method = o['payment_method'] as String;
+      paymentMap[method] = (paymentMap[method] ?? 0) + (o['total'] as num).toDouble();
+    }
+    final paymentBreakdowns = paymentMap.entries
+        .map((e) => PaymentBreakdown(method: e.key, amount: e.value))
+        .toList();
+
+    return DashboardSummary(
+      todaySales: salesToday,
+      todayOrders: totalOrdersToday,
+      averageOrder: averageOrderToday,
+      bestSeller: topProducts.isNotEmpty ? topProducts.first.name : 'No Sales',
+      topProducts: topProducts,
+      salesTrends: salesTrends,
+      paymentBreakdowns: paymentBreakdowns,
+    );
+  }
+
+  Future<List<TopProduct>> _getRemoteTopProducts() async {
+    final response = await _supabase
+        .from('order_items')
+        .select('product_name, quantity');
+    
+    final List<dynamic> data = response;
+    final Map<String, int> counts = {};
+    for (var item in data) {
+      final name = item['product_name'] as String;
+      counts[name] = (counts[name] ?? 0) + (item['quantity'] as int);
+    }
+
+    final sorted = counts.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    return sorted.take(5).map((e) => TopProduct(name: e.key, quantity: e.value)).toList();
+  }
+
+  Future<List<SalesTrend>> _getRemoteSalesTrends(String startDate) async {
+    final response = await _supabase
+        .from('orders')
+        .select('created_at, total')
+        .gte('created_at', startDate)
+        .eq('is_voided', false);
+
+    final List<dynamic> data = response;
+    final Map<DateTime, double> trendMap = {};
+    final now = DateTime.now();
+
+    for (int i = 0; i < 7; i++) {
+      final date = DateTime(now.year, now.month, now.day - i);
+      trendMap[DateTime(date.year, date.month, date.day)] = 0;
+    }
+
+    for (var o in data) {
+      final date = DateTime.parse(o['created_at'] as String);
+      final key = DateTime(date.year, date.month, date.day);
+      if (trendMap.containsKey(key)) {
+        trendMap[key] = (trendMap[key] ?? 0) + (o['total'] as num).toDouble();
+      }
+    }
+
+    final sorted = trendMap.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
+    return sorted.map((e) => SalesTrend(date: e.key, amount: e.value)).toList();
   }
 
   Future<List<TopProduct>> _getTopProducts() async {
