@@ -45,7 +45,7 @@ class CheckoutController extends StateNotifier<Order?> {
     final double vatAmount;
     final double exemptSales;
 
-    if (discountType == DiscountType.senior || discountType == DiscountType.pwd) {
+    if (discountType.isVatExempt) {
       vatableSales = 0;
       vatAmount = 0;
       exemptSales = total;
