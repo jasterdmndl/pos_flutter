@@ -1,18 +1,8 @@
 # Mire Sunset POS 🌅☕
 
-**Mire Sunset** is a premium, boutique Point-of-Sale (POS) system designed for high-end hospitality environments. Built with Flutter, it offers a world-class, offline-first experience with near-instant cloud synchronization.
+**Mire Sunset** is a Point-of-Sale (POS) system designed for high-end hospitality environments. Built with Flutter, it offers a world-class, offline-first experience with near-instant cloud synchronization.
 
 ---
-
-## ✨ Design Identity: "The Modern Glasshouse"
-The system utilizes a bespoke **Boutique Emerald Design System** characterized by:
-*   **Solid Emerald Aesthetic**: High-contrast Forest Greens (#006B2C) and Ink (#1A1C19) with zero generic gradients.
-*   **Signature Typography**: Characterful `Fraunces` serif for headlines paired with technical `Space Grotesk` for data.
-*   **Architectural Depth**: 1.5px high-contrast borders and solid hard shadows for a premium, structured look.
-*   **Organic Motion**: Fluid, staggered entrance animations and tactical micro-interactions.
-
----
-
 ## 🚀 Professional Features
 
 ### 🖥️ POS Terminal (Windows & Tablet)
@@ -26,12 +16,6 @@ The system utilizes a bespoke **Boutique Emerald Design System** characterized b
 *   **Live Order Stream**: Near-zero latency feed of transactions ringing up at the terminal.
 *   **Remote Analytics**: Pocket access to daily sales, order counts, and top-performing products.
 *   **Boutique Mobile UI**: Vertically optimized layout with time-of-day personalized greetings.
-
-### ⚖️ BIR EOPT Legal Compliance
-*   **Unified Invoicing**: 100% compliant with **Republic Act No. 11976**, issuing professional "Sales Invoices."
-*   **Tax Engine**: Automatic 12% VAT calculations and VAT-Exempt handling for SC/PWD/Student privileges.
-*   **Z-Reading**: Mandatory end-of-day mechanism with a non-resettable cloud-synced Reset Counter.
-*   **Audit Trail**: Immutable sales data enforced via PostgreSQL triggers and Isar local persistence.
 
 ---
 
@@ -57,5 +41,3 @@ The system utilizes a bespoke **Boutique Emerald Design System** characterized b
 *   **Security**: All credentials managed securely via `.env` environment variables.
 
 ---
-
-*“Speed, Simplicity, and Character — Designed for the Modern Cafe.”* 🌿☕
