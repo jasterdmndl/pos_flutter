@@ -6,11 +6,14 @@ part 'user_entity.g.dart';
 class UserEntity {
   Id id = Isar.autoIncrement;
 
+  @Index(unique: true, replace: true)
+  late String username; // This will store the email for cloud users
+
   late String name;
 
-  late String username;
+  late String passwordHash;
 
-  late String password;
+  late String role; // 'admin', 'cashier', or 'owner'
 
-  late String role; // 'admin' or 'cashier'
+  late DateTime lastLogin;
 }

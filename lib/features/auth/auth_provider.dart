@@ -1,5 +1,9 @@
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isar/isar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../core/database/isar_service.dart';
 import '../../core/database/collections/user_entity.dart';
 import '../../core/services/supabase_service.dart';
 
@@ -13,74 +17,102 @@ class AuthNotifier extends StateNotifier<UserEntity?> {
   final Ref ref;
   AuthNotifier(this.ref) : super(null);
 
+  String _hashPassword(String password) {
+    final bytes = utf8.encode(password);
+    return sha256.convert(bytes).toString();
+  }
+
   Future<bool> login(String email, String password) async {
     ref.read(authErrorProvider.notifier).state = null;
 
-    if (!SupabaseService.isInitialized) {
-      ref.read(authErrorProvider.notifier).state = 'Supabase not initialized. Check .env file.';
-      return false;
-    }
+    final String passwordHash = _hashPassword(password);
 
-    final supabase = SupabaseService.client;
+    // 1. Try Online Login First
+    if (SupabaseService.isInitialized) {
+      final supabase = SupabaseService.client;
 
-    try {
-      // 1. Authenticate with Supabase
-      final response = await supabase.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
-
-      final user = response.user;
-      if (user == null) {
-        ref.read(authErrorProvider.notifier).state = 'Auth failed: User object is null.';
-        return false;
-      }
-
-      // 2. Fetch User Profile/Role from Supabase 'profiles' table
       try {
-        final profileData = await supabase
-            .from('profiles')
-            .select()
-            .eq('id', user.id)
-            .single();
+        final response = await supabase.auth.signInWithPassword(
+          email: email,
+          password: password,
+        );
 
-        // 3. Update local state
-        state = UserEntity()
-          ..id = 0
-          ..name = profileData['username'] ?? user.email ?? 'User'
-          ..username = profileData['username'] ?? user.email ?? ''
-          ..password = ''
-          ..role = (profileData['role'] as String).toLowerCase();
+        final user = response.user;
+        if (user != null) {
+          // Fetch Profile
+          final profileData = await supabase
+              .from('profiles')
+              .select()
+              .eq('id', user.id)
+              .single();
 
-        return true;
-      } on PostgrestException catch (pgError) {
-        if (pgError.code == 'PGRST116') {
-          ref.read(authErrorProvider.notifier).state = 'Profile not found in database. Run the SQL script for UID: ${user.id}';
-        } else {
-          ref.read(authErrorProvider.notifier).state = 'Database Error: ${pgError.message}';
+          final String role = (profileData['role'] as String).toLowerCase();
+          final String name = profileData['username'] ?? user.email ?? 'User';
+
+          // Create local entity
+          final localUser = UserEntity()
+            ..username = email
+            ..name = name
+            ..passwordHash = passwordHash
+            ..role = role
+            ..lastLogin = DateTime.now();
+
+          // 2. CACHE FOR OFFLINE USE
+          await IsarService.isar.writeTxn(() async {
+            await IsarService.isar.userEntitys.put(localUser);
+          });
+
+          state = localUser;
+          return true;
         }
+      } on AuthException catch (e) {
+        // Specifically check for connection issues to decide whether to try offline
+        final msg = e.message.toLowerCase();
+        if (!msg.contains('invalid login credentials')) {
+           return await _tryOfflineLogin(email, passwordHash);
+        }
+        ref.read(authErrorProvider.notifier).state = 'Login Failed: ${e.message}';
         return false;
-      } catch (profileError) {
-        ref.read(authErrorProvider.notifier).state = 'Unexpected Profile Error: $profileError';
-        return false;
+      } catch (e) {
+        // Likely network error
+        return await _tryOfflineLogin(email, passwordHash);
       }
-    } on AuthException catch (e) {
-      ref.read(authErrorProvider.notifier).state = 'Login Failed: ${e.message}';
-      return false;
-    } catch (e) {
-      final errorStr = e.toString();
-      if (errorStr.contains('Failed host lookup') || errorStr.contains('connection')) {
-        ref.read(authErrorProvider.notifier).state = 'No Internet Connection. Please check your WiFi.';
-      } else {
-        ref.read(authErrorProvider.notifier).state = 'Unexpected Error: $e';
-      }
-      return false;
+    } else {
+      // Supabase not even initialized (No .env or total offline)
+      return await _tryOfflineLogin(email, passwordHash);
     }
+    
+    return false;
+  }
+
+  Future<bool> _tryOfflineLogin(String email, String passwordHash) async {
+    print('Attempting Offline Login for: $email');
+    
+    final localUser = await IsarService.isar.userEntitys
+        .filter()
+        .usernameEqualTo(email)
+        .findFirst();
+
+    if (localUser != null) {
+      if (localUser.passwordHash == passwordHash) {
+        state = localUser;
+        print('Offline Login Successful. Role: ${state?.role}');
+        return true;
+      } else {
+        ref.read(authErrorProvider.notifier).state = 'Incorrect password (Offline Mode).';
+        return false;
+      }
+    }
+
+    ref.read(authErrorProvider.notifier).state = 'Offline mode: You must log in online at least once to cache your credentials.';
+    return false;
   }
 
   void logout() async {
     if (SupabaseService.isInitialized) {
-      await SupabaseService.client.auth.signOut();
+      try {
+        await SupabaseService.client.auth.signOut();
+      } catch (_) {}
     }
     state = null;
   }

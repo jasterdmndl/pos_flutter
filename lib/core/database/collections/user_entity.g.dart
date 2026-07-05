@@ -17,23 +17,28 @@ const UserEntitySchema = CollectionSchema(
   name: r'UserEntity',
   id: 965090076791382600,
   properties: {
-    r'name': PropertySchema(
+    r'lastLogin': PropertySchema(
       id: 0,
+      name: r'lastLogin',
+      type: IsarType.dateTime,
+    ),
+    r'name': PropertySchema(
+      id: 1,
       name: r'name',
       type: IsarType.string,
     ),
-    r'password': PropertySchema(
-      id: 1,
-      name: r'password',
+    r'passwordHash': PropertySchema(
+      id: 2,
+      name: r'passwordHash',
       type: IsarType.string,
     ),
     r'role': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'role',
       type: IsarType.string,
     ),
     r'username': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'username',
       type: IsarType.string,
     )
@@ -43,7 +48,21 @@ const UserEntitySchema = CollectionSchema(
   deserialize: _userEntityDeserialize,
   deserializeProp: _userEntityDeserializeProp,
   idName: r'id',
-  indexes: {},
+  indexes: {
+    r'username': IndexSchema(
+      id: -2899563114555695793,
+      name: r'username',
+      unique: true,
+      replace: true,
+      properties: [
+        IndexPropertySchema(
+          name: r'username',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    )
+  },
   links: {},
   embeddedSchemas: {},
   getId: _userEntityGetId,
@@ -59,7 +78,7 @@ int _userEntityEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.name.length * 3;
-  bytesCount += 3 + object.password.length * 3;
+  bytesCount += 3 + object.passwordHash.length * 3;
   bytesCount += 3 + object.role.length * 3;
   bytesCount += 3 + object.username.length * 3;
   return bytesCount;
@@ -71,10 +90,11 @@ void _userEntitySerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.name);
-  writer.writeString(offsets[1], object.password);
-  writer.writeString(offsets[2], object.role);
-  writer.writeString(offsets[3], object.username);
+  writer.writeDateTime(offsets[0], object.lastLogin);
+  writer.writeString(offsets[1], object.name);
+  writer.writeString(offsets[2], object.passwordHash);
+  writer.writeString(offsets[3], object.role);
+  writer.writeString(offsets[4], object.username);
 }
 
 UserEntity _userEntityDeserialize(
@@ -85,10 +105,11 @@ UserEntity _userEntityDeserialize(
 ) {
   final object = UserEntity();
   object.id = id;
-  object.name = reader.readString(offsets[0]);
-  object.password = reader.readString(offsets[1]);
-  object.role = reader.readString(offsets[2]);
-  object.username = reader.readString(offsets[3]);
+  object.lastLogin = reader.readDateTime(offsets[0]);
+  object.name = reader.readString(offsets[1]);
+  object.passwordHash = reader.readString(offsets[2]);
+  object.role = reader.readString(offsets[3]);
+  object.username = reader.readString(offsets[4]);
   return object;
 }
 
@@ -100,12 +121,14 @@ P _userEntityDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTime(offset)) as P;
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
       return (reader.readString(offset)) as P;
     case 3:
+      return (reader.readString(offset)) as P;
+    case 4:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -122,6 +145,61 @@ List<IsarLinkBase<dynamic>> _userEntityGetLinks(UserEntity object) {
 
 void _userEntityAttach(IsarCollection<dynamic> col, Id id, UserEntity object) {
   object.id = id;
+}
+
+extension UserEntityByIndex on IsarCollection<UserEntity> {
+  Future<UserEntity?> getByUsername(String username) {
+    return getByIndex(r'username', [username]);
+  }
+
+  UserEntity? getByUsernameSync(String username) {
+    return getByIndexSync(r'username', [username]);
+  }
+
+  Future<bool> deleteByUsername(String username) {
+    return deleteByIndex(r'username', [username]);
+  }
+
+  bool deleteByUsernameSync(String username) {
+    return deleteByIndexSync(r'username', [username]);
+  }
+
+  Future<List<UserEntity?>> getAllByUsername(List<String> usernameValues) {
+    final values = usernameValues.map((e) => [e]).toList();
+    return getAllByIndex(r'username', values);
+  }
+
+  List<UserEntity?> getAllByUsernameSync(List<String> usernameValues) {
+    final values = usernameValues.map((e) => [e]).toList();
+    return getAllByIndexSync(r'username', values);
+  }
+
+  Future<int> deleteAllByUsername(List<String> usernameValues) {
+    final values = usernameValues.map((e) => [e]).toList();
+    return deleteAllByIndex(r'username', values);
+  }
+
+  int deleteAllByUsernameSync(List<String> usernameValues) {
+    final values = usernameValues.map((e) => [e]).toList();
+    return deleteAllByIndexSync(r'username', values);
+  }
+
+  Future<Id> putByUsername(UserEntity object) {
+    return putByIndex(r'username', object);
+  }
+
+  Id putByUsernameSync(UserEntity object, {bool saveLinks = true}) {
+    return putByIndexSync(r'username', object, saveLinks: saveLinks);
+  }
+
+  Future<List<Id>> putAllByUsername(List<UserEntity> objects) {
+    return putAllByIndex(r'username', objects);
+  }
+
+  List<Id> putAllByUsernameSync(List<UserEntity> objects,
+      {bool saveLinks = true}) {
+    return putAllByIndexSync(r'username', objects, saveLinks: saveLinks);
+  }
 }
 
 extension UserEntityQueryWhereSort
@@ -199,6 +277,51 @@ extension UserEntityQueryWhere
       ));
     });
   }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterWhereClause> usernameEqualTo(
+      String username) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'username',
+        value: [username],
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterWhereClause> usernameNotEqualTo(
+      String username) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'username',
+              lower: [],
+              upper: [username],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'username',
+              lower: [username],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'username',
+              lower: [username],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'username',
+              lower: [],
+              upper: [username],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
 }
 
 extension UserEntityQueryFilter
@@ -248,6 +371,60 @@ extension UserEntityQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'id',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> lastLoginEqualTo(
+      DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'lastLogin',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      lastLoginGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'lastLogin',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> lastLoginLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'lastLogin',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> lastLoginBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'lastLogin',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -386,13 +563,14 @@ extension UserEntityQueryFilter
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> passwordEqualTo(
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      passwordHashEqualTo(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'password',
+        property: r'passwordHash',
         value: value,
         caseSensitive: caseSensitive,
       ));
@@ -400,7 +578,7 @@ extension UserEntityQueryFilter
   }
 
   QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
-      passwordGreaterThan(
+      passwordHashGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -408,14 +586,15 @@ extension UserEntityQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'password',
+        property: r'passwordHash',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> passwordLessThan(
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      passwordHashLessThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -423,14 +602,15 @@ extension UserEntityQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'password',
+        property: r'passwordHash',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> passwordBetween(
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      passwordHashBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -439,7 +619,7 @@ extension UserEntityQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'password',
+        property: r'passwordHash',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -450,50 +630,49 @@ extension UserEntityQueryFilter
   }
 
   QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
-      passwordStartsWith(
+      passwordHashStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'password',
+        property: r'passwordHash',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> passwordEndsWith(
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      passwordHashEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'password',
+        property: r'passwordHash',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> passwordContains(
-      String value,
-      {bool caseSensitive = true}) {
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      passwordHashContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
-        property: r'password',
+        property: r'passwordHash',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> passwordMatches(
-      String pattern,
-      {bool caseSensitive = true}) {
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      passwordHashMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
-        property: r'password',
+        property: r'passwordHash',
         wildcard: pattern,
         caseSensitive: caseSensitive,
       ));
@@ -501,20 +680,20 @@ extension UserEntityQueryFilter
   }
 
   QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
-      passwordIsEmpty() {
+      passwordHashIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'password',
+        property: r'passwordHash',
         value: '',
       ));
     });
   }
 
   QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
-      passwordIsNotEmpty() {
+      passwordHashIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'password',
+        property: r'passwordHash',
         value: '',
       ));
     });
@@ -793,6 +972,18 @@ extension UserEntityQueryLinks
 
 extension UserEntityQuerySortBy
     on QueryBuilder<UserEntity, UserEntity, QSortBy> {
+  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> sortByLastLogin() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastLogin', Sort.asc);
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> sortByLastLoginDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastLogin', Sort.desc);
+    });
+  }
+
   QueryBuilder<UserEntity, UserEntity, QAfterSortBy> sortByName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'name', Sort.asc);
@@ -805,15 +996,15 @@ extension UserEntityQuerySortBy
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> sortByPassword() {
+  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> sortByPasswordHash() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'password', Sort.asc);
+      return query.addSortBy(r'passwordHash', Sort.asc);
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> sortByPasswordDesc() {
+  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> sortByPasswordHashDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'password', Sort.desc);
+      return query.addSortBy(r'passwordHash', Sort.desc);
     });
   }
 
@@ -856,6 +1047,18 @@ extension UserEntityQuerySortThenBy
     });
   }
 
+  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> thenByLastLogin() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastLogin', Sort.asc);
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> thenByLastLoginDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastLogin', Sort.desc);
+    });
+  }
+
   QueryBuilder<UserEntity, UserEntity, QAfterSortBy> thenByName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'name', Sort.asc);
@@ -868,15 +1071,15 @@ extension UserEntityQuerySortThenBy
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> thenByPassword() {
+  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> thenByPasswordHash() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'password', Sort.asc);
+      return query.addSortBy(r'passwordHash', Sort.asc);
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> thenByPasswordDesc() {
+  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> thenByPasswordHashDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'password', Sort.desc);
+      return query.addSortBy(r'passwordHash', Sort.desc);
     });
   }
 
@@ -907,6 +1110,12 @@ extension UserEntityQuerySortThenBy
 
 extension UserEntityQueryWhereDistinct
     on QueryBuilder<UserEntity, UserEntity, QDistinct> {
+  QueryBuilder<UserEntity, UserEntity, QDistinct> distinctByLastLogin() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'lastLogin');
+    });
+  }
+
   QueryBuilder<UserEntity, UserEntity, QDistinct> distinctByName(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -914,10 +1123,10 @@ extension UserEntityQueryWhereDistinct
     });
   }
 
-  QueryBuilder<UserEntity, UserEntity, QDistinct> distinctByPassword(
+  QueryBuilder<UserEntity, UserEntity, QDistinct> distinctByPasswordHash(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'password', caseSensitive: caseSensitive);
+      return query.addDistinctBy(r'passwordHash', caseSensitive: caseSensitive);
     });
   }
 
@@ -944,15 +1153,21 @@ extension UserEntityQueryProperty
     });
   }
 
+  QueryBuilder<UserEntity, DateTime, QQueryOperations> lastLoginProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'lastLogin');
+    });
+  }
+
   QueryBuilder<UserEntity, String, QQueryOperations> nameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'name');
     });
   }
 
-  QueryBuilder<UserEntity, String, QQueryOperations> passwordProperty() {
+  QueryBuilder<UserEntity, String, QQueryOperations> passwordHashProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'password');
+      return query.addPropertyName(r'passwordHash');
     });
   }
 
