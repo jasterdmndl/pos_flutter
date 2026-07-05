@@ -64,6 +64,9 @@ class _CheckoutDialogState extends ConsumerState<CheckoutDialog> {
     final discountAmount = subtotal * selectedDiscount.rate;
     final total = subtotal - discountAmount;
 
+    final received = double.tryParse(receivedAmount) ?? 0;
+    final bool isInsufficient = selectedMethod == PaymentMethod.cash && received < total;
+
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 60, vertical: 20),
@@ -138,13 +141,29 @@ class _CheckoutDialogState extends ConsumerState<CheckoutDialog> {
                     _WhiteAmountRow(label: "DISCOUNT", amount: discountAmount, isNegative: true),
                     const Divider(color: Colors.white24, height: 48),
                     _WhiteAmountRow(label: "TOTAL", amount: total, isBold: true),
-                    if (selectedMethod == PaymentMethod.cash && _changeDue > 0) ...[
+                    
+                    if (selectedMethod == PaymentMethod.cash) ...[
                       const SizedBox(height: 12),
-                      _WhiteAmountRow(
-                        label: "CHANGE DUE", 
-                        amount: _changeDue, 
-                        color: Colors.white,
-                      ),
+                      if (isInsufficient && received > 0)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "INSUFFICIENT", 
+                              style: GoogleFonts.spaceGrotesk(color: Colors.red[200], fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
+                            ),
+                            Text(
+                              "-₱${(total - received).toStringAsFixed(2)}",
+                              style: GoogleFonts.spaceGrotesk(color: Colors.red[200], fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ).animate().fadeIn()
+                      else if (_changeDue > 0)
+                        _WhiteAmountRow(
+                          label: "CHANGE DUE", 
+                          amount: _changeDue, 
+                          color: Colors.white,
+                        ),
                     ],
                   ],
                 ),
@@ -210,15 +229,7 @@ class _CheckoutDialogState extends ConsumerState<CheckoutDialog> {
                           ),
                           const Spacer(),
                           ElevatedButton(
-                            onPressed: () async {
-                              final received = double.tryParse(receivedAmount) ?? 0;
-                              if (selectedMethod == PaymentMethod.cash && received < total) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text("Insufficient amount received"), backgroundColor: Colors.red),
-                                );
-                                return;
-                              }
-
+                            onPressed: isInsufficient ? null : () async {
                               await ref.read(checkoutProvider.notifier).checkout(
                                 paymentMethod: selectedMethod,
                                 discountType: selectedDiscount,
@@ -242,11 +253,11 @@ class _CheckoutDialogState extends ConsumerState<CheckoutDialog> {
                             },
                             style: ElevatedButton.styleFrom(
                               minimumSize: const Size.fromHeight(72),
-                              backgroundColor: AppTheme.emerald,
+                              backgroundColor: isInsufficient ? Colors.grey[300] : AppTheme.emerald,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             ),
                             child: Text(
-                              'COMPLETE SETTLEMENT',
+                              isInsufficient ? 'WAITING FOR FULL PAYMENT' : 'COMPLETE SETTLEMENT',
                               style: GoogleFonts.spaceGrotesk(letterSpacing: 2, fontWeight: FontWeight.w900),
                             ),
                           ).animate(onPlay: (c) => c.repeat())
