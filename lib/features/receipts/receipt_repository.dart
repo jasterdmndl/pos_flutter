@@ -62,6 +62,7 @@ class ReceiptRepository {
       exemptSales: order.exemptSales,
       amountReceived: order.amountReceived,
       changeDue: order.changeDue,
+      referenceNumber: order.referenceNumber,
       paymentMethod: order.paymentMethod,
       createdAt: order.createdAt,
       items: items,

@@ -145,6 +145,7 @@ class ReceiptDialog extends StatelessWidget {
                 paymentMethod: order.paymentMethod.name,
                 amountReceived: order.amountReceived,
                 changeDue: order.changeDue,
+                referenceNumber: order.referenceNumber,
                 createdAt: order.createdAt,
                 items: order.items.map((item) {
                   return ReceiptItem(

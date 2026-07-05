@@ -21,6 +21,7 @@ class OrderRepository {
     required String paymentMethod,
     double amountReceived = 0,
     double changeDue = 0,
+    String? referenceNumber,
     int? cashierId,
   }) async {
     return await IsarService.isar.writeTxn(() async {
@@ -35,6 +36,7 @@ class OrderRepository {
         ..paymentMethod = paymentMethod
         ..amountReceived = amountReceived
         ..changeDue = changeDue
+        ..referenceNumber = referenceNumber
         ..createdAt = DateTime.now()
         ..cashierId = cashierId;
 

@@ -12,6 +12,7 @@ class ReceiptData {
 
   final double amountReceived;
   final double changeDue;
+  final String? referenceNumber;
 
   final String paymentMethod;
   final DateTime createdAt;
@@ -29,6 +30,7 @@ class ReceiptData {
     this.exemptSales = 0,
     this.amountReceived = 0,
     this.changeDue = 0,
+    this.referenceNumber,
     required this.paymentMethod,
     required this.createdAt,
     required this.items,

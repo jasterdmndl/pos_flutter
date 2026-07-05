@@ -26,6 +26,7 @@ class CheckoutController extends StateNotifier<Order?> {
     required DiscountType discountType,
     double amountReceived = 0,
     double changeDue = 0,
+    String? referenceNumber,
   }) async {
     final cartItems = ref.read(cartProvider);
     final cartController = ref.read(cartProvider.notifier);
@@ -70,6 +71,7 @@ class CheckoutController extends StateNotifier<Order?> {
       paymentMethod: paymentMethod.name,
       amountReceived: amountReceived,
       changeDue: changeDue,
+      referenceNumber: referenceNumber,
       cashierId: cashier?.id,
     );
 
@@ -88,6 +90,7 @@ class CheckoutController extends StateNotifier<Order?> {
       discountType: discountType,
       amountReceived: amountReceived,
       changeDue: changeDue,
+      referenceNumber: referenceNumber,
       createdAt: DateTime.now(),
     );
 

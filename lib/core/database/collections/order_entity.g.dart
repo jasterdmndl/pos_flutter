@@ -62,28 +62,33 @@ const OrderEntitySchema = CollectionSchema(
       name: r'paymentMethod',
       type: IsarType.string,
     ),
-    r'subtotal': PropertySchema(
+    r'referenceNumber': PropertySchema(
       id: 9,
+      name: r'referenceNumber',
+      type: IsarType.string,
+    ),
+    r'subtotal': PropertySchema(
+      id: 10,
       name: r'subtotal',
       type: IsarType.double,
     ),
     r'total': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'total',
       type: IsarType.double,
     ),
     r'vatAmount': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'vatAmount',
       type: IsarType.double,
     ),
     r'vatableSales': PropertySchema(
-      id: 12,
+      id: 13,
       name: r'vatableSales',
       type: IsarType.double,
     ),
     r'voidReason': PropertySchema(
-      id: 13,
+      id: 14,
       name: r'voidReason',
       type: IsarType.string,
     )
@@ -110,6 +115,12 @@ int _orderEntityEstimateSize(
   var bytesCount = offsets.last;
   bytesCount += 3 + object.paymentMethod.length * 3;
   {
+    final value = object.referenceNumber;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
     final value = object.voidReason;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
@@ -133,11 +144,12 @@ void _orderEntitySerialize(
   writer.writeBool(offsets[6], object.isSynced);
   writer.writeBool(offsets[7], object.isVoided);
   writer.writeString(offsets[8], object.paymentMethod);
-  writer.writeDouble(offsets[9], object.subtotal);
-  writer.writeDouble(offsets[10], object.total);
-  writer.writeDouble(offsets[11], object.vatAmount);
-  writer.writeDouble(offsets[12], object.vatableSales);
-  writer.writeString(offsets[13], object.voidReason);
+  writer.writeString(offsets[9], object.referenceNumber);
+  writer.writeDouble(offsets[10], object.subtotal);
+  writer.writeDouble(offsets[11], object.total);
+  writer.writeDouble(offsets[12], object.vatAmount);
+  writer.writeDouble(offsets[13], object.vatableSales);
+  writer.writeString(offsets[14], object.voidReason);
 }
 
 OrderEntity _orderEntityDeserialize(
@@ -157,11 +169,12 @@ OrderEntity _orderEntityDeserialize(
   object.isSynced = reader.readBool(offsets[6]);
   object.isVoided = reader.readBool(offsets[7]);
   object.paymentMethod = reader.readString(offsets[8]);
-  object.subtotal = reader.readDouble(offsets[9]);
-  object.total = reader.readDouble(offsets[10]);
-  object.vatAmount = reader.readDouble(offsets[11]);
-  object.vatableSales = reader.readDouble(offsets[12]);
-  object.voidReason = reader.readStringOrNull(offsets[13]);
+  object.referenceNumber = reader.readStringOrNull(offsets[9]);
+  object.subtotal = reader.readDouble(offsets[10]);
+  object.total = reader.readDouble(offsets[11]);
+  object.vatAmount = reader.readDouble(offsets[12]);
+  object.vatableSales = reader.readDouble(offsets[13]);
+  object.voidReason = reader.readStringOrNull(offsets[14]);
   return object;
 }
 
@@ -191,7 +204,7 @@ P _orderEntityDeserializeProp<P>(
     case 8:
       return (reader.readString(offset)) as P;
     case 9:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 10:
       return (reader.readDouble(offset)) as P;
     case 11:
@@ -199,6 +212,8 @@ P _orderEntityDeserializeProp<P>(
     case 12:
       return (reader.readDouble(offset)) as P;
     case 13:
+      return (reader.readDouble(offset)) as P;
+    case 14:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -901,6 +916,160 @@ extension OrderEntityQueryFilter
     });
   }
 
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      referenceNumberIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'referenceNumber',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      referenceNumberIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'referenceNumber',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      referenceNumberEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'referenceNumber',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      referenceNumberGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'referenceNumber',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      referenceNumberLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'referenceNumber',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      referenceNumberBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'referenceNumber',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      referenceNumberStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'referenceNumber',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      referenceNumberEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'referenceNumber',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      referenceNumberContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'referenceNumber',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      referenceNumberMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'referenceNumber',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      referenceNumberIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'referenceNumber',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      referenceNumberIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'referenceNumber',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition> subtotalEqualTo(
     double value, {
     double epsilon = Query.epsilon,
@@ -1434,6 +1603,19 @@ extension OrderEntityQuerySortBy
     });
   }
 
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortByReferenceNumber() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'referenceNumber', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByReferenceNumberDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'referenceNumber', Sort.desc);
+    });
+  }
+
   QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortBySubtotal() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'subtotal', Sort.asc);
@@ -1621,6 +1803,19 @@ extension OrderEntityQuerySortThenBy
     });
   }
 
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenByReferenceNumber() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'referenceNumber', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByReferenceNumberDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'referenceNumber', Sort.desc);
+    });
+  }
+
   QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenBySubtotal() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'subtotal', Sort.asc);
@@ -1741,6 +1936,14 @@ extension OrderEntityQueryWhereDistinct
     });
   }
 
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct> distinctByReferenceNumber(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'referenceNumber',
+          caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<OrderEntity, OrderEntity, QDistinct> distinctBySubtotal() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'subtotal');
@@ -1832,6 +2035,13 @@ extension OrderEntityQueryProperty
   QueryBuilder<OrderEntity, String, QQueryOperations> paymentMethodProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'paymentMethod');
+    });
+  }
+
+  QueryBuilder<OrderEntity, String?, QQueryOperations>
+      referenceNumberProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'referenceNumber');
     });
   }
 

@@ -28,6 +28,8 @@ class OrderEntity {
   double amountReceived = 0;
   double changeDue = 0;
 
+  String? referenceNumber;
+
   @ignore
   String get receiptNumber {
     final year = createdAt.year;

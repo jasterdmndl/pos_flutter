@@ -19,6 +19,7 @@ class Order {
 
   final double amountReceived;
   final double changeDue;
+  final String? referenceNumber;
 
   final DateTime createdAt;
 
@@ -30,8 +31,9 @@ class Order {
     required this.total,
     required this.paymentMethod,
     required this.discountType,
-    required this.amountReceived,
-    required this.changeDue,
+    this.amountReceived = 0,
+    this.changeDue = 0,
+    this.referenceNumber,
     required this.createdAt,
   });
 }
