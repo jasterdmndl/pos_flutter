@@ -3,6 +3,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../core/database/isar_service.dart';
 import '../../core/database/collections/user_entity.dart';
 import '../../core/services/supabase_service.dart';
@@ -29,11 +30,10 @@ class AuthNotifier extends StateNotifier<UserEntity?> {
 
     // 0. EMERGENCY OFFLINE ADMIN CHECK
     // This allows setup even on a brand new device with ZERO internet.
-    // Recommended: Change these to your own secret values or remove before final launch.
-    const String emergencyEmail = "emergency@mireset.com";
-    const String emergencyPass = "mire999"; 
+    final String emergencyEmail = dotenv.get('EMERGENCY_ADMIN_EMAIL', fallback: '');
+    final String emergencyPass = dotenv.get('EMERGENCY_ADMIN_PASSWORD', fallback: '');
 
-    if (email == emergencyEmail && password == emergencyPass) {
+    if (emergencyEmail.isNotEmpty && email == emergencyEmail && password == emergencyPass) {
       state = UserEntity()
         ..username = emergencyEmail
         ..name = "Emergency Admin"
