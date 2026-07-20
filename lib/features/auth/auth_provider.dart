@@ -27,6 +27,23 @@ class AuthNotifier extends StateNotifier<UserEntity?> {
 
     final String passwordHash = _hashPassword(password);
 
+    // 0. EMERGENCY OFFLINE ADMIN CHECK
+    // This allows setup even on a brand new device with ZERO internet.
+    // Recommended: Change these to your own secret values or remove before final launch.
+    const String emergencyEmail = "emergency@mireset.com";
+    const String emergencyPass = "mire999"; 
+
+    if (email == emergencyEmail && password == emergencyPass) {
+      state = UserEntity()
+        ..username = emergencyEmail
+        ..name = "Emergency Admin"
+        ..passwordHash = passwordHash
+        ..role = "admin"
+        ..lastLogin = DateTime.now();
+      print('EMERGENCY LOGIN SUCCESSFUL');
+      return true;
+    }
+
     // 1. Try Online Login First
     if (SupabaseService.isInitialized) {
       final supabase = SupabaseService.client;
