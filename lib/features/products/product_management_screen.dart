@@ -80,6 +80,7 @@ class ProductManagementScreen extends ConsumerWidget {
   }
 
   Future<void> _showProductDialog(BuildContext context, WidgetRef ref, dynamic product, List<CategoryEntity> categories) async {
+    final formKey = GlobalKey<FormState>();
     final nameController = TextEditingController(text: product?.name ?? '');
     final priceController = TextEditingController(text: product?.price?.toString() ?? '');
     int? selectedCategoryId = product?.categoryId ?? (categories.isNotEmpty ? categories.first.id : null);
@@ -93,22 +94,44 @@ class ProductManagementScreen extends ConsumerWidget {
           product == null ? 'CREATE PRODUCT' : 'EDIT PRODUCT',
           style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w900, letterSpacing: 1),
         ),
-        content: SizedBox(
-          width: 400,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _DialogField(label: "PRODUCT NAME", controller: nameController),
-              const SizedBox(height: 24),
-              _DialogField(label: "PRICE (PHP)", controller: priceController, isNumeric: true),
-              const SizedBox(height: 24),
-              _DialogDropdown(
-                label: "CATEGORY", 
-                value: selectedCategoryId, 
-                items: categories.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name.toUpperCase()))).toList(),
-                onChanged: (val) => selectedCategoryId = val,
-              ),
-            ],
+        content: Form(
+          key: formKey,
+          child: SizedBox(
+            width: 400,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _DialogField(
+                  label: "PRODUCT NAME", 
+                  controller: nameController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) return 'Name is required';
+                    if (value.length < 3) return 'Name too short';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 24),
+                _DialogField(
+                  label: "PRICE (PHP)", 
+                  controller: priceController, 
+                  isNumeric: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return 'Price is required';
+                    final price = double.tryParse(value);
+                    if (price == null) return 'Invalid number';
+                    if (price <= 0) return 'Price must be > 0';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 24),
+                _DialogDropdown(
+                  label: "CATEGORY", 
+                  value: selectedCategoryId, 
+                  items: categories.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name.toUpperCase()))).toList(),
+                  onChanged: (val) => selectedCategoryId = val,
+                ),
+              ],
+            ),
           ),
         ),
         actions: [
@@ -117,17 +140,19 @@ class ProductManagementScreen extends ConsumerWidget {
             padding: const EdgeInsets.only(left: 12),
             child: ElevatedButton(
               onPressed: () async {
-                final repo = ref.read(productRepositoryProvider);
-                final entity = ProductEntity()
-                  ..id = product?.id ?? 0
-                  ..name = nameController.text
-                  ..price = double.tryParse(priceController.text) ?? 0
-                  ..categoryId = selectedCategoryId ?? 0
-                  ..isActive = true;
-                
-                await repo.saveProduct(entity);
-                ref.invalidate(productProvider);
-                if (context.mounted) Navigator.pop(context);
+                if (formKey.currentState?.validate() ?? false) {
+                  final repo = ref.read(productRepositoryProvider);
+                  final entity = ProductEntity()
+                    ..id = product?.id ?? 0
+                    ..name = nameController.text.trim()
+                    ..price = double.tryParse(priceController.text) ?? 0
+                    ..categoryId = selectedCategoryId ?? 0
+                    ..isActive = true;
+                  
+                  await repo.saveProduct(entity);
+                  ref.invalidate(productProvider);
+                  if (context.mounted) Navigator.pop(context);
+                }
               },
               style: ElevatedButton.styleFrom(backgroundColor: AppTheme.emerald),
               child: const Text('SAVE CHANGES'),
@@ -182,7 +207,14 @@ class _DialogField extends StatelessWidget {
   final String label;
   final TextEditingController controller;
   final bool isNumeric;
-  const _DialogField({required this.label, required this.controller, this.isNumeric = false});
+  final String? Function(String?)? validator;
+
+  const _DialogField({
+    required this.label, 
+    required this.controller, 
+    this.isNumeric = false,
+    this.validator,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -191,9 +223,10 @@ class _DialogField extends StatelessWidget {
       children: [
         Text(label, style: GoogleFonts.spaceGrotesk(fontSize: 10, fontWeight: FontWeight.w900, color: AppTheme.ink.withValues(alpha: 0.4), letterSpacing: 1.5)),
         const SizedBox(height: 12),
-        TextField(
+        TextFormField(
           controller: controller,
-          keyboardType: isNumeric ? TextInputType.number : TextInputType.text,
+          validator: validator,
+          keyboardType: isNumeric ? const TextInputType.numberWithOptions(decimal: true) : TextInputType.text,
           style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.bold),
           decoration: const InputDecoration(contentPadding: EdgeInsets.all(20)),
         ),

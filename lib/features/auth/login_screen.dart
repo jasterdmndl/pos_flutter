@@ -16,18 +16,16 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
 
   Future<void> _handleLogin() async {
+    if (!_formKey.currentState!.validate()) return;
+
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
-
-    if (email.isEmpty || password.isEmpty) {
-      _showError("Please enter both email and password");
-      return;
-    }
 
     setState(() => _isLoading = true);
     final success = await ref.read(authProvider.notifier).login(email, password);
@@ -181,23 +179,42 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             if (!isSupabaseReady) 
                               _ConfigErrorBox(error: supabaseError),
 
-                            _LoginField(
-                              label: "ACCOUNT EMAIL",
-                              controller: _emailController,
-                              icon: Icons.alternate_email_rounded,
-                              hint: "email@gmail.com",
-                              enabled: isSupabaseReady,
-                            ).animate().fadeIn(delay: 800.ms),
-                            
-                            const SizedBox(height: 24),
-                            
-                            _LoginField(
-                              label: "PASSWORD",
-                              controller: _passwordController,
-                              icon: Icons.lock_outline_rounded,
-                              isPassword: true,
-                              enabled: isSupabaseReady,
-                            ).animate().fadeIn(delay: 1000.ms),
+                            Form(
+                              key: _formKey,
+                              child: Column(
+                                children: [
+                                  _LoginField(
+                                    label: "ACCOUNT EMAIL",
+                                    controller: _emailController,
+                                    icon: Icons.alternate_email_rounded,
+                                    hint: "email@gmail.com",
+                                    enabled: isSupabaseReady,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) return 'Email is required';
+                                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                                        return 'Enter a valid email';
+                                      }
+                                      return null;
+                                    },
+                                  ).animate().fadeIn(delay: 800.ms),
+                                  
+                                  const SizedBox(height: 24),
+                                  
+                                  _LoginField(
+                                    label: "PASSWORD",
+                                    controller: _passwordController,
+                                    icon: Icons.lock_outline_rounded,
+                                    isPassword: true,
+                                    enabled: isSupabaseReady,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) return 'Password is required';
+                                      if (value.length < 6) return 'Password too short';
+                                      return null;
+                                    },
+                                  ).animate().fadeIn(delay: 1000.ms),
+                                ],
+                              ),
+                            ),
                             
                             const SizedBox(height: 48),
                             
@@ -257,6 +274,7 @@ class _LoginField extends StatelessWidget {
   final IconData icon;
   final bool isPassword;
   final bool enabled;
+  final String? Function(String?)? validator;
 
   const _LoginField({
     required this.label,
@@ -265,6 +283,7 @@ class _LoginField extends StatelessWidget {
     this.hint,
     this.isPassword = false,
     this.enabled = true,
+    this.validator,
   });
 
   @override
@@ -282,10 +301,11 @@ class _LoginField extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        TextField(
+        TextFormField(
           controller: controller,
           obscureText: isPassword,
           enabled: enabled,
+          validator: validator,
           style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.bold),
           decoration: InputDecoration(
             hintText: hint,
