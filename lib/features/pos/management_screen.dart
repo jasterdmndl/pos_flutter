@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../auth/auth_provider.dart';
 import '../products/product_management_screen.dart';
 import '../products/category_management_screen.dart';
 import '../products/addon_management_screen.dart';
@@ -10,11 +12,43 @@ import '../reports/z_reading_screen.dart';
 import '../settings/developer_settings_screen.dart';
 import '../../core/theme/app_theme.dart';
 
-class ManagementScreen extends StatelessWidget {
+class ManagementScreen extends ConsumerWidget {
   const ManagementScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(authProvider);
+
+    // GUARD: Only admin/owner can access management
+    if (user?.role != 'admin' && user?.role != 'owner') {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.security_rounded, size: 64, color: AppTheme.error),
+              const SizedBox(height: 16),
+              Text(
+                "MANAGEMENT LOCKED",
+                style: GoogleFonts.spaceGrotesk(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 24,
+                  letterSpacing: 2,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text("Administrative privileges required."),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("RETURN TO POS"),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppTheme.bone,
       appBar: AppBar(

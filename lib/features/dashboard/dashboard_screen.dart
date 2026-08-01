@@ -13,6 +13,38 @@ class DashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(authProvider);
+
+    // GUARD: Only admin can see full analytics
+    if (user?.role != 'admin') {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.lock_outline_rounded, size: 64, color: AppTheme.error),
+              const SizedBox(height: 16),
+              Text(
+                "ACCESS DENIED",
+                style: GoogleFonts.spaceGrotesk(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 24,
+                  letterSpacing: 2,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text("You do not have permission to view analytics."),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("GO BACK"),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     final dashboard = ref.watch(dashboardProvider);
     final theme = Theme.of(context);
 
