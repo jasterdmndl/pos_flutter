@@ -51,6 +51,7 @@ dependencies:
   animate_do: ^5.1.0
   qr_flutter: ^4.1.0
   crypto: ^3.0.7
+  logger: ^2.7.0
 
 dev_dependencies:
   flutter_test:

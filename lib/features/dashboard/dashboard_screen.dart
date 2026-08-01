@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../auth/auth_provider.dart';
 import '../../core/theme/app_theme.dart';
 import 'dashboard_provider.dart';
 import 'dashboard_summary.dart';

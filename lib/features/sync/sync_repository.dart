@@ -4,6 +4,7 @@ import '../../core/database/isar_service.dart';
 import '../../core/database/collections/order_entity.dart';
 import '../../core/database/collections/order_item_entity.dart';
 import '../../core/database/collections/order_addon_entity.dart';
+import '../../core/utils/logger.dart';
 
 class SyncRepository {
   final SupabaseClient _supabase = Supabase.instance.client;
@@ -18,7 +19,7 @@ class SyncRepository {
       try {
         await _syncOrder(order);
       } catch (e) {
-        print('Failed to sync order ${order.id}: $e');
+        AppLogger.e('Failed to sync order ${order.id}: $e');
       }
     }
   }

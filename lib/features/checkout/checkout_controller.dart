@@ -8,6 +8,7 @@ import '../sales/sales_provider.dart';
 import '../inventory/inventory_repository.dart';
 import '../auth/auth_provider.dart';
 import '../sync/sync_provider.dart';
+import '../../core/utils/logger.dart';
 
 final inventoryRepositoryProvider = Provider((ref) => InventoryRepository());
 
@@ -101,7 +102,7 @@ class CheckoutController extends StateNotifier<Order?> {
     try {
       await ref.read(syncRepositoryProvider).syncOrderById(savedOrderId);
     } catch (e) {
-      print('Instant sync failed, falling back to background queue: $e');
+      AppLogger.w('Instant sync failed, falling back to background queue: $e');
       ref.read(syncProvider.notifier).syncNow();
     }
 

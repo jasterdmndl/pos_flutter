@@ -7,6 +7,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../core/database/isar_service.dart';
 import '../../core/database/collections/user_entity.dart';
 import '../../core/services/supabase_service.dart';
+import '../../core/utils/error_handler.dart';
+import '../../core/utils/logger.dart';
 
 final authErrorProvider = StateProvider<String?>((ref) => null);
 
@@ -40,7 +42,7 @@ class AuthNotifier extends StateNotifier<UserEntity?> {
         ..passwordHash = passwordHash
         ..role = "admin"
         ..lastLogin = DateTime.now();
-      print('EMERGENCY LOGIN SUCCESSFUL');
+      AppLogger.i('EMERGENCY LOGIN SUCCESSFUL for $email');
       return true;
     }
 
@@ -88,7 +90,7 @@ class AuthNotifier extends StateNotifier<UserEntity?> {
         if (!msg.contains('invalid login credentials')) {
            return await _tryOfflineLogin(email, passwordHash);
         }
-        ref.read(authErrorProvider.notifier).state = 'Login Failed: ${e.message}';
+        ref.read(authErrorProvider.notifier).state = ErrorHandler.map(e);
         return false;
       } catch (e) {
         // Likely network error
@@ -103,7 +105,7 @@ class AuthNotifier extends StateNotifier<UserEntity?> {
   }
 
   Future<bool> _tryOfflineLogin(String email, String passwordHash) async {
-    print('Attempting Offline Login for: $email');
+    AppLogger.d('Attempting Offline Login for: $email');
     
     final localUser = await IsarService.isar.userEntitys
         .filter()
@@ -113,7 +115,7 @@ class AuthNotifier extends StateNotifier<UserEntity?> {
     if (localUser != null) {
       if (localUser.passwordHash == passwordHash) {
         state = localUser;
-        print('Offline Login Successful. Role: ${state?.role}');
+        AppLogger.i('Offline Login Successful. Role: ${state?.role}');
         return true;
       } else {
         ref.read(authErrorProvider.notifier).state = 'Incorrect password (Offline Mode).';

@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../utils/logger.dart';
 
 class SupabaseService {
   static bool _initialized = false;
@@ -12,7 +13,7 @@ class SupabaseService {
 
       if (supabaseUrl.isEmpty || supabaseKey.isEmpty) {
         _error = 'SUPABASE_URL or SUPABASE_ANON_KEY is missing in .env file.';
-        print(_error);
+        AppLogger.e(_error);
         return;
       }
 
@@ -21,10 +22,10 @@ class SupabaseService {
         anonKey: supabaseKey,
       );
       _initialized = true;
-      print('Supabase initialized successfully.');
+      AppLogger.i('Supabase initialized successfully.');
     } catch (e) {
       _error = 'Failed to initialize Supabase: $e';
-      print(_error);
+      AppLogger.e(_error);
     }
   }
 

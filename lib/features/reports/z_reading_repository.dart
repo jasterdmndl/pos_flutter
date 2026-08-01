@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/database/isar_service.dart';
 import '../../core/database/collections/order_entity.dart';
 import '../../core/database/collections/z_reading_entity.dart';
+import '../../core/utils/logger.dart';
 
 class ZReadingRepository {
   final _supabase = Supabase.instance.client;
@@ -51,7 +52,7 @@ class ZReadingRepository {
         'last_z_reading_at': now.toIso8601String(),
       }).eq('id', 1);
     } catch (e) {
-      print('Z-Reading Error (Supabase Counter): $e');
+      AppLogger.e('Z-Reading Error (Supabase Counter): $e');
       // If offline, we'll use a local fallback or wait for sync
       final lastZ = await IsarService.isar.zReadingEntitys.where().sortByReadingDateDesc().findFirst();
       currentResetCount = (lastZ?.resetCounter ?? 0) + 1;
@@ -92,7 +93,7 @@ class ZReadingRepository {
         await IsarService.isar.zReadingEntitys.put(zReading);
       });
     } catch (e) {
-      print('Z-Reading Cloud Sync Failed: $e');
+      AppLogger.w('Z-Reading Cloud Sync Failed: $e');
     }
 
     return zReading;
