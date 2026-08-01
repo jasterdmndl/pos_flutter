@@ -10,6 +10,7 @@ import '../dashboard/dashboard_screen.dart';
 import '../auth/auth_provider.dart';
 import '../auth/login_screen.dart';
 import 'management_screen.dart';
+import '../../core/widgets/sync_status_badge.dart';
 
 class PosScreen extends ConsumerWidget {
   const PosScreen({super.key});
@@ -36,13 +37,7 @@ class PosScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppTheme.emerald.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(20),
-              ),
-            ),
+            const SyncStatusBadge(),
           ],
         ),
         actions: [

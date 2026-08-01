@@ -9,6 +9,7 @@ import '../auth/login_screen.dart';
 import 'live_orders_provider.dart';
 import 'dashboard_provider.dart';
 import 'dashboard_summary.dart';
+import '../../core/widgets/sync_status_badge.dart';
 
 class MobileOwnerDashboard extends ConsumerWidget {
   const MobileOwnerDashboard({super.key});
@@ -54,6 +55,8 @@ class MobileOwnerDashboard extends ConsumerWidget {
           ],
         ),
         actions: [
+          const SyncStatusBadge(),
+          const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.logout_rounded, size: 20),
             onPressed: () {

@@ -76,6 +76,8 @@ class AuthNotifier extends StateNotifier<UserEntity?> {
             ..role = role
             ..lastLogin = DateTime.now();
 
+          AppLogger.d('Online login success. Caching user and checking local orders.');
+
           // 2. CACHE FOR OFFLINE USE
           await IsarService.isar.writeTxn(() async {
             await IsarService.isar.userEntitys.put(localUser);

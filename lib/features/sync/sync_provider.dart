@@ -22,8 +22,12 @@ class SyncNotifier extends StateNotifier<bool> {
   }
 
   Future<void> syncNow() async {
-    if (state) return; 
+    if (state) {
+      AppLogger.d('Sync already in progress, skipping...');
+      return;
+    }
     
+    AppLogger.d('Triggering syncNow...');
     state = true;
     try {
       await _repository.syncPendingOrders();
@@ -32,9 +36,9 @@ class SyncNotifier extends StateNotifier<bool> {
       _retryCount++;
       // Exponential Backoff: wait 2^retry seconds (max 1 hour) before retrying if it failed
       final backoff = Duration(seconds: (1 << _retryCount).clamp(1, 3600));
-      AppLogger.w('Sync failed. Retrying in ${backoff.inSeconds}s... (Attempt $_retryCount)');
+      AppLogger.w('Sync process encountered an error. Retrying in ${backoff.inSeconds}s... (Attempt $_retryCount)');
       
-      Future.delayed(backoff, () => syncNow());
+      Timer(backoff, () => syncNow());
     } finally {
       state = false;
     }
