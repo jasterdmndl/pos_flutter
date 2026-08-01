@@ -6,10 +6,12 @@ part 'product_entity.g.dart';
 class ProductEntity {
   Id id = Isar.autoIncrement;
 
+  @Index(type: IndexType.value)
   late String name;
 
   late double price;
 
+  @Index()
   late int categoryId;
 
   late bool isActive;

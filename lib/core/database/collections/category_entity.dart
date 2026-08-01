@@ -6,6 +6,7 @@ part 'category_entity.g.dart';
 class CategoryEntity {
   Id id = Isar.autoIncrement;
 
+  @Index(unique: true)
   late String name;
 
   late bool isActive;

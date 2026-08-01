@@ -6,6 +6,7 @@ part 'z_reading_entity.g.dart';
 class ZReadingEntity {
   Id id = Isar.autoIncrement;
 
+  @Index()
   late DateTime readingDate;
   
   late int resetCounter; // Mandatory BIR counter
@@ -20,5 +21,6 @@ class ZReadingEntity {
   
   late int totalTransactionCount;
 
+  @Index()
   bool isSynced = false;
 }

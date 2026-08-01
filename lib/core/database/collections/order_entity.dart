@@ -16,6 +16,7 @@ class OrderEntity {
 
   late String paymentMethod;
 
+  @Index()
   late DateTime createdAt;
 
   int? cashierId;
@@ -23,6 +24,7 @@ class OrderEntity {
   bool isVoided = false;
   String? voidReason;
 
+  @Index()
   bool isSynced = false;
 
   double amountReceived = 0;

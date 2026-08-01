@@ -73,7 +73,34 @@ const ZReadingEntitySchema = CollectionSchema(
   deserialize: _zReadingEntityDeserialize,
   deserializeProp: _zReadingEntityDeserializeProp,
   idName: r'id',
-  indexes: {},
+  indexes: {
+    r'readingDate': IndexSchema(
+      id: -7380804531996017620,
+      name: r'readingDate',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'readingDate',
+          type: IndexType.value,
+          caseSensitive: false,
+        )
+      ],
+    ),
+    r'isSynced': IndexSchema(
+      id: -39763503327887510,
+      name: r'isSynced',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'isSynced',
+          type: IndexType.value,
+          caseSensitive: false,
+        )
+      ],
+    )
+  },
   links: {},
   embeddedSchemas: {},
   getId: _zReadingEntityGetId,
@@ -182,6 +209,22 @@ extension ZReadingEntityQueryWhereSort
       return query.addWhereClause(const IdWhereClause.any());
     });
   }
+
+  QueryBuilder<ZReadingEntity, ZReadingEntity, QAfterWhere> anyReadingDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'readingDate'),
+      );
+    });
+  }
+
+  QueryBuilder<ZReadingEntity, ZReadingEntity, QAfterWhere> anyIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'isSynced'),
+      );
+    });
+  }
 }
 
 extension ZReadingEntityQueryWhere
@@ -252,6 +295,144 @@ extension ZReadingEntityQueryWhere
         upper: upperId,
         includeUpper: includeUpper,
       ));
+    });
+  }
+
+  QueryBuilder<ZReadingEntity, ZReadingEntity, QAfterWhereClause>
+      readingDateEqualTo(DateTime readingDate) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'readingDate',
+        value: [readingDate],
+      ));
+    });
+  }
+
+  QueryBuilder<ZReadingEntity, ZReadingEntity, QAfterWhereClause>
+      readingDateNotEqualTo(DateTime readingDate) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'readingDate',
+              lower: [],
+              upper: [readingDate],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'readingDate',
+              lower: [readingDate],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'readingDate',
+              lower: [readingDate],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'readingDate',
+              lower: [],
+              upper: [readingDate],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<ZReadingEntity, ZReadingEntity, QAfterWhereClause>
+      readingDateGreaterThan(
+    DateTime readingDate, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'readingDate',
+        lower: [readingDate],
+        includeLower: include,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<ZReadingEntity, ZReadingEntity, QAfterWhereClause>
+      readingDateLessThan(
+    DateTime readingDate, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'readingDate',
+        lower: [],
+        upper: [readingDate],
+        includeUpper: include,
+      ));
+    });
+  }
+
+  QueryBuilder<ZReadingEntity, ZReadingEntity, QAfterWhereClause>
+      readingDateBetween(
+    DateTime lowerReadingDate,
+    DateTime upperReadingDate, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'readingDate',
+        lower: [lowerReadingDate],
+        includeLower: includeLower,
+        upper: [upperReadingDate],
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<ZReadingEntity, ZReadingEntity, QAfterWhereClause>
+      isSyncedEqualTo(bool isSynced) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'isSynced',
+        value: [isSynced],
+      ));
+    });
+  }
+
+  QueryBuilder<ZReadingEntity, ZReadingEntity, QAfterWhereClause>
+      isSyncedNotEqualTo(bool isSynced) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'isSynced',
+              lower: [],
+              upper: [isSynced],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'isSynced',
+              lower: [isSynced],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'isSynced',
+              lower: [isSynced],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'isSynced',
+              lower: [],
+              upper: [isSynced],
+              includeUpper: false,
+            ));
+      }
     });
   }
 }
