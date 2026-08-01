@@ -21,7 +21,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
 
+  DateTime? _lastLoginAttempt;
+
   Future<void> _handleLogin() async {
+    // 1. App-side Rate Limiting (Throttle)
+    final now = DateTime.now();
+    if (_lastLoginAttempt != null && now.difference(_lastLoginAttempt!).inSeconds < 2) {
+      return; 
+    }
+    _lastLoginAttempt = now;
+
     if (!_formKey.currentState!.validate()) return;
 
     final email = _emailController.text.trim();
