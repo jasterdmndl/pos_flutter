@@ -43,6 +43,24 @@ class SyncRepository {
   Future<void> _syncOrder(OrderEntity order) async {
     // 1. Sync Order - Use insert() instead of upsert() for BIR Compliance
     // This avoids triggering "Update" rules during the initial upload.
+    final orderData = {
+      'id': order.id,
+      'subtotal': order.subtotal,
+      'discount_amount': order.discountAmount,
+      'total': order.total,
+      'vatable_sales': order.vatableSales,
+      'vat_amount': order.vatAmount,
+      'exempt_sales': order.exemptSales,
+      'payment_method': order.paymentMethod,
+      'amount_received': order.amountReceived,
+      'change_due': order.changeDue,
+      'reference_number': order.referenceNumber,
+      'created_at': order.createdAt.toIso8601String(),
+      'cashier_id': order.cashierId,
+      'is_voided': order.isVoided,
+      'void_reason': order.voidReason,
+    };
+
     await _supabase.from('orders').insert(orderData);
 
     // 2. Sync Items
