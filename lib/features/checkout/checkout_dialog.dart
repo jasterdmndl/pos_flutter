@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:uuid/uuid.dart';
 import '../../core/theme/app_theme.dart';
 import '../receipts/receipt_dialog.dart';
 import '../cart/cart_provider.dart';
@@ -53,6 +54,14 @@ class _CheckoutDialogState extends ConsumerState<CheckoutDialog> {
     setState(() {
       _changeDue = received > total ? received - total : 0;
     });
+  }
+
+  void _generateGcashRef() {
+    // Generate a unique 13-digit-like code for GCash
+    // Format: 9001 + 9 random alphanumeric (all caps)
+    const uuid = Uuid();
+    final randomPart = uuid.v4().substring(0, 9).toUpperCase();
+    _refController.text = "9001$randomPart";
   }
 
   @override
@@ -202,7 +211,12 @@ class _CheckoutDialogState extends ConsumerState<CheckoutDialog> {
                                 label: 'GCASH',
                                 icon: Icons.qr_code_scanner,
                                 isSelected: selectedMethod == PaymentMethod.gcash,
-                                onTap: () => setState(() => selectedMethod = PaymentMethod.gcash),
+                                onTap: () {
+                                  setState(() => selectedMethod = PaymentMethod.gcash);
+                                  if (_refController.text.isEmpty) {
+                                    _generateGcashRef();
+                                  }
+                                },
                               ),
                             ],
                           ),
