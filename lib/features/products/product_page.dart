@@ -83,9 +83,9 @@ class ProductPage extends ConsumerWidget {
               itemCount: products.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4,
-                crossAxisSpacing: 20,
-                mainAxisSpacing: 20,
-                childAspectRatio: 0.8,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 1.4,
               ),
               itemBuilder: (context, index) {
                 final product = products[index];
@@ -139,61 +139,34 @@ class _ProductCard extends ConsumerWidget {
 
           ref.read(cartProvider.notifier).addProduct(product, addons);
         },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              flex: 4,
-              child: Container(
-                color: AppTheme.bone,
-                child: Center(
-                  child: Text(
-                    product.name[0],
-                    style: GoogleFonts.fraunces(
-                      fontSize: 48,
-                      fontWeight: FontWeight.w900,
-                      color: AppTheme.emerald.withOpacity(0.2),
-                    ),
-                  ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                product.name.toUpperCase(),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.spaceGrotesk(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 16,
+                  height: 1.1,
+                  letterSpacing: 0.5,
                 ),
               ),
-            ),
-            Container(
-              height: 1.5,
-              color: AppTheme.ink.withOpacity(0.08),
-            ),
-            Expanded(
-              flex: 3,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      product.name.toUpperCase(),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.spaceGrotesk(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 14,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '₱${product.price.toStringAsFixed(2)}',
-                      style: GoogleFonts.spaceGrotesk(
-                        fontSize: 16,
-                        color: AppTheme.emerald,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
+              const SizedBox(height: 8),
+              Text(
+                '₱${product.price.toStringAsFixed(2)}',
+                style: GoogleFonts.spaceGrotesk(
+                  fontSize: 18,
+                  color: AppTheme.emerald,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ).animate().fadeIn(delay: (index * 50).ms).slideY(begin: 0.1, curve: Curves.easeOut),
     );
