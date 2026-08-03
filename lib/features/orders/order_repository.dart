@@ -1,4 +1,5 @@
 import 'package:isar/isar.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/database/isar_service.dart';
 import '../../core/database/collections/order_entity.dart';
 import '../../core/database/collections/order_item_entity.dart';
@@ -6,10 +7,26 @@ import '../../core/database/collections/order_addon_entity.dart';
 import '../../core/database/collections/product_entity.dart';
 import '../../core/database/collections/ingredient_entity.dart';
 import '../../core/database/collections/product_ingredient_entity.dart';
+import '../../core/utils/logger.dart';
 
 import '../cart/cart_item_model.dart';
 
 class OrderRepository {
+  final _supabase = Supabase.instance.client;
+
+  Future<int> _getGlobalNextId() async {
+    try {
+      // Call the Supabase function we created in SQL
+      final response = await _supabase.rpc('get_next_invoice_id');
+      return (response as num).toInt();
+    } catch (e) {
+      AppLogger.w('Cloud ID generation failed, falling back to timestamp ID: $e');
+      // Fallback: If totally offline, use a huge timestamp-based ID 
+      // to avoid collision until internet returns.
+      return DateTime.now().millisecondsSinceEpoch;
+    }
+  }
+
   Future<int> saveOrder({
     required List<CartItem> cartItems,
     required double subtotal,
@@ -24,9 +41,13 @@ class OrderRepository {
     String? referenceNumber,
     int? cashierId,
   }) async {
+    // 0. Get the Global Unique ID from the Cloud
+    final globalId = await _getGlobalNextId();
+
     return await IsarService.isar.writeTxn(() async {
       // 1. Save Order
       final order = OrderEntity()
+        ..id = globalId // Set the explicit global ID
         ..subtotal = subtotal
         ..discountAmount = discountAmount
         ..total = total

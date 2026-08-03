@@ -13,3 +13,7 @@
 -keep class io.flutter.view.** { *; }
 -keep class io.flutter.embedding.** { *; }
 -keep class io.flutter.embedding.engine.plugins.** { *; }
+
+# Fix R8 missing classes for Play Store Core (needed for release builds)
+-dontwarn com.google.android.play.core.**
+-dontwarn io.flutter.embedding.engine.deferredcomponents.PlayStoreDeferredComponentManager
