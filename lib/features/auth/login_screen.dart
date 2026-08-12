@@ -238,6 +238,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ),
                             ).animate().fadeIn(delay: 1.2.seconds),
                             
+                            const SizedBox(height: 16),
+                            
+                            SizedBox(
+                              width: double.infinity,
+                              height: 56,
+                              child: OutlinedButton(
+                                onPressed: _isLoading ? null : () {
+                                  // Set guest state and navigate
+                                  ref.read(authProvider.notifier).loginAsGuest();
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const PosScreen()),
+                                  );
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(color: AppTheme.emerald.withValues(alpha: 0.3), width: 1.5),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                ),
+                                child: Text(
+                                  "GUEST ACCESS (ORDERING ONLY)",
+                                  style: GoogleFonts.spaceGrotesk(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 1,
+                                    color: AppTheme.emerald,
+                                  ),
+                                ),
+                              ),
+                            ).animate().fadeIn(delay: 1.4.seconds),
+                            
                             const Spacer(),
                             const SizedBox(height: 48),
                             

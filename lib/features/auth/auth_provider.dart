@@ -129,6 +129,15 @@ class AuthNotifier extends StateNotifier<UserEntity?> {
     return false;
   }
 
+  void loginAsGuest() {
+    state = UserEntity()
+      ..username = "guest"
+      ..name = "Guest Cashier"
+      ..passwordHash = ""
+      ..role = "cashier"
+      ..lastLogin = DateTime.now();
+  }
+
   void logout() async {
     if (SupabaseService.isInitialized) {
       try {
