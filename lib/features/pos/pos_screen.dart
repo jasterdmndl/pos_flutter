@@ -41,7 +41,7 @@ class PosScreen extends ConsumerWidget {
           ],
         ),
         actions: [
-          if (user?.role == 'admin') ...[
+          if (user?.role == 'admin' || user?.role == 'owner') ...[
             _NavIcon(
               icon: Icons.analytics_outlined,
               label: 'DASHBOARD',

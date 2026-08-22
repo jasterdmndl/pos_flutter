@@ -9,6 +9,7 @@ import '../products/addon_management_screen.dart';
 import '../inventory/inventory_screen.dart';
 import '../reports/reports_screen.dart';
 import '../reports/z_reading_screen.dart';
+import '../auth/staff_management_screen.dart';
 import '../settings/developer_settings_screen.dart';
 import '../../core/theme/app_theme.dart';
 
@@ -144,10 +145,17 @@ class ManagementScreen extends ConsumerWidget {
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ZReadingScreen())),
                 ),
                 _BoutiqueMenuCard(
+                  title: 'STAFF MANAGEMENT',
+                  subtitle: 'Manage cashier accounts',
+                  icon: Icons.people_outline_rounded,
+                  index: 6,
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const StaffManagementScreen())),
+                ),
+                _BoutiqueMenuCard(
                   title: 'DEVELOPER TOOLS',
                   subtitle: 'Testing & database reset',
                   icon: Icons.bug_report_outlined,
-                  index: 6,
+                  index: 7,
                   isDestructive: true,
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DeveloperSettingsScreen())),
                 ),

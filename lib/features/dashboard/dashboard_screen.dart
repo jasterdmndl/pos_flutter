@@ -16,8 +16,8 @@ class DashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authProvider);
 
-    // GUARD: Only admin can see full analytics
-    if (user?.role != 'admin') {
+    // GUARD: Only admin/owner can see full analytics
+    if (user?.role != 'admin' && user?.role != 'owner') {
       return Scaffold(
         body: Center(
           child: Column(
@@ -165,6 +165,15 @@ class DashboardScreen extends ConsumerWidget {
                     ),
                   ],
                 ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.1),
+
+                const SizedBox(height: 48),
+
+                // CASHIER LOGS
+                _DashboardSection(
+                  title: 'CASHIER PERFORMANCE',
+                  subtitle: 'Daily sales volume per staff member',
+                  child: _CashierPerformanceTable(breakdowns: data.cashierBreakdowns),
+                ).animate().fadeIn(delay: 800.ms).slideY(begin: 0.1),
                 
                 const SizedBox(height: 80),
               ],
@@ -172,6 +181,78 @@ class DashboardScreen extends ConsumerWidget {
           );
         },
       ),
+    );
+  }
+}
+
+class _CashierPerformanceTable extends StatelessWidget {
+  final List<CashierBreakdown> breakdowns;
+  const _CashierPerformanceTable({required this.breakdowns});
+
+  @override
+  Widget build(BuildContext context) {
+    if (breakdowns.isEmpty) return const Center(child: Text('NO CASHIER DATA'));
+
+    return ListView.separated(
+      itemCount: breakdowns.length,
+      separatorBuilder: (context, index) => Divider(color: AppTheme.ink.withOpacity(0.05)),
+      itemBuilder: (context, index) {
+        final b = breakdowns[index];
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppTheme.emerald.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    b.name[0].toUpperCase(),
+                    style: GoogleFonts.spaceGrotesk(
+                      fontWeight: FontWeight.w900,
+                      color: AppTheme.emerald,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      b.name.toUpperCase(),
+                      style: GoogleFonts.spaceGrotesk(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 14,
+                      ),
+                    ),
+                    Text(
+                      '${b.orders} Orders Processed',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.ink.withOpacity(0.4),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                '₱${b.sales.toStringAsFixed(2)}',
+                style: GoogleFonts.spaceGrotesk(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 18,
+                  color: AppTheme.emerald,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

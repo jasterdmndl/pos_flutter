@@ -143,6 +143,8 @@ class MobileOwnerDashboard extends ConsumerWidget {
                     children: [
                       _AnalyticsStrip(data: data),
                       const SizedBox(height: 32),
+                      _StaffPerformanceList(breakdowns: data.cashierBreakdowns),
+                      const SizedBox(height: 32),
                     ],
                   ),
                 ),
@@ -407,5 +409,85 @@ class _AnalyticsStrip extends StatelessWidget {
         ],
       ),
     ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1);
+  }
+}
+
+class _StaffPerformanceList extends StatelessWidget {
+  final List<CashierBreakdown> breakdowns;
+  const _StaffPerformanceList({required this.breakdowns});
+
+  @override
+  Widget build(BuildContext context) {
+    if (breakdowns.isEmpty) return const SizedBox();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "STAFF PERFORMANCE",
+          style: GoogleFonts.spaceGrotesk(
+            fontSize: 11,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.5,
+            color: AppTheme.ink.withValues(alpha: 0.5),
+          ),
+        ),
+        const SizedBox(height: 16),
+        ...breakdowns.map((b) => Container(
+          margin: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppTheme.ink.withValues(alpha: 0.05)),
+          ),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 16,
+                backgroundColor: AppTheme.emerald.withValues(alpha: 0.1),
+                child: Text(
+                  b.name[0].toUpperCase(),
+                  style: GoogleFonts.spaceGrotesk(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    color: AppTheme.emerald,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      b.name,
+                      style: GoogleFonts.spaceGrotesk(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    Text(
+                      "${b.orders} orders today",
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: AppTheme.ink.withValues(alpha: 0.4),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                "₱${b.sales.toStringAsFixed(0)}",
+                style: GoogleFonts.spaceGrotesk(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+        )),
+      ],
+    );
   }
 }

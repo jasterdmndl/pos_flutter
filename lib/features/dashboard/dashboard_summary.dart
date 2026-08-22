@@ -6,6 +6,7 @@ class DashboardSummary {
   final List<TopProduct> topProducts;
   final List<SalesTrend> salesTrends;
   final List<PaymentBreakdown> paymentBreakdowns;
+  final List<CashierBreakdown> cashierBreakdowns;
 
   const DashboardSummary({
     required this.todaySales,
@@ -15,6 +16,7 @@ class DashboardSummary {
     required this.topProducts,
     required this.salesTrends,
     required this.paymentBreakdowns,
+    this.cashierBreakdowns = const [],
   });
 }
 
@@ -45,5 +47,17 @@ class PaymentBreakdown {
   const PaymentBreakdown({
     required this.method,
     required this.amount,
+  });
+}
+
+class CashierBreakdown {
+  final String name;
+  final int orders;
+  final double sales;
+
+  const CashierBreakdown({
+    required this.name,
+    required this.orders,
+    required this.sales,
   });
 }

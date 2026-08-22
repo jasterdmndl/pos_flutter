@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/database/isar_service.dart';
 import '../../core/database/collections/order_entity.dart';
 import '../../core/database/collections/order_item_entity.dart';
+import '../../core/database/collections/user_entity.dart';
 
 import 'dashboard_summary.dart';
 
@@ -15,7 +16,6 @@ class DashboardRepository {
     // Existing Local Isar Logic
     final now = DateTime.now();
     final startOfDay = DateTime(now.year, now.month, now.day);
-    final sevenDaysAgo = DateTime(now.year, now.month, now.day - 6);
 
     final ordersToday = await IsarService.isar.orderEntitys
         .filter()
@@ -35,6 +35,7 @@ class DashboardRepository {
     final topProducts = await _getTopProducts();
     final salesTrends = await _getSalesTrends();
     final paymentBreakdowns = _getPaymentBreakdown(ordersToday);
+    final cashierBreakdowns = await _getCashierBreakdown(ordersToday);
 
     return DashboardSummary(
       todaySales: salesToday,
@@ -44,6 +45,7 @@ class DashboardRepository {
       topProducts: topProducts,
       salesTrends: salesTrends,
       paymentBreakdowns: paymentBreakdowns,
+      cashierBreakdowns: cashierBreakdowns,
     );
   }
 
@@ -85,6 +87,9 @@ class DashboardRepository {
         .map((e) => PaymentBreakdown(method: e.key, amount: e.value))
         .toList();
 
+    // 5. Cashier Breakdown
+    final cashierBreakdowns = await _getRemoteCashierBreakdown(ordersToday);
+
     return DashboardSummary(
       todaySales: salesToday,
       todayOrders: totalOrdersToday,
@@ -93,7 +98,79 @@ class DashboardRepository {
       topProducts: topProducts,
       salesTrends: salesTrends,
       paymentBreakdowns: paymentBreakdowns,
+      cashierBreakdowns: cashierBreakdowns,
     );
+  }
+
+  Future<List<CashierBreakdown>> _getCashierBreakdown(List<OrderEntity> orders) async {
+    final Map<int, _CashierStats> stats = {};
+
+    for (final order in orders) {
+      final id = order.cashierId ?? -1;
+      if (!stats.containsKey(id)) {
+        stats[id] = _CashierStats();
+      }
+      stats[id]!.orders++;
+      stats[id]!.sales += order.total;
+    }
+
+    final List<CashierBreakdown> breakdowns = [];
+    for (final entry in stats.entries) {
+      String name = 'Unknown';
+      if (entry.key == -1) {
+        name = 'Guest / System';
+      } else {
+        final user = await IsarService.isar.userEntitys.get(entry.key);
+        name = user?.name ?? 'Deleted User';
+      }
+
+      breakdowns.add(CashierBreakdown(
+        name: name,
+        orders: entry.value.orders,
+        sales: entry.value.sales,
+      ));
+    }
+
+    return breakdowns..sort((a, b) => b.sales.compareTo(a.sales));
+  }
+
+  Future<List<CashierBreakdown>> _getRemoteCashierBreakdown(List<dynamic> orders) async {
+    // Collect all cashier IDs
+    final Set<String> cashierIds = {};
+    for (final o in orders) {
+      if (o['cashier_id'] != null) {
+        cashierIds.add(o['cashier_id'].toString());
+      }
+    }
+
+    // Fetch profile names
+    final Map<String, String> namesMap = {};
+    if (cashierIds.isNotEmpty) {
+      final profiles = await _supabase
+          .from('profiles')
+          .select('id, username')
+          .filter('id', 'in', cashierIds.toList());
+      
+      for (final p in profiles) {
+        namesMap[p['id'].toString()] = p['username'] ?? 'User';
+      }
+    }
+
+    final Map<String, _CashierStats> stats = {};
+    for (final o in orders) {
+      final id = o['cashier_id']?.toString() ?? 'unknown';
+      if (!stats.containsKey(id)) {
+        stats[id] = _CashierStats();
+      }
+      stats[id]!.orders++;
+      stats[id]!.sales += (o['total'] as num).toDouble();
+    }
+
+    return stats.entries.map((e) => CashierBreakdown(
+      name: namesMap[e.key] ?? (e.key == 'unknown' ? 'Guest' : 'User ${e.key}'),
+      orders: e.value.orders,
+      sales: e.value.sales,
+    )).toList()..sort((a, b) => b.sales.compareTo(a.sales));
   }
 
   Future<List<TopProduct>> _getRemoteTopProducts() async {
@@ -249,4 +326,9 @@ class DashboardRepository {
 
     return monthSales;
   }
+}
+
+class _CashierStats {
+  int orders = 0;
+  double sales = 0;
 }
