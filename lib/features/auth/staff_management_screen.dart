@@ -141,9 +141,11 @@ class _StaffManagementScreenState extends ConsumerState<StaffManagementScreen> {
     final usernameController = TextEditingController(text: user?.username);
     final passwordController = TextEditingController();
     String selectedRole = user?.role ?? 'cashier';
+    bool isLoading = false;
 
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
           title: Text(
@@ -154,14 +156,20 @@ class _StaffManagementScreenState extends ConsumerState<StaffManagementScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                if (isLoading)
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 16),
+                    child: LinearProgressIndicator(),
+                  ),
                 TextField(
                   controller: nameController,
                   decoration: const InputDecoration(labelText: 'Full Name'),
+                  enabled: !isLoading,
                 ),
                 TextField(
                   controller: usernameController,
                   decoration: const InputDecoration(labelText: 'Username / Email'),
-                  enabled: !isEditing,
+                  enabled: !isEditing && !isLoading,
                 ),
                 TextField(
                   controller: passwordController,
@@ -169,6 +177,7 @@ class _StaffManagementScreenState extends ConsumerState<StaffManagementScreen> {
                     labelText: isEditing ? 'New Password (leave blank to keep)' : 'Password',
                   ),
                   obscureText: true,
+                  enabled: !isLoading,
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
@@ -177,18 +186,20 @@ class _StaffManagementScreenState extends ConsumerState<StaffManagementScreen> {
                   items: ['admin', 'owner', 'cashier'].map((role) {
                     return DropdownMenuItem(value: role, child: Text(role.toUpperCase()));
                   }).toList(),
-                  onChanged: (val) => setState(() => selectedRole = val!),
+                  onChanged: isLoading ? null : (val) => setState(() => selectedRole = val!),
                 ),
               ],
             ),
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: isLoading ? null : () => Navigator.pop(context),
               child: const Text('CANCEL'),
             ),
             ElevatedButton(
-              onPressed: () async {
+              onPressed: isLoading ? null : () async {
+                setState(() => isLoading = true);
+                
                 final repo = ref.read(userRepositoryProvider);
                 final entity = user ?? UserEntity();
                 
@@ -197,20 +208,31 @@ class _StaffManagementScreenState extends ConsumerState<StaffManagementScreen> {
                 entity.role = selectedRole;
                 entity.lastLogin = user?.lastLogin ?? DateTime.now();
 
+                String? rawPassword;
                 if (passwordController.text.isNotEmpty) {
-                  entity.passwordHash = repo.hashPassword(passwordController.text);
+                  rawPassword = passwordController.text;
+                  entity.passwordHash = repo.hashPassword(rawPassword);
                 } else if (!isEditing) {
-                  // Password required for new users
+                  setState(() => isLoading = false);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Password is required for new staff')),
                   );
                   return;
                 }
 
-                await repo.saveUser(entity);
-                if (mounted) {
-                  Navigator.pop(context);
-                  _refreshUsers();
+                try {
+                  await repo.saveUser(entity, password: rawPassword);
+                  if (mounted) {
+                    Navigator.pop(context);
+                    _refreshUsers();
+                  }
+                } catch (e) {
+                  setState(() => isLoading = false);
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
+                    );
+                  }
                 }
               },
               child: Text(isEditing ? 'UPDATE' : 'CREATE'),

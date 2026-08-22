@@ -15,5 +15,7 @@ class UserEntity {
 
   late String role; // 'admin', 'cashier', or 'owner'
 
+  String? supabaseUserId;
+
   late DateTime lastLogin;
 }
