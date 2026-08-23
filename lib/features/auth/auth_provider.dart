@@ -74,6 +74,7 @@ class AuthNotifier extends StateNotifier<UserEntity?> {
             ..name = name
             ..passwordHash = passwordHash
             ..role = role
+            ..supabaseUserId = user.id // Save the Cloud UUID locally
             ..lastLogin = DateTime.now();
 
           AppLogger.d('Online login success. Caching user and checking local orders.');

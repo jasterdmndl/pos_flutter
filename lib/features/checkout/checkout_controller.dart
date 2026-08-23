@@ -61,6 +61,9 @@ class CheckoutController extends StateNotifier<Order?> {
     final inventoryRepository = ref.read(inventoryRepositoryProvider);
     final cashier = ref.read(authProvider);
 
+    // Get Supabase UUID instead of local ID
+    final String? cashierUuid = cashier?.supabaseUserId;
+
     final savedOrderId = await repository.saveOrder(
       cartItems: cartItems,
       subtotal: subtotal,
@@ -73,7 +76,7 @@ class CheckoutController extends StateNotifier<Order?> {
       amountReceived: amountReceived,
       changeDue: changeDue,
       referenceNumber: referenceNumber,
-      cashierId: cashier?.id,
+      cashierId: cashierUuid,
     );
 
     // Deduct Inventory

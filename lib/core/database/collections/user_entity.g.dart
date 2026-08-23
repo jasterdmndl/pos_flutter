@@ -37,8 +37,13 @@ const UserEntitySchema = CollectionSchema(
       name: r'role',
       type: IsarType.string,
     ),
-    r'username': PropertySchema(
+    r'supabaseUserId': PropertySchema(
       id: 4,
+      name: r'supabaseUserId',
+      type: IsarType.string,
+    ),
+    r'username': PropertySchema(
+      id: 5,
       name: r'username',
       type: IsarType.string,
     )
@@ -80,6 +85,12 @@ int _userEntityEstimateSize(
   bytesCount += 3 + object.name.length * 3;
   bytesCount += 3 + object.passwordHash.length * 3;
   bytesCount += 3 + object.role.length * 3;
+  {
+    final value = object.supabaseUserId;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   bytesCount += 3 + object.username.length * 3;
   return bytesCount;
 }
@@ -94,7 +105,8 @@ void _userEntitySerialize(
   writer.writeString(offsets[1], object.name);
   writer.writeString(offsets[2], object.passwordHash);
   writer.writeString(offsets[3], object.role);
-  writer.writeString(offsets[4], object.username);
+  writer.writeString(offsets[4], object.supabaseUserId);
+  writer.writeString(offsets[5], object.username);
 }
 
 UserEntity _userEntityDeserialize(
@@ -109,7 +121,8 @@ UserEntity _userEntityDeserialize(
   object.name = reader.readString(offsets[1]);
   object.passwordHash = reader.readString(offsets[2]);
   object.role = reader.readString(offsets[3]);
-  object.username = reader.readString(offsets[4]);
+  object.supabaseUserId = reader.readStringOrNull(offsets[4]);
+  object.username = reader.readString(offsets[5]);
   return object;
 }
 
@@ -129,6 +142,8 @@ P _userEntityDeserializeProp<P>(
     case 3:
       return (reader.readString(offset)) as P;
     case 4:
+      return (reader.readStringOrNull(offset)) as P;
+    case 5:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -829,6 +844,160 @@ extension UserEntityQueryFilter
     });
   }
 
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      supabaseUserIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'supabaseUserId',
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      supabaseUserIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'supabaseUserId',
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      supabaseUserIdEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'supabaseUserId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      supabaseUserIdGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'supabaseUserId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      supabaseUserIdLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'supabaseUserId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      supabaseUserIdBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'supabaseUserId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      supabaseUserIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'supabaseUserId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      supabaseUserIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'supabaseUserId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      supabaseUserIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'supabaseUserId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      supabaseUserIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'supabaseUserId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      supabaseUserIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'supabaseUserId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition>
+      supabaseUserIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'supabaseUserId',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<UserEntity, UserEntity, QAfterFilterCondition> usernameEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -1020,6 +1189,19 @@ extension UserEntityQuerySortBy
     });
   }
 
+  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> sortBySupabaseUserId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'supabaseUserId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterSortBy>
+      sortBySupabaseUserIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'supabaseUserId', Sort.desc);
+    });
+  }
+
   QueryBuilder<UserEntity, UserEntity, QAfterSortBy> sortByUsername() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'username', Sort.asc);
@@ -1095,6 +1277,19 @@ extension UserEntityQuerySortThenBy
     });
   }
 
+  QueryBuilder<UserEntity, UserEntity, QAfterSortBy> thenBySupabaseUserId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'supabaseUserId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<UserEntity, UserEntity, QAfterSortBy>
+      thenBySupabaseUserIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'supabaseUserId', Sort.desc);
+    });
+  }
+
   QueryBuilder<UserEntity, UserEntity, QAfterSortBy> thenByUsername() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'username', Sort.asc);
@@ -1137,6 +1332,14 @@ extension UserEntityQueryWhereDistinct
     });
   }
 
+  QueryBuilder<UserEntity, UserEntity, QDistinct> distinctBySupabaseUserId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'supabaseUserId',
+          caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<UserEntity, UserEntity, QDistinct> distinctByUsername(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -1174,6 +1377,12 @@ extension UserEntityQueryProperty
   QueryBuilder<UserEntity, String, QQueryOperations> roleProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'role');
+    });
+  }
+
+  QueryBuilder<UserEntity, String?, QQueryOperations> supabaseUserIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'supabaseUserId');
     });
   }
 

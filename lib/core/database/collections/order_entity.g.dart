@@ -25,7 +25,7 @@ const OrderEntitySchema = CollectionSchema(
     r'cashierId': PropertySchema(
       id: 1,
       name: r'cashierId',
-      type: IsarType.long,
+      type: IsarType.string,
     ),
     r'changeDue': PropertySchema(
       id: 2,
@@ -140,6 +140,12 @@ int _orderEntityEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  {
+    final value = object.cashierId;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   bytesCount += 3 + object.paymentMethod.length * 3;
   {
     final value = object.referenceNumber;
@@ -163,7 +169,7 @@ void _orderEntitySerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeDouble(offsets[0], object.amountReceived);
-  writer.writeLong(offsets[1], object.cashierId);
+  writer.writeString(offsets[1], object.cashierId);
   writer.writeDouble(offsets[2], object.changeDue);
   writer.writeDateTime(offsets[3], object.createdAt);
   writer.writeDouble(offsets[4], object.discountAmount);
@@ -187,7 +193,7 @@ OrderEntity _orderEntityDeserialize(
 ) {
   final object = OrderEntity();
   object.amountReceived = reader.readDouble(offsets[0]);
-  object.cashierId = reader.readLongOrNull(offsets[1]);
+  object.cashierId = reader.readStringOrNull(offsets[1]);
   object.changeDue = reader.readDouble(offsets[2]);
   object.createdAt = reader.readDateTime(offsets[3]);
   object.discountAmount = reader.readDouble(offsets[4]);
@@ -215,7 +221,7 @@ P _orderEntityDeserializeProp<P>(
     case 0:
       return (reader.readDouble(offset)) as P;
     case 1:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 2:
       return (reader.readDouble(offset)) as P;
     case 3:
@@ -577,49 +583,58 @@ extension OrderEntityQueryFilter
   }
 
   QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
-      cashierIdEqualTo(int? value) {
+      cashierIdEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'cashierId',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
       cashierIdGreaterThan(
-    int? value, {
+    String? value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
         property: r'cashierId',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
       cashierIdLessThan(
-    int? value, {
+    String? value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
         property: r'cashierId',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
       cashierIdBetween(
-    int? lower,
-    int? upper, {
+    String? lower,
+    String? upper, {
     bool includeLower = true,
     bool includeUpper = true,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
@@ -628,6 +643,77 @@ extension OrderEntityQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      cashierIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'cashierId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      cashierIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'cashierId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      cashierIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'cashierId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      cashierIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'cashierId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      cashierIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'cashierId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      cashierIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'cashierId',
+        value: '',
       ));
     });
   }
@@ -2065,9 +2151,10 @@ extension OrderEntityQueryWhereDistinct
     });
   }
 
-  QueryBuilder<OrderEntity, OrderEntity, QDistinct> distinctByCashierId() {
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct> distinctByCashierId(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'cashierId');
+      return query.addDistinctBy(r'cashierId', caseSensitive: caseSensitive);
     });
   }
 
@@ -2169,7 +2256,7 @@ extension OrderEntityQueryProperty
     });
   }
 
-  QueryBuilder<OrderEntity, int?, QQueryOperations> cashierIdProperty() {
+  QueryBuilder<OrderEntity, String?, QQueryOperations> cashierIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'cashierId');
     });

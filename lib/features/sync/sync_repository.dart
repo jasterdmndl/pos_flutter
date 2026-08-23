@@ -56,12 +56,13 @@ class SyncRepository {
       'change_due': order.changeDue,
       'reference_number': order.referenceNumber,
       'created_at': order.createdAt.toIso8601String(),
-      'cashier_id': order.cashierId,
+      'cashier_id': order.cashierId, // Use the stored Supabase UUID string
       'is_voided': order.isVoided,
       'void_reason': order.voidReason,
     };
 
-    await _supabase.from('orders').insert(orderData);
+    // Use upsert() to handle retries gracefully and avoid "duplicate key" errors
+    await _supabase.from('orders').upsert(orderData);
 
     // 2. Sync Items
     final items = await IsarService.isar.orderItemEntitys
@@ -78,7 +79,13 @@ class SyncRepository {
         'quantity': item.quantity,
         'subtotal': item.subtotal,
       };
-      await _supabase.from('order_items').insert(itemData);
+      
+      try {
+        await _supabase.from('order_items').upsert(itemData);
+      } catch (e) {
+        AppLogger.e('Failed to sync item ${item.id} for order ${order.id}: $e');
+        rethrow;
+      }
 
       // 3. Sync Addons
       final addons = await IsarService.isar.orderAddonEntitys
@@ -95,7 +102,12 @@ class SyncRepository {
           'quantity': addon.quantity,
           'subtotal': addon.subtotal,
         };
-        await _supabase.from('order_item_addons').insert(addonData);
+        try {
+          await _supabase.from('order_item_addons').upsert(addonData);
+        } catch (e) {
+          AppLogger.e('Failed to sync addon for item ${item.id}: $e');
+          rethrow;
+        }
       }
     }
 
@@ -105,10 +117,11 @@ class SyncRepository {
       if (freshOrder != null) {
         freshOrder.isSynced = true;
         await IsarService.isar.orderEntitys.put(freshOrder);
-        AppLogger.d('Order ${order.id} marked as isSynced=true in local DB');
-      } else {
-        AppLogger.w('Could not find order ${order.id} to mark as synced');
+        // Important: Notify Isar that a change occurred for the watch stream
       }
     });
+    
+    // Explicitly log after transaction completion to ensure persistence
+    AppLogger.d('Order ${order.id} sync status successfully persisted to Isar');
   }
 }

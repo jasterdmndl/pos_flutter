@@ -19,7 +19,7 @@ class OrderEntity {
   @Index()
   late DateTime createdAt;
 
-  int? cashierId;
+  String? cashierId; // Changed to String to store Supabase UUID
 
   bool isVoided = false;
   String? voidReason;

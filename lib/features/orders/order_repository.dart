@@ -18,10 +18,13 @@ class OrderRepository {
     try {
       // Call the Supabase function we created in SQL
       final response = await _supabase.rpc('get_next_invoice_id');
+      if (response == null) {
+        throw 'Cloud ID returned null';
+      }
       return (response as num).toInt();
     } catch (e) {
       AppLogger.w('Cloud ID generation failed, falling back to timestamp ID: $e');
-      // Fallback: If totally offline, use a huge timestamp-based ID 
+      // Fallback: If totally offline or RPC fails, use a huge timestamp-based ID
       // to avoid collision until internet returns.
       return DateTime.now().millisecondsSinceEpoch;
     }
@@ -39,7 +42,7 @@ class OrderRepository {
     double amountReceived = 0,
     double changeDue = 0,
     String? referenceNumber,
-    int? cashierId,
+    String? cashierId, // Changed from int? to String?
   }) async {
     // 0. Get the Global Unique ID from the Cloud
     final globalId = await _getGlobalNextId();

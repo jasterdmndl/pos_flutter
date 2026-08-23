@@ -103,10 +103,10 @@ class DashboardRepository {
   }
 
   Future<List<CashierBreakdown>> _getCashierBreakdown(List<OrderEntity> orders) async {
-    final Map<int, _CashierStats> stats = {};
+       final Map<String, _CashierStats> stats = {};
 
     for (final order in orders) {
-      final id = order.cashierId ?? -1;
+      final id = order.cashierId ?? 'unknown';
       if (!stats.containsKey(id)) {
         stats[id] = _CashierStats();
       }
@@ -117,11 +117,16 @@ class DashboardRepository {
     final List<CashierBreakdown> breakdowns = [];
     for (final entry in stats.entries) {
       String name = 'Unknown';
-      if (entry.key == -1) {
+      if (entry.key == 'unknown') {
         name = 'Guest / System';
       } else {
-        final user = await IsarService.isar.userEntitys.get(entry.key);
-        name = user?.name ?? 'Deleted User';
+        // Try to find the user by their Supabase ID or local ID if it was stored as string
+        final user = await IsarService.isar.userEntitys
+            .filter()
+            .supabaseUserIdEqualTo(entry.key)
+            .findFirst();
+        
+        name = user?.name ?? 'User ${entry.key}';
       }
 
       breakdowns.add(CashierBreakdown(
