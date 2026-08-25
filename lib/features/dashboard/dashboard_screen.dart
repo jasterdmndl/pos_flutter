@@ -47,7 +47,6 @@ class DashboardScreen extends ConsumerWidget {
     }
 
     final dashboard = ref.watch(dashboardProvider);
-    final theme = Theme.of(context);
 
     return Scaffold(
       backgroundColor: AppTheme.bone,
@@ -60,12 +59,9 @@ class DashboardScreen extends ConsumerWidget {
         error: (error, stack) => Center(child: Text('Error: $error')),
         data: (DashboardSummary data) {
           return RefreshIndicator(
-            onRefresh: () async {
-              ref.invalidate(dashboardProvider);
-              await ref.refresh(dashboardProvider.future);
-            },
+            onRefresh: () => ref.refresh(dashboardProvider.future),
             child: ListView(
-              padding: const EdgeInsets.all(40),
+              padding: const EdgeInsets.all(32),
               children: [
                 // HEADER
                 Row(
@@ -73,109 +69,141 @@ class DashboardScreen extends ConsumerWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Business Summary", style: theme.textTheme.headlineLarge),
+                        Text("Business Summary", style: GoogleFonts.fraunces(fontWeight: FontWeight.bold, fontSize: 30)),
+                        const SizedBox(height: 4),
                         Text("Real-time performance metrics for Mire Sunset", style: TextStyle(color: AppTheme.ink.withOpacity(0.5))),
                       ],
                     ),
                     const Spacer(),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppTheme.ink.withOpacity(0.1)),
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(color: AppTheme.ink.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 8)),
+                        ],
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.calendar_today, size: 16),
+                          const Icon(Icons.calendar_today_rounded, size: 16, color: AppTheme.emerald),
                           const SizedBox(width: 12),
                           Text(DateFormat('MMMM dd, yyyy').format(DateTime.now()), style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
                   ],
-                ).animate().fadeIn().slideY(begin: -0.2),
+                ).animate().fadeIn().slideY(begin: -0.1),
 
-                const SizedBox(height: 48),
+                const SizedBox(height: 32),
 
-                // METRICS ROW
-                Row(
-                  children: [
-                    _BoutiqueMetric(
+                // KPI ROW
+                LayoutBuilder(builder: (context, constraints) {
+                  final cols = constraints.maxWidth > 1080 ? 4 : 2;
+                  const gap = 20.0;
+                  final cardWidth = (constraints.maxWidth - gap * (cols - 1)) / cols;
+
+                  final sevenDayAvg = data.salesTrends.isEmpty
+                      ? 0.0
+                      : data.salesTrends.map((t) => t.amount).reduce((a, b) => a + b) / data.salesTrends.length;
+
+                  final metrics = [
+                    _KpiStat(
                       label: 'TODAY SALES',
-                      value: '₱${data.todaySales.toStringAsFixed(0)}',
-                      icon: Icons.payments_outlined,
+                      value: '₱${NumberFormat('#,##0').format(data.todaySales)}',
+                      caption: '7-day avg ₱${NumberFormat('#,##0').format(sevenDayAvg)} / day',
+                      icon: Icons.payments_rounded,
                       index: 0,
                     ),
-                    const SizedBox(width: 24),
-                    _BoutiqueMetric(
+                    _KpiStat(
                       label: 'TOTAL ORDERS',
                       value: '${data.todayOrders}',
-                      icon: Icons.shopping_bag_outlined,
+                      caption: 'transactions completed today',
+                      icon: Icons.shopping_bag_rounded,
                       index: 1,
                     ),
-                    const SizedBox(width: 24),
-                    _BoutiqueMetric(
+                    _KpiStat(
                       label: 'AVG. ORDER',
-                      value: '₱${data.averageOrder.toStringAsFixed(0)}',
-                      icon: Icons.analytics_outlined,
+                      value: '₱${NumberFormat('#,##0').format(data.averageOrder)}',
+                      caption: 'revenue per transaction',
+                      icon: Icons.analytics_rounded,
                       index: 2,
                     ),
-                    const SizedBox(width: 24),
-                    _BoutiqueMetric(
+                    _KpiStat(
                       label: 'TOP SELLER',
                       value: data.bestSeller.toUpperCase(),
-                      icon: Icons.star_outline_rounded,
+                      caption: 'best performing product',
+                      icon: Icons.star_rounded,
                       index: 3,
+                      compactValue: true,
                     ),
-                  ],
-                ),
-                
-                const SizedBox(height: 48),
+                  ];
 
-                // TREND CHART
-                _DashboardSection(
-                  title: 'SALES TRAJECTORY',
-                  subtitle: '7-day revenue performance',
-                  child: SalesTrendChart(trends: data.salesTrends),
-                ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1),
+                  return Wrap(
+                    spacing: gap,
+                    runSpacing: gap,
+                    children: metrics.map((m) => SizedBox(width: cardWidth, child: m)).toList(),
+                  );
+                }),
 
-                const SizedBox(height: 48),
+                const SizedBox(height: 24),
 
-                // BOTTOM GRID
+                // CHARTS ROW: SALES TRAJECTORY + PAYMENT DONUT
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       flex: 3,
-                      child: _DashboardSection(
-                        title: 'TOP PRODUCTS',
-                        subtitle: 'Volume sold per item',
-                        child: TopProductsChart(products: data.topProducts),
+                      child: _DashboardCard(
+                        title: 'Sales Trajectory',
+                        subtitle: 'Daily revenue over the last 7 days',
+                        trailing: _PeriodChip(label: 'LAST 7 DAYS'),
+                        contentHeight: 300,
+                        child: _SalesTrajectoryChart(trends: data.salesTrends),
                       ),
                     ),
-                    const SizedBox(width: 24),
+                    const SizedBox(width: 20),
                     Expanded(
                       flex: 2,
-                      child: _DashboardSection(
-                        title: 'PAYMENT METHODS',
-                        subtitle: 'Distribution of tender',
-                        child: PaymentBreakdownChart(breakdowns: data.paymentBreakdowns),
+                      child: _DashboardCard(
+                        title: 'Payment Methods',
+                        subtitle: 'Distribution of tender today',
+                        contentHeight: 300,
+                        child: _PaymentDonut(breakdowns: data.paymentBreakdowns),
                       ),
                     ),
                   ],
-                ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.1),
+                ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.08),
 
-                const SizedBox(height: 48),
+                const SizedBox(height: 24),
 
-                // CASHIER LOGS
-                _DashboardSection(
-                  title: 'CASHIER PERFORMANCE',
-                  subtitle: 'Daily sales volume per staff member',
-                  child: _CashierPerformanceTable(breakdowns: data.cashierBreakdowns),
-                ).animate().fadeIn(delay: 800.ms).slideY(begin: 0.1),
-                
-                const SizedBox(height: 80),
+                // BOTTOM ROW: TOP PRODUCTS + CASHIER PERFORMANCE
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: _DashboardCard(
+                        title: 'Top Products',
+                        subtitle: 'Volume sold per item',
+                        contentHeight: 300,
+                        child: _TopProductsPanel(products: data.topProducts),
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      flex: 2,
+                      child: _DashboardCard(
+                        title: 'Cashier Performance',
+                        subtitle: 'Daily sales volume per staff member',
+                        contentHeight: 300,
+                        child: _CashierTable(breakdowns: data.cashierBreakdowns),
+                      ),
+                    ),
+                  ],
+                ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.08),
+
+                const SizedBox(height: 60),
               ],
             ),
           );
@@ -185,146 +213,115 @@ class DashboardScreen extends ConsumerWidget {
   }
 }
 
-class _CashierPerformanceTable extends StatelessWidget {
-  final List<CashierBreakdown> breakdowns;
-  const _CashierPerformanceTable({required this.breakdowns});
+// ======================
+// SHARED CARD & CHIPS
+// ======================
 
-  @override
-  Widget build(BuildContext context) {
-    if (breakdowns.isEmpty) return const Center(child: Text('NO CASHIER DATA'));
+class _DashboardCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final Widget? trailing;
+  final Widget child;
+  final double? contentHeight;
 
-    return ListView.separated(
-      itemCount: breakdowns.length,
-      separatorBuilder: (context, index) => Divider(color: AppTheme.ink.withOpacity(0.05)),
-      itemBuilder: (context, index) {
-        final b = breakdowns[index];
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppTheme.emerald.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Text(
-                    b.name[0].toUpperCase(),
-                    style: GoogleFonts.spaceGrotesk(
-                      fontWeight: FontWeight.w900,
-                      color: AppTheme.emerald,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      b.name.toUpperCase(),
-                      style: GoogleFonts.spaceGrotesk(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 14,
-                      ),
-                    ),
-                    Text(
-                      '${b.orders} Orders Processed',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.ink.withOpacity(0.4),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                '₱${b.sales.toStringAsFixed(2)}',
-                style: GoogleFonts.spaceGrotesk(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 18,
-                  color: AppTheme.emerald,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _BoutiqueMetric extends StatelessWidget {
-  final String label;
-  final String value;
-  final IconData icon;
-  final int index;
-
-  const _BoutiqueMetric({
-    required this.label,
-    required this.value,
-    required this.icon,
-    required this.index,
+  const _DashboardCard({
+    required this.title,
+    required this.subtitle,
+    required this.child,
+    this.trailing,
+    this.contentHeight,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(32),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppTheme.ink.withOpacity(0.08), width: 1.5),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, size: 20, color: AppTheme.emerald),
-                const SizedBox(width: 12),
-                Text(label, style: GoogleFonts.spaceGrotesk(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1, color: AppTheme.ink.withOpacity(0.4))),
-              ],
-            ),
-            const SizedBox(height: 24),
-            Text(
-              value,
-              style: GoogleFonts.spaceGrotesk(fontSize: 32, fontWeight: FontWeight.w900),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-      ).animate().fadeIn(delay: (index * 100).ms).slideX(begin: 0.1),
-    );
-  }
-}
-
-class _DashboardSection extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final Widget child;
-  const _DashboardSection({required this.title, required this.subtitle, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(40),
+      padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppTheme.ink.withOpacity(0.08), width: 1.5),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(color: AppTheme.ink.withOpacity(0.04), blurRadius: 24, offset: const Offset(0, 8)),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w900, letterSpacing: 2)),
-          Text(subtitle, style: TextStyle(color: AppTheme.ink.withOpacity(0.4), fontSize: 13)),
-          const SizedBox(height: 48),
-          SizedBox(height: 300, child: child),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, fontSize: 17)),
+                    const SizedBox(height: 2),
+                    Text(subtitle, style: TextStyle(color: AppTheme.ink.withOpacity(0.4), fontSize: 12.5)),
+                  ],
+                ),
+              ),
+              if (trailing != null) ...[const SizedBox(width: 12), trailing!],
+            ],
+          ),
+          const SizedBox(height: 24),
+          if (contentHeight != null)
+            SizedBox(height: contentHeight, child: child)
+          else
+            child,
+        ],
+      ),
+    );
+  }
+}
+
+class _PeriodChip extends StatelessWidget {
+  final String label;
+  const _PeriodChip({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppTheme.mintSoft,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.spaceGrotesk(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1, color: AppTheme.emeraldDeep),
+          ),
+          const SizedBox(width: 6),
+          const Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: AppTheme.emeraldDeep),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  final IconData icon;
+  final String message;
+  const _EmptyState({required this.icon, required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 40, color: AppTheme.ink.withOpacity(0.15)),
+          const SizedBox(height: 12),
+          Text(
+            message,
+            style: GoogleFonts.spaceGrotesk(
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.5,
+              color: AppTheme.ink.withOpacity(0.3),
+            ),
+          ),
         ],
       ),
     );
@@ -332,127 +329,511 @@ class _DashboardSection extends StatelessWidget {
 }
 
 // ======================
-// RE-STYLED CHARTS (SOLID COLORS)
+// KPI STAT CARD
 // ======================
 
-class SalesTrendChart extends StatelessWidget {
+class _KpiStat extends StatelessWidget {
+  final String label;
+  final String value;
+  final String caption;
+  final IconData icon;
+  final int index;
+  final bool compactValue;
+
+  const _KpiStat({
+    required this.label,
+    required this.value,
+    required this.caption,
+    required this.icon,
+    required this.index,
+    this.compactValue = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(color: AppTheme.ink.withOpacity(0.04), blurRadius: 24, offset: const Offset(0, 8)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppTheme.mintSoft,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(icon, size: 24, color: AppTheme.emerald),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Text(
+            label,
+            style: GoogleFonts.spaceGrotesk(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.2, color: AppTheme.ink.withOpacity(0.4)),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.spaceGrotesk(
+              fontSize: compactValue ? 22 : 30,
+              fontWeight: FontWeight.w900,
+              height: 1.1,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            caption,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 12, color: AppTheme.ink.withOpacity(0.35)),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(delay: (index * 80).ms).slideY(begin: 0.1);
+  }
+}
+
+// ======================
+// SALES TRAJECTORY (GRADIENT BARS + GHOST AVG)
+// ======================
+
+class _SalesTrajectoryChart extends StatelessWidget {
   final List<SalesTrend> trends;
-  const SalesTrendChart({super.key, required this.trends});
+  const _SalesTrajectoryChart({required this.trends});
 
   @override
   Widget build(BuildContext context) {
-    if (trends.isEmpty) return const Center(child: Text('NO DATA'));
-    
-    return LineChart(
-      LineChartData(
-        gridData: FlGridData(
-          show: true, 
-          drawVerticalLine: false,
-          getDrawingHorizontalLine: (val) => FlLine(color: AppTheme.ink.withOpacity(0.05), strokeWidth: 1),
-        ),
-        titlesData: FlTitlesData(
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              getTitlesWidget: (value, meta) {
-                final index = value.toInt();
-                if (index < 0 || index >= trends.length) return const SizedBox();
-                return Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: Text(DateFormat('E').format(trends[index].date).toUpperCase(), style: GoogleFonts.spaceGrotesk(fontSize: 10, fontWeight: FontWeight.bold)),
+    if (trends.isEmpty) return const _EmptyState(icon: Icons.bar_chart_rounded, message: 'NO SALES DATA YET');
+
+    final maxAmount = trends.map((t) => t.amount).reduce((a, b) => a > b ? a : b);
+    final avg = trends.map((t) => t.amount).reduce((a, b) => a + b) / trends.length;
+    final maxY = (maxAmount > avg ? maxAmount : avg) * 1.2;
+
+    return Column(
+      children: [
+        Expanded(
+          child: BarChart(
+            BarChartData(
+              maxY: maxY,
+              gridData: FlGridData(
+                show: true,
+                drawVerticalLine: false,
+                getDrawingHorizontalLine: (val) => FlLine(color: AppTheme.ink.withOpacity(0.05), strokeWidth: 1),
+              ),
+              titlesData: FlTitlesData(
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 32,
+                    getTitlesWidget: (value, meta) {
+                      final index = value.toInt();
+                      if (index < 0 || index >= trends.length) return const SizedBox();
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          DateFormat('E').format(trends[index].date).toUpperCase(),
+                          style: GoogleFonts.spaceGrotesk(fontSize: 10, fontWeight: FontWeight.w700, color: AppTheme.ink.withOpacity(0.4)),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 48,
+                    getTitlesWidget: (value, meta) {
+                      if (value == 0) return const SizedBox();
+                      return Text(
+                        NumberFormat.compact().format(value),
+                        style: GoogleFonts.spaceGrotesk(fontSize: 10, fontWeight: FontWeight.w600, color: AppTheme.ink.withOpacity(0.35)),
+                      );
+                    },
+                  ),
+                ),
+                topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              ),
+              borderData: FlBorderData(show: false),
+              barTouchData: BarTouchData(
+                touchTooltipData: BarTouchTooltipData(
+                  getTooltipColor: (_) => AppTheme.ink,
+                  getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                    if (rod.toY == 0) return null;
+                    final date = trends[group.x.toInt()].date;
+                    return BarTooltipItem(
+                      '${DateFormat('MMM d').format(date)}\n₱${NumberFormat('#,##0.00').format(rod.toY)}',
+                      GoogleFonts.spaceGrotesk(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white),
+                    );
+                  },
+                ),
+              ),
+              barGroups: trends.asMap().entries.map((e) {
+                return BarChartGroupData(
+                  x: e.key,
+                  barsSpace: 6,
+                  barRods: [
+                    BarChartRodData(
+                      toY: avg,
+                      color: AppTheme.mintSoft,
+                      width: 14,
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+                    ),
+                    BarChartRodData(
+                      toY: e.value.amount,
+                      width: 14,
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+                      gradient: const LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [AppTheme.emeraldDeep, AppTheme.emerald],
+                      ),
+                    ),
+                  ],
                 );
-              },
+              }).toList(),
             ),
           ),
-          leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 60)),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
-        borderData: FlBorderData(show: false),
-        lineBarsData: [
-          LineChartBarData(
-            spots: trends.asMap().entries.map((e) => FlSpot(e.key.toDouble(), e.value.amount)).toList(),
-            isCurved: false, // Straight lines for a more technical "boutique" feel
-            color: AppTheme.emerald,
-            barWidth: 6,
-            dotData: const FlDotData(show: true),
-            belowBarData: BarAreaData(show: false),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class TopProductsChart extends StatelessWidget {
-  final List<TopProduct> products;
-  const TopProductsChart({super.key, required this.products});
-
-  @override
-  Widget build(BuildContext context) {
-    if (products.isEmpty) return const Center(child: Text('NO DATA'));
-
-    return BarChart(
-      BarChartData(
-        barGroups: products.asMap().entries.map((e) => BarChartGroupData(
-          x: e.key,
-          barRods: [
-            BarChartRodData(
-              toY: e.value.quantity.toDouble(),
-              color: AppTheme.emerald,
-              width: 40,
-              borderRadius: BorderRadius.circular(4),
-            ),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _ChartLegendDot(color: AppTheme.mintSoft, label: '7-DAY AVG'),
+            const SizedBox(width: 20),
+            _ChartLegendDot(color: AppTheme.emerald, label: 'DAILY SALES'),
           ],
-        )).toList(),
-        titlesData: FlTitlesData(
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              getTitlesWidget: (value, meta) {
-                final index = value.toInt();
-                if (index < 0 || index >= products.length) return const SizedBox();
-                return Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: Text(products[index].name.toUpperCase(), style: GoogleFonts.spaceGrotesk(fontSize: 9, fontWeight: FontWeight.bold)),
-                );
-              },
-            ),
-          ),
-          leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 40)),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
-        gridData: const FlGridData(show: false),
-        borderData: FlBorderData(show: false),
-      ),
+      ],
     );
   }
 }
 
-class PaymentBreakdownChart extends StatelessWidget {
-  final List<PaymentBreakdown> breakdowns;
-  const PaymentBreakdownChart({super.key, required this.breakdowns});
+class _ChartLegendDot extends StatelessWidget {
+  final Color color;
+  final String label;
+  const _ChartLegendDot({required this.color, required this.label});
 
   @override
   Widget build(BuildContext context) {
-    if (breakdowns.isEmpty) return const Center(child: Text('NO DATA'));
-    
-    return PieChart(
-      PieChartData(
-        sections: breakdowns.asMap().entries.map((e) {
-          final colors = [AppTheme.emerald, AppTheme.emeraldDeep, AppTheme.ink, const Color(0xFF4A4A4A)];
-          return PieChartSectionData(
-            value: e.value.amount,
-            title: '${e.value.method.toUpperCase()}\n₱${e.value.amount.toStringAsFixed(0)}',
-            color: colors[e.key % colors.length],
-            radius: 100,
-            titleStyle: GoogleFonts.spaceGrotesk(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white),
-          );
-        }).toList(),
-        sectionsSpace: 4,
-        centerSpaceRadius: 0, // Solid pie for boutique feel
-      ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: GoogleFonts.spaceGrotesk(fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1, color: AppTheme.ink.withOpacity(0.45)),
+        ),
+      ],
+    );
+  }
+}
+
+// ======================
+// PAYMENT METHODS DONUT
+// ======================
+
+class _PaymentDonut extends StatelessWidget {
+  final List<PaymentBreakdown> breakdowns;
+  const _PaymentDonut({required this.breakdowns});
+
+  static const _palette = [
+    AppTheme.emerald,
+    Color(0xFF4C9F70),
+    AppTheme.emeraldDeep,
+    Color(0xFF9DCBAC),
+    Color(0xFF8A9188),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    if (breakdowns.isEmpty) return const _EmptyState(icon: Icons.pie_chart_rounded, message: 'NO PAYMENTS YET');
+
+    final total = breakdowns.map((e) => e.amount).reduce((a, b) => a + b);
+
+    return Column(
+      children: [
+        Expanded(
+          child: Stack(
+            children: [
+              PieChart(
+                PieChartData(
+                  sectionsSpace: 4,
+                  centerSpaceRadius: 52,
+                  sections: breakdowns.asMap().entries.map((e) {
+                    final fraction = total == 0 ? 0.0 : e.value.amount / total;
+                    return PieChartSectionData(
+                      value: e.value.amount,
+                      color: _palette[e.key % _palette.length],
+                      radius: 42,
+                      showTitle: fraction >= 0.08,
+                      title: '${(fraction * 100).toStringAsFixed(0)}%',
+                      titleStyle: GoogleFonts.spaceGrotesk(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.white),
+                    );
+                  }).toList(),
+                ),
+              ),
+              Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'TODAY',
+                      style: GoogleFonts.spaceGrotesk(fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1.5, color: AppTheme.ink.withOpacity(0.35)),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '₱${NumberFormat.compact().format(total)}',
+                      style: GoogleFonts.spaceGrotesk(fontSize: 18, fontWeight: FontWeight.w900),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        Column(
+          children: breakdowns.asMap().entries.map((e) {
+            final fraction = total == 0 ? 0.0 : e.value.amount / total;
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              child: Row(
+                children: [
+                  Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: _palette[e.key % _palette.length],
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      e.value.method.toUpperCase(),
+                      style: GoogleFonts.spaceGrotesk(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.5, color: AppTheme.ink.withOpacity(0.55)),
+                    ),
+                  ),
+                  Text(
+                    '₱${NumberFormat('#,##0.00').format(e.value.amount)}',
+                    style: GoogleFonts.spaceGrotesk(fontSize: 12, fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 38,
+                    child: Text(
+                      '${(fraction * 100).toStringAsFixed(0)}%',
+                      textAlign: TextAlign.right,
+                      style: GoogleFonts.spaceGrotesk(fontSize: 11, fontWeight: FontWeight.w700, color: AppTheme.ink.withOpacity(0.35)),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+}
+
+// ======================
+// TOP PRODUCTS (VOLUME BARS)
+// ======================
+
+class _TopProductsPanel extends StatelessWidget {
+  final List<TopProduct> products;
+  const _TopProductsPanel({required this.products});
+
+  @override
+  Widget build(BuildContext context) {
+    if (products.isEmpty) return const _EmptyState(icon: Icons.inventory_2_rounded, message: 'NO PRODUCTS SOLD YET');
+
+    final maxQty = products.map((p) => p.quantity).reduce((a, b) => a > b ? a : b);
+
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.separated(
+            itemCount: products.length,
+            separatorBuilder: (context, index) => const SizedBox(height: 14),
+            itemBuilder: (context, index) {
+              final p = products[index];
+              final fraction = maxQty == 0 ? 0.0 : p.quantity / maxQty;
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          p.name.toUpperCase(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.spaceGrotesk(fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 0.5),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'x${p.quantity}',
+                        style: GoogleFonts.spaceGrotesk(fontSize: 12, fontWeight: FontWeight.w800, color: AppTheme.ink.withOpacity(0.4)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  LayoutBuilder(builder: (context, constraints) {
+                    return Stack(
+                      children: [
+                        Container(
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: AppTheme.ink.withOpacity(0.04),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                        Container(
+                          height: 10,
+                          width: constraints.maxWidth * fraction,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            gradient: const LinearGradient(
+                              colors: [AppTheme.emeraldDeep, AppTheme.emerald],
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
+                ],
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ======================
+// CASHIER PERFORMANCE TABLE
+// ======================
+
+class _CashierTable extends StatelessWidget {
+  final List<CashierBreakdown> breakdowns;
+  const _CashierTable({required this.breakdowns});
+
+  @override
+  Widget build(BuildContext context) {
+    if (breakdowns.isEmpty) return const _EmptyState(icon: Icons.people_alt_rounded, message: 'NO CASHIER ACTIVITY YET');
+
+    return Column(
+      children: [
+        // TABLE HEADER
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Row(
+            children: [
+              const SizedBox(width: 46),
+              Expanded(
+                child: Text(
+                  'CASHIER',
+                  style: GoogleFonts.spaceGrotesk(fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1.2, color: AppTheme.ink.withOpacity(0.35)),
+                ),
+              ),
+              SizedBox(
+                width: 60,
+                child: Text(
+                  'ORDERS',
+                  textAlign: TextAlign.right,
+                  style: GoogleFonts.spaceGrotesk(fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1.2, color: AppTheme.ink.withOpacity(0.35)),
+                ),
+              ),
+              SizedBox(
+                width: 110,
+                child: Text(
+                  'SALES',
+                  textAlign: TextAlign.right,
+                  style: GoogleFonts.spaceGrotesk(fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1.2, color: AppTheme.ink.withOpacity(0.35)),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: ListView.separated(
+            itemCount: breakdowns.length,
+            separatorBuilder: (context, index) => Divider(color: AppTheme.ink.withOpacity(0.06), height: 1),
+            itemBuilder: (context, index) {
+              final b = breakdowns[index];
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: const BoxDecoration(
+                        color: AppTheme.mintSoft,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          b.name.isNotEmpty ? b.name[0].toUpperCase() : '?',
+                          style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w900, fontSize: 14, color: AppTheme.emerald),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        b.name.toUpperCase(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, fontSize: 13),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 60,
+                      child: Text(
+                        '${b.orders}',
+                        textAlign: TextAlign.right,
+                        style: GoogleFonts.spaceGrotesk(fontSize: 13, fontWeight: FontWeight.w700, color: AppTheme.ink.withOpacity(0.5)),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 110,
+                      child: Text(
+                        '₱${NumberFormat('#,##0.00').format(b.sales)}',
+                        textAlign: TextAlign.right,
+                        style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w900, fontSize: 14, color: AppTheme.emerald),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }
