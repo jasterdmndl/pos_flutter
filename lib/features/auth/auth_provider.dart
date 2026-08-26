@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../core/database/isar_service.dart';
 import '../../core/database/collections/user_entity.dart';
 import '../../core/services/supabase_service.dart';
+import '../sync/sync_provider.dart';
 import '../../core/utils/error_handler.dart';
 import '../../core/utils/logger.dart';
 
@@ -85,6 +87,8 @@ class AuthNotifier extends StateNotifier<UserEntity?> {
           });
 
           state = localUser;
+          // Pull this cashier's cloud orders so history is consistent on this device
+          unawaited(ref.read(syncProvider.notifier).pullNow(cashierId: localUser.supabaseUserId));
           return true;
         }
       } on AuthException catch (e) {
@@ -118,6 +122,8 @@ class AuthNotifier extends StateNotifier<UserEntity?> {
     if (localUser != null) {
       if (localUser.passwordHash == passwordHash) {
         state = localUser;
+        // Pull this cashier's cloud orders so history is consistent on this device
+        unawaited(ref.read(syncProvider.notifier).pullNow(cashierId: localUser.supabaseUserId));
         AppLogger.i('Offline Login Successful. Role: ${state?.role}');
         return true;
       } else {
