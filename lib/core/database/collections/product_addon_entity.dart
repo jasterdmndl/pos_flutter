@@ -13,4 +13,12 @@ class ProductAddonEntity {
   late bool isPerUnit;
 
   late bool isActive;
+
+  /// Globally unique id used as the cloud primary key for cross-device sync.
+  @Index(unique: true)
+  String? syncId;
+
+  DateTime? updatedAt;
+
+  bool isDeleted = false;
 }

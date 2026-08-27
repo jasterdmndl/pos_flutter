@@ -11,6 +11,7 @@ import 'core/theme/app_theme.dart';
 import 'core/navigation/app_navigator.dart';
 import 'features/auth/login_screen.dart';
 import 'features/auth/session_watcher.dart';
+import 'features/sync/catalog_sync_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -77,6 +78,8 @@ class PosFlutterApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Keeps the cross-device single-session watcher alive for the app lifetime.
     ref.watch(sessionWatcherProvider);
+    // Keeps the shared-catalog sync (poll every 30s) alive for the app lifetime.
+    ref.watch(catalogSyncProvider);
 
     return MaterialApp(
       title: 'Mire Sunset POS',

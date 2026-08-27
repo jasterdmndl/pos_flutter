@@ -5,8 +5,10 @@ import '../../core/database/collections/product_entity.dart';
 import '../../core/database/collections/ingredient_entity.dart';
 import '../../core/database/collections/product_ingredient_entity.dart';
 import '../../core/database/collections/product_addon_entity.dart';
+import '../sync/catalog_sync_repository.dart';
 
 class ProductRepository {
+  final CatalogSyncRepository _catalog = CatalogSyncRepository();
   Future<List<CategoryEntity>> getCategories() async {
     return await IsarService.isar.categoryEntitys.where().findAll();
   }
@@ -16,14 +18,19 @@ class ProductRepository {
   }
 
   Future<void> saveAddon(ProductAddonEntity addon) async {
+    await _catalog.upsertAddon(addon);
     await IsarService.isar.writeTxn(() async {
       await IsarService.isar.productAddonEntitys.put(addon);
     });
   }
 
   Future<void> deleteAddon(int id) async {
+    final addon = await IsarService.isar.productAddonEntitys.get(id);
+    if (addon == null) return;
+    addon.isDeleted = true;
+    await _catalog.softDelete('product_addons', addon.syncId);
     await IsarService.isar.writeTxn(() async {
-      await IsarService.isar.productAddonEntitys.delete(id);
+      await IsarService.isar.productAddonEntitys.put(addon);
     });
   }
 
@@ -39,32 +46,61 @@ class ProductRepository {
   }
 
   Future<void> saveProduct(ProductEntity product) async {
+    // Ensure the referenced category is pushed first so its syncId resolves.
+    if (product.categoryId != 0) {
+      final category =
+          await IsarService.isar.categoryEntitys.get(product.categoryId);
+      if (category != null) {
+        await _catalog.upsertCategory(category);
+        await IsarService.isar.writeTxn(() async {
+          await IsarService.isar.categoryEntitys.put(category);
+        });
+        product.categorySyncId = category.syncId;
+      }
+    }
+    await _catalog.upsertProduct(product);
     await IsarService.isar.writeTxn(() async {
       await IsarService.isar.productEntitys.put(product);
     });
   }
 
   Future<void> deleteProduct(int id) async {
+    final product = await IsarService.isar.productEntitys.get(id);
+    if (product == null) return;
+    product.isDeleted = true;
+    await _catalog.softDelete('products', product.syncId);
     await IsarService.isar.writeTxn(() async {
-      await IsarService.isar.productEntitys.delete(id);
+      await IsarService.isar.productEntitys.put(product);
     });
   }
 
   Future<void> saveCategory(CategoryEntity category) async {
+    await _catalog.upsertCategory(category);
     await IsarService.isar.writeTxn(() async {
       await IsarService.isar.categoryEntitys.put(category);
     });
   }
 
   Future<void> deleteCategory(int id) async {
+    final category = await IsarService.isar.categoryEntitys.get(id);
+    if (category == null) return;
+    category.isDeleted = true;
+    await _catalog.softDelete('categories', category.syncId);
     await IsarService.isar.writeTxn(() async {
-      await IsarService.isar.categoryEntitys.delete(id);
+      await IsarService.isar.categoryEntitys.put(category);
     });
   }
 
   Future<void> seedInitialData() async {
     final categoryCount = await IsarService.isar.categoryEntitys.count();
     if (categoryCount > 0) return;
+
+    // Adopt the cloud catalog if another device already seeded it, so we don't
+    // create duplicate items with different sync ids.
+    try {
+      await _catalog.pullCatalog();
+    } catch (_) {}
+    if (await IsarService.isar.categoryEntitys.count() > 0) return;
 
     await IsarService.isar.writeTxn(() async {
       // Create Categories
@@ -144,5 +180,10 @@ class ProductRepository {
 
       await IsarService.isar.productAddonEntitys.putAll([oatMilk, vanilla]);
     });
+
+    // Publish the seeded catalog so other devices can adopt it.
+    try {
+      await _catalog.pushAllLocal();
+    } catch (_) {}
   }
 }

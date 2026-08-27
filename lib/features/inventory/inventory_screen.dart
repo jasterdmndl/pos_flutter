@@ -20,7 +20,7 @@ class InventoryScreen extends ConsumerWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          final ingredients = snapshot.data ?? [];
+          final ingredients = (snapshot.data ?? []).where((i) => !i.isDeleted).toList();
 
           return ListView.builder(
             padding: const EdgeInsets.all(16),

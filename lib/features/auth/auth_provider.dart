@@ -10,6 +10,7 @@ import '../../core/database/isar_service.dart';
 import '../../core/database/collections/user_entity.dart';
 import '../../core/services/supabase_service.dart';
 import '../sync/sync_provider.dart';
+import '../sync/catalog_sync_provider.dart';
 import '../../core/utils/error_handler.dart';
 import '../../core/utils/logger.dart';
 
@@ -113,6 +114,8 @@ class AuthNotifier extends StateNotifier<UserEntity?> {
 
           // Pull this cashier's cloud orders so history is consistent on this device
           unawaited(ref.read(syncProvider.notifier).pullNow(cashierId: localUser.supabaseUserId));
+          // Pull the shared catalog so products added elsewhere appear here
+          unawaited(ref.read(catalogSyncProvider.notifier).pullCatalog());
           return true;
         }
       } on AuthException catch (e) {
@@ -148,6 +151,8 @@ class AuthNotifier extends StateNotifier<UserEntity?> {
         state = localUser;
         // Pull this cashier's cloud orders so history is consistent on this device
         unawaited(ref.read(syncProvider.notifier).pullNow(cashierId: localUser.supabaseUserId));
+        // Pull the shared catalog so products added elsewhere appear here
+        unawaited(ref.read(catalogSyncProvider.notifier).pullCatalog());
         AppLogger.i('Offline Login Successful. Role: ${state?.role}');
         return true;
       } else {

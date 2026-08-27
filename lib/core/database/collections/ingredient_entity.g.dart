@@ -17,20 +17,35 @@ const IngredientEntitySchema = CollectionSchema(
   name: r'IngredientEntity',
   id: 2434246641609860603,
   properties: {
-    r'name': PropertySchema(
+    r'isDeleted': PropertySchema(
       id: 0,
+      name: r'isDeleted',
+      type: IsarType.bool,
+    ),
+    r'name': PropertySchema(
+      id: 1,
       name: r'name',
       type: IsarType.string,
     ),
     r'stockQuantity': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'stockQuantity',
       type: IsarType.double,
     ),
+    r'syncId': PropertySchema(
+      id: 3,
+      name: r'syncId',
+      type: IsarType.string,
+    ),
     r'unit': PropertySchema(
-      id: 2,
+      id: 4,
       name: r'unit',
       type: IsarType.string,
+    ),
+    r'updatedAt': PropertySchema(
+      id: 5,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
     )
   },
   estimateSize: _ingredientEntityEstimateSize,
@@ -38,7 +53,21 @@ const IngredientEntitySchema = CollectionSchema(
   deserialize: _ingredientEntityDeserialize,
   deserializeProp: _ingredientEntityDeserializeProp,
   idName: r'id',
-  indexes: {},
+  indexes: {
+    r'syncId': IndexSchema(
+      id: 7538593479801827566,
+      name: r'syncId',
+      unique: true,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'syncId',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    )
+  },
   links: {},
   embeddedSchemas: {},
   getId: _ingredientEntityGetId,
@@ -54,6 +83,12 @@ int _ingredientEntityEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.name.length * 3;
+  {
+    final value = object.syncId;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   bytesCount += 3 + object.unit.length * 3;
   return bytesCount;
 }
@@ -64,9 +99,12 @@ void _ingredientEntitySerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.name);
-  writer.writeDouble(offsets[1], object.stockQuantity);
-  writer.writeString(offsets[2], object.unit);
+  writer.writeBool(offsets[0], object.isDeleted);
+  writer.writeString(offsets[1], object.name);
+  writer.writeDouble(offsets[2], object.stockQuantity);
+  writer.writeString(offsets[3], object.syncId);
+  writer.writeString(offsets[4], object.unit);
+  writer.writeDateTime(offsets[5], object.updatedAt);
 }
 
 IngredientEntity _ingredientEntityDeserialize(
@@ -77,9 +115,12 @@ IngredientEntity _ingredientEntityDeserialize(
 ) {
   final object = IngredientEntity();
   object.id = id;
-  object.name = reader.readString(offsets[0]);
-  object.stockQuantity = reader.readDouble(offsets[1]);
-  object.unit = reader.readString(offsets[2]);
+  object.isDeleted = reader.readBool(offsets[0]);
+  object.name = reader.readString(offsets[1]);
+  object.stockQuantity = reader.readDouble(offsets[2]);
+  object.syncId = reader.readStringOrNull(offsets[3]);
+  object.unit = reader.readString(offsets[4]);
+  object.updatedAt = reader.readDateTimeOrNull(offsets[5]);
   return object;
 }
 
@@ -91,11 +132,17 @@ P _ingredientEntityDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 1:
-      return (reader.readDouble(offset)) as P;
-    case 2:
       return (reader.readString(offset)) as P;
+    case 2:
+      return (reader.readDouble(offset)) as P;
+    case 3:
+      return (reader.readStringOrNull(offset)) as P;
+    case 4:
+      return (reader.readString(offset)) as P;
+    case 5:
+      return (reader.readDateTimeOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -112,6 +159,61 @@ List<IsarLinkBase<dynamic>> _ingredientEntityGetLinks(IngredientEntity object) {
 void _ingredientEntityAttach(
     IsarCollection<dynamic> col, Id id, IngredientEntity object) {
   object.id = id;
+}
+
+extension IngredientEntityByIndex on IsarCollection<IngredientEntity> {
+  Future<IngredientEntity?> getBySyncId(String? syncId) {
+    return getByIndex(r'syncId', [syncId]);
+  }
+
+  IngredientEntity? getBySyncIdSync(String? syncId) {
+    return getByIndexSync(r'syncId', [syncId]);
+  }
+
+  Future<bool> deleteBySyncId(String? syncId) {
+    return deleteByIndex(r'syncId', [syncId]);
+  }
+
+  bool deleteBySyncIdSync(String? syncId) {
+    return deleteByIndexSync(r'syncId', [syncId]);
+  }
+
+  Future<List<IngredientEntity?>> getAllBySyncId(List<String?> syncIdValues) {
+    final values = syncIdValues.map((e) => [e]).toList();
+    return getAllByIndex(r'syncId', values);
+  }
+
+  List<IngredientEntity?> getAllBySyncIdSync(List<String?> syncIdValues) {
+    final values = syncIdValues.map((e) => [e]).toList();
+    return getAllByIndexSync(r'syncId', values);
+  }
+
+  Future<int> deleteAllBySyncId(List<String?> syncIdValues) {
+    final values = syncIdValues.map((e) => [e]).toList();
+    return deleteAllByIndex(r'syncId', values);
+  }
+
+  int deleteAllBySyncIdSync(List<String?> syncIdValues) {
+    final values = syncIdValues.map((e) => [e]).toList();
+    return deleteAllByIndexSync(r'syncId', values);
+  }
+
+  Future<Id> putBySyncId(IngredientEntity object) {
+    return putByIndex(r'syncId', object);
+  }
+
+  Id putBySyncIdSync(IngredientEntity object, {bool saveLinks = true}) {
+    return putByIndexSync(r'syncId', object, saveLinks: saveLinks);
+  }
+
+  Future<List<Id>> putAllBySyncId(List<IngredientEntity> objects) {
+    return putAllByIndex(r'syncId', objects);
+  }
+
+  List<Id> putAllBySyncIdSync(List<IngredientEntity> objects,
+      {bool saveLinks = true}) {
+    return putAllByIndexSync(r'syncId', objects, saveLinks: saveLinks);
+  }
 }
 
 extension IngredientEntityQueryWhereSort
@@ -191,6 +293,73 @@ extension IngredientEntityQueryWhere
       ));
     });
   }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterWhereClause>
+      syncIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'syncId',
+        value: [null],
+      ));
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterWhereClause>
+      syncIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'syncId',
+        lower: [null],
+        includeLower: false,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterWhereClause>
+      syncIdEqualTo(String? syncId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'syncId',
+        value: [syncId],
+      ));
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterWhereClause>
+      syncIdNotEqualTo(String? syncId) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'syncId',
+              lower: [],
+              upper: [syncId],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'syncId',
+              lower: [syncId],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'syncId',
+              lower: [syncId],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'syncId',
+              lower: [],
+              upper: [syncId],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
 }
 
 extension IngredientEntityQueryFilter
@@ -247,6 +416,16 @@ extension IngredientEntityQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterFilterCondition>
+      isDeletedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isDeleted',
+        value: value,
       ));
     });
   }
@@ -454,6 +633,160 @@ extension IngredientEntityQueryFilter
   }
 
   QueryBuilder<IngredientEntity, IngredientEntity, QAfterFilterCondition>
+      syncIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'syncId',
+      ));
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterFilterCondition>
+      syncIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'syncId',
+      ));
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterFilterCondition>
+      syncIdEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'syncId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterFilterCondition>
+      syncIdGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'syncId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterFilterCondition>
+      syncIdLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'syncId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterFilterCondition>
+      syncIdBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'syncId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterFilterCondition>
+      syncIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'syncId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterFilterCondition>
+      syncIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'syncId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterFilterCondition>
+      syncIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'syncId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterFilterCondition>
+      syncIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'syncId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterFilterCondition>
+      syncIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'syncId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterFilterCondition>
+      syncIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'syncId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterFilterCondition>
       unitEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -588,6 +921,80 @@ extension IngredientEntityQueryFilter
       ));
     });
   }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterFilterCondition>
+      updatedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'updatedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterFilterCondition>
+      updatedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'updatedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterFilterCondition>
+      updatedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterFilterCondition>
+      updatedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterFilterCondition>
+      updatedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterFilterCondition>
+      updatedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension IngredientEntityQueryObject
@@ -598,6 +1005,20 @@ extension IngredientEntityQueryLinks
 
 extension IngredientEntityQuerySortBy
     on QueryBuilder<IngredientEntity, IngredientEntity, QSortBy> {
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterSortBy>
+      sortByIsDeleted() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isDeleted', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterSortBy>
+      sortByIsDeletedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isDeleted', Sort.desc);
+    });
+  }
+
   QueryBuilder<IngredientEntity, IngredientEntity, QAfterSortBy> sortByName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'name', Sort.asc);
@@ -625,6 +1046,20 @@ extension IngredientEntityQuerySortBy
     });
   }
 
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterSortBy>
+      sortBySyncId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'syncId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterSortBy>
+      sortBySyncIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'syncId', Sort.desc);
+    });
+  }
+
   QueryBuilder<IngredientEntity, IngredientEntity, QAfterSortBy> sortByUnit() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'unit', Sort.asc);
@@ -635,6 +1070,20 @@ extension IngredientEntityQuerySortBy
       sortByUnitDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'unit', Sort.desc);
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterSortBy>
+      sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterSortBy>
+      sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
     });
   }
 }
@@ -651,6 +1100,20 @@ extension IngredientEntityQuerySortThenBy
       thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterSortBy>
+      thenByIsDeleted() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isDeleted', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterSortBy>
+      thenByIsDeletedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isDeleted', Sort.desc);
     });
   }
 
@@ -681,6 +1144,20 @@ extension IngredientEntityQuerySortThenBy
     });
   }
 
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterSortBy>
+      thenBySyncId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'syncId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterSortBy>
+      thenBySyncIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'syncId', Sort.desc);
+    });
+  }
+
   QueryBuilder<IngredientEntity, IngredientEntity, QAfterSortBy> thenByUnit() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'unit', Sort.asc);
@@ -693,10 +1170,31 @@ extension IngredientEntityQuerySortThenBy
       return query.addSortBy(r'unit', Sort.desc);
     });
   }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterSortBy>
+      thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QAfterSortBy>
+      thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
 }
 
 extension IngredientEntityQueryWhereDistinct
     on QueryBuilder<IngredientEntity, IngredientEntity, QDistinct> {
+  QueryBuilder<IngredientEntity, IngredientEntity, QDistinct>
+      distinctByIsDeleted() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isDeleted');
+    });
+  }
+
   QueryBuilder<IngredientEntity, IngredientEntity, QDistinct> distinctByName(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -711,10 +1209,24 @@ extension IngredientEntityQueryWhereDistinct
     });
   }
 
+  QueryBuilder<IngredientEntity, IngredientEntity, QDistinct> distinctBySyncId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'syncId', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<IngredientEntity, IngredientEntity, QDistinct> distinctByUnit(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'unit', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<IngredientEntity, IngredientEntity, QDistinct>
+      distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
     });
   }
 }
@@ -724,6 +1236,12 @@ extension IngredientEntityQueryProperty
   QueryBuilder<IngredientEntity, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<IngredientEntity, bool, QQueryOperations> isDeletedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isDeleted');
     });
   }
 
@@ -740,9 +1258,22 @@ extension IngredientEntityQueryProperty
     });
   }
 
+  QueryBuilder<IngredientEntity, String?, QQueryOperations> syncIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'syncId');
+    });
+  }
+
   QueryBuilder<IngredientEntity, String, QQueryOperations> unitProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'unit');
+    });
+  }
+
+  QueryBuilder<IngredientEntity, DateTime?, QQueryOperations>
+      updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
     });
   }
 }
