@@ -35,7 +35,7 @@ Future<void> main() async {
   }
 
   // Load environment variables
-  await dotenv.load(fileName: ".env");
+    await dotenv.load(fileName: ".env");
   
   // Initialize Databases & Services
   await IsarService.init();

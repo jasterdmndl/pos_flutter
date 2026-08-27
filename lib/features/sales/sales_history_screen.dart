@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_theme.dart';
 import 'order_details_screen.dart';
+import '../auth/auth_provider.dart';
 import 'sales_provider.dart';
 
 class SalesHistoryScreen extends ConsumerWidget {
@@ -11,6 +12,7 @@ class SalesHistoryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ordersAsync = ref.watch(salesHistoryProvider);
+    final user = ref.watch(authProvider);
 
     return Scaffold(
       backgroundColor: AppTheme.bone,
@@ -19,9 +21,14 @@ class SalesHistoryScreen extends ConsumerWidget {
       ),
       body: ordersAsync.when(
         data: (orders) {
-          if (orders.isEmpty) return _NoSalesState();
+          // Cashiers only see their own sales; admin/owner see the full ledger
+          final visibleOrders = (user?.role == 'cashier')
+              ? orders.where((o) => o.cashierId == user?.supabaseUserId).toList()
+              : orders;
 
-          final activeOrders = orders.where((o) => !o.isVoided).toList();
+          if (visibleOrders.isEmpty) return _NoSalesState();
+
+          final activeOrders = visibleOrders.where((o) => !o.isVoided).toList();
           final totalRevenue = activeOrders.fold<double>(0, (sum, order) => sum + order.total);
 
           return Column(
@@ -49,9 +56,9 @@ class SalesHistoryScreen extends ConsumerWidget {
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.all(24),
-                  itemCount: orders.length,
+                  itemCount: visibleOrders.length,
                   itemBuilder: (context, index) {
-                    final order = orders[index];
+                    final order = visibleOrders[index];
                     return _OrderHistoryTile(order: order);
                   },
                 ),

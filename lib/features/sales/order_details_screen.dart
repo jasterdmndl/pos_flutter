@@ -10,6 +10,7 @@ import '../receipts/pdf_receipt_service.dart';
 import '../receipts/receipt_repository.dart';
 import '../orders/order_provider.dart';
 import '../dashboard/dashboard_provider.dart';
+import '../auth/auth_provider.dart';
 import 'sales_provider.dart';
 import 'sales_repository.dart';
 
@@ -44,6 +45,7 @@ class _OrderDetailsScreenState
   @override
   Widget build(BuildContext context) {
     final order = widget.order;
+    final user = ref.watch(authProvider);
 
     return Scaffold(
       backgroundColor: AppTheme.bone,
@@ -116,7 +118,7 @@ class _OrderDetailsScreenState
                           ),
                         ).animate().fadeIn().slideX(begin: -0.05),
                         
-                        if (!order.isVoided) ...[
+                        if (!order.isVoided && (user?.role == 'admin' || user?.role == 'owner')) ...[
                           const SizedBox(height: 48),
                           SizedBox(
                             width: double.infinity,

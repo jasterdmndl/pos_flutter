@@ -41,7 +41,7 @@ class PosScreen extends ConsumerWidget {
           ],
         ),
         actions: [
-          if (user?.role == 'admin' || user?.role == 'owner') ...[
+          if (user?.role == 'admin' || user?.role == 'owner')
             _NavIcon(
               icon: Icons.analytics_outlined,
               label: 'DASHBOARD',
@@ -50,14 +50,15 @@ class PosScreen extends ConsumerWidget {
                 MaterialPageRoute(builder: (_) => const DashboardScreen()),
               ),
             ),
-            _NavIcon(
-              icon: Icons.receipt_long_outlined,
-              label: 'HISTORY',
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const SalesHistoryScreen()),
-              ),
+          _NavIcon(
+            icon: Icons.receipt_long_outlined,
+            label: 'HISTORY',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SalesHistoryScreen()),
             ),
+          ),
+          if (user?.role == 'admin' || user?.role == 'owner')
             _NavIcon(
               icon: Icons.settings_outlined,
               label: 'MANAGE',
@@ -66,7 +67,6 @@ class PosScreen extends ConsumerWidget {
                 MaterialPageRoute(builder: (_) => const ManagementScreen()),
               ),
             ),
-          ],
           const VerticalDivider(width: 32, indent: 24, endIndent: 24),
           _NavIcon(
             icon: Icons.logout_rounded,
