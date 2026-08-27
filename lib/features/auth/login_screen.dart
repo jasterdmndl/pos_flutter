@@ -37,6 +37,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final password = _passwordController.text.trim();
 
     setState(() => _isLoading = true);
+    ref.read(forceLogoutReasonProvider.notifier).state = null;
     final success = await ref.read(authProvider.notifier).login(email, password);
     setState(() => _isLoading = false);
 
@@ -83,6 +84,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     
     final isSupabaseReady = SupabaseService.isInitialized;
     final supabaseError = SupabaseService.initializationError;
+    final forceLogoutReason = ref.watch(forceLogoutReasonProvider);
 
     return Scaffold(
       backgroundColor: AppTheme.bone,
@@ -151,6 +153,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
+                            if (forceLogoutReason != null)
+                              Container(
+                                width: double.infinity,
+                                margin: const EdgeInsets.only(bottom: 24),
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.error.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: AppTheme.error.withValues(alpha: 0.3),
+                                  ),
+                                ),
+                                child: Text(
+                                  forceLogoutReason,
+                                  style: GoogleFonts.spaceGrotesk(
+                                    fontSize: 13,
+                                    color: AppTheme.error,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
                             // Mobile/Phone Logo
                             Container(
                               padding: const EdgeInsets.all(20),

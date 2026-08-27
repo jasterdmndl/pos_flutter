@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 import 'package:isar/isar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -14,13 +15,21 @@ import '../../core/utils/logger.dart';
 
 final authErrorProvider = StateProvider<String?>((ref) => null);
 
+/// Set when this device is force-logged-out by another device taking over
+/// the single session. Shown as a banner on the Login screen.
+final forceLogoutReasonProvider = StateProvider<String?>((ref) => null);
+
 final authProvider = StateNotifierProvider<AuthNotifier, UserEntity?>((ref) {
   return AuthNotifier(ref);
 });
 
 class AuthNotifier extends StateNotifier<UserEntity?> {
   final Ref ref;
+  String? _sessionId;
   AuthNotifier(this.ref) : super(null);
+
+  /// This device's active session id. Null until an online login claims one.
+  String? get sessionId => _sessionId;
 
   String _hashPassword(String password) {
     final bytes = utf8.encode(password);
@@ -87,6 +96,21 @@ class AuthNotifier extends StateNotifier<UserEntity?> {
           });
 
           state = localUser;
+
+          // Single-session: claim this device by writing a fresh session id.
+          // Another device logging in overwrites this; its watcher then
+          // force-logs-out this device on the next poll.
+          final sessionId = const Uuid().v4();
+          _sessionId = sessionId;
+          try {
+            await SupabaseService.client
+                .from('profiles')
+                .update({'active_session_id': sessionId})
+                .eq('id', user.id);
+          } catch (e) {
+            AppLogger.w('Session marker write failed: $e');
+          }
+
           // Pull this cashier's cloud orders so history is consistent on this device
           unawaited(ref.read(syncProvider.notifier).pullNow(cashierId: localUser.supabaseUserId));
           return true;
@@ -145,12 +169,45 @@ class AuthNotifier extends StateNotifier<UserEntity?> {
       ..lastLogin = DateTime.now();
   }
 
-  void logout() async {
+  /// Normal logout (user-initiated). Clears the cloud session marker too.
+  Future<void> logout() async {
     if (SupabaseService.isInitialized) {
+      final id = state?.supabaseUserId;
       try {
         await SupabaseService.client.auth.signOut();
       } catch (_) {}
+      if (id != null) {
+        try {
+          await SupabaseService.client
+              .from('profiles')
+              .update({'active_session_id': null})
+              .eq('id', id);
+        } catch (_) {}
+      }
     }
+    _sessionId = null;
     state = null;
+  }
+
+  /// Forced logout triggered by another device taking over the session.
+  Future<void> forceLogout() async {
+    if (SupabaseService.isInitialized) {
+      final id = state?.supabaseUserId;
+      try {
+        await SupabaseService.client.auth.signOut();
+      } catch (_) {}
+      if (id != null) {
+        try {
+          await SupabaseService.client
+              .from('profiles')
+              .update({'active_session_id': null})
+              .eq('id', id);
+        } catch (_) {}
+      }
+    }
+    _sessionId = null;
+    state = null;
+    ref.read(forceLogoutReasonProvider.notifier).state =
+        'You were logged out because this account was opened on another device.';
   }
 }

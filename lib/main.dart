@@ -8,7 +8,9 @@ import 'dart:io';
 import 'core/database/isar_service.dart';
 import 'core/services/supabase_service.dart';
 import 'core/theme/app_theme.dart';
+import 'core/navigation/app_navigator.dart';
 import 'features/auth/login_screen.dart';
+import 'features/auth/session_watcher.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -68,15 +70,19 @@ Future<void> main() async {
   );
 }
 
-class PosFlutterApp extends StatelessWidget {
+class PosFlutterApp extends ConsumerWidget {
   const PosFlutterApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Keeps the cross-device single-session watcher alive for the app lifetime.
+    ref.watch(sessionWatcherProvider);
+
     return MaterialApp(
       title: 'Mire Sunset POS',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.boutiqueTheme,
+      navigatorKey: appNavigatorKey,
       home: const LoginScreen(),
     );
   }
