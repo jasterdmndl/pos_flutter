@@ -3,205 +3,83 @@
 ## Project Information
 
 ### Project Name
-
 Mire Sunset
 
 ### Project Type
-
 Offline-First Point of Sale (POS) System
 
 ### Target Business
-
-Single-Branch Cafe / Coffee Shop
+Single-Branch Cafe / Coffee Shop (1 store, Owner/Admin/Cashier roles)
 
 ### Platforms
-
-* Windows Desktop
+* Windows Desktop (maximized, `window_manager` at `pubspec.yaml:56`)
 * Android Tablets
-* Future Mobile Support
+* Single codebase via Flutter 3.12 (`pubspec.yaml:22`)
 
 ---
 
 # Executive Summary
 
-Mire Sunset is a modern offline-first point-of-sale solution specifically designed for small and medium-sized cafes. The system prioritizes cashier speed, reliability, and real-world coffee shop workflows while remaining simple enough for daily operations.
-
-Unlike traditional retail POS systems, this solution supports beverage customizations such as milk substitutions, syrup pumps, and additional espresso shots.
-
-The application functions completely offline and synchronizes data to the cloud whenever an internet connection becomes available.
+Mire Sunset is a modern offline-first POS for small/medium cafes, prioritizing cashier speed and real-world beverage workflows (milk substitutions, syrup pumps, extra shots). It works fully offline via Isar (`lib/core/database/isar_service.dart`) and syncs to Supabase Postgres when online (`lib/features/sync/`). One menu is shared across all devices.
 
 ---
 
 # Business Objectives
 
-The system aims to:
-
-* Improve cashier efficiency
-* Reduce ordering errors
-* Support drink customization workflows
-* Operate without internet connectivity
-* Synchronize sales data to the cloud
-* Generate sales reports
-* Provide a scalable foundation for future growth
+*   Improve cashier efficiency
+*   Reduce ordering errors
+*   Support drink customization
+*   Operate without internet
+*   Synchronize sales + catalog to cloud
+*   Generate sales reports / Z-Reading (`lib/features/reports/z_reading_repository.dart`)
+*   Scalable foundation (repo handed over to client)
 
 ---
 
 # Core Features
 
-## Product Ordering
+## Product Ordering & Catalog Sync
 
-Cashiers can:
-
-* Browse products
-* Add products to cart
-* Increase quantity
-* Decrease quantity
-* Remove products
-
-Example:
-
-Latte x2
-Mocha x1
-
----
+Cashiers browse/add/increase/decrease/remove products. **Cross-device catalog sync** (`lib/features/sync/catalog_sync_repository.dart` + 30s `catalog_sync_provider.dart`): an Admin adding a product/category/addon/ingredient on one device appears on all devices. Soft-delete propagates. Stock quantity sync is definition-only (local stock stays operational).
 
 ## Product Customizations
 
-Supports real cafe modifications.
-
-Examples:
-
-Latte
-
-* Oat Milk (+₱15)
-
-Latte
-
-* Vanilla Syrup x3 (+₱15)
-
-Latte
-
-* Extra Shot (+₱20)
-
----
+Latte + Oat Milk (+₱15), Vanilla Syrup x3 (+₱15), Extra Shot (+₱20) — handled as `product_addons` and `product_ingredients`.
 
 ## Quantity-Based Cart
 
-The system groups identical products.
-
-Example:
-
-Incorrect:
-
-Latte
-Latte
-Latte
-
-Correct:
-
-Latte x3
-
-Benefits:
-
-* Cleaner interface
-* Faster cashier workflow
-* Easier order management
-
----
+Groups identical products: `Latte x3` (not three separate rows) — faster workflow.
 
 ## Discounts
 
-Supported Discounts:
-
-* Senior Citizen (20%)
-* PWD (20%)
-
-Future discount structures can be added.
-
----
+Senior Citizen 20%, PWD 20%.
 
 ## Payment Methods
 
-Supported Methods:
+Cash, GCash (manual reference), Card (manual reference) — no gateway required for v1.
 
-* Cash
-* GCash
+## Offline First + Single Session
 
-No third-party payment integration required.
-
----
-
-## Offline First Architecture
-
-Sales are processed locally first.
-
-Workflow:
-
-Sale Created
-↓
-Saved to Isar
-↓
-Receipt Generated
-↓
-Queued for Sync
-↓
-Uploaded to Supabase
-
-Internet connection is never required to complete a sale.
+Sale → Isar → Receipt → Queued → Supabase (`isSynced`). `SessionWatcher` (`lib/features/auth/session_watcher.dart:33`) enforces single session per account via `profiles.active_session_id` (15s poll + `appNavigatorKey` at `lib/core/navigation/app_navigator.dart`).
 
 ---
 
 # Technology Stack
 
 ## Frontend
-
-Flutter
-
-Benefits:
-
-* Single codebase
-* High performance
-* Cross-platform support
-
----
+Flutter 3.12 (`pubspec.yaml:31`) — Windows + Android Tablet.
 
 ## State Management
-
-Riverpod
-
-Used for:
-
-* Cart state
-* Checkout state
-* Product state
-* Synchronization state
-
----
+Riverpod 2.6.1 (`pubspec.yaml:34`) — cart/checkout/product/sync state.
 
 ## Local Database
-
-Isar Database
-
-Stores:
-
-* Products
-* Orders
-* Order Items
-* Add-ons
-* Pending Sync Data
-
----
+Isar 3.1.0+1 (`pubspec.yaml:39`) — `Isar.autoIncrement` local id + `syncId` UUID (`@Index(unique: true)`), `updatedAt`, `isDeleted`, `categorySyncId/productSyncId/ingredientSyncId` for cross-device resolution. Stores products/orders/pending sync.
 
 ## Cloud Backend
+Supabase 2.15.0 (`pubspec.yaml:47`) — PostgreSQL, GoTrue Auth, PostgREST, Realtime. 8 tables: `profiles` (+ `active_session_id`), `orders`/`order_items`/`order_item_addons`, `categories`/`products`/`product_addons`/`ingredients`/`product_ingredients`, plus `running_totals`/`z_readings`. RLS via `is_admin_or_owner()` SECURITY DEFINER; anon key via `supabase_service.dart:5`.
 
-Supabase
-
-Services:
-
-* PostgreSQL Database
-* Cloud Backup
-* Reporting Database
-* Future Authentication
+## Other
+`google_fonts`, `flutter_animate`, `fl_chart`, `printing`/`pdf`, `qr_flutter`, `uuid` (`pubspec.yaml:57`), `logger`, `connectivity_plus`, `window_manager`.
 
 ---
 
@@ -213,175 +91,50 @@ Riverpod State Management
 ↓
 Business Logic Layer
 ↓
-Isar Database
+Isar Database (`lib/core/database/collections/`) — plus `syncId` resolution
 ↓
-Synchronization Service
+Synchronization Service (`lib/features/sync/` — orders 5m, catalog 30s, session 15s)
 ↓
-Supabase Cloud
+Supabase Cloud (Postgres + RLS) — owned by client
 
 ---
 
 # Database Design
 
-## Products
+## Categories / Products / Addons / Ingredients / Product-Ingredients
 
-products
+All catalog tables share `id uuid PK (= syncId)`, `name`, `updated_at`, `is_deleted` (+ type-specific fields `price/is_active/category_sync_id`). Product-ingredient links use `product_sync_id`/`ingredient_sync_id`.
 
-* id
-* name
-* price
-* category_id
-* is_active
+## Orders / Order Items / Order Item Addons
 
----
-
-## Categories
-
-categories
-
-* id
-* name
-
----
-
-## Product Add-ons
-
-product_addons
-
-* id
-* name
-* price_type
-* price
-
-Examples:
-
-* Oat Milk (+15)
-* Soy Milk (+10)
-* Vanilla Syrup (+5 per pump)
-* Extra Shot (+20)
-
----
-
-## Orders
-
-orders
-
-* id
-* subtotal
-* discount_amount
-* total
-* payment_method
-* created_at
-* sync_status
-
----
-
-## Order Items
-
-order_items
-
-* id
-* order_id
-* product_id
-* quantity
-* base_price
-* subtotal
-
----
-
-## Order Item Add-ons
-
-order_item_addons
-
-* id
-* order_item_id
-* addon_id
-* quantity
-* price
-* subtotal
+`orders` id via `get_next_invoice_id()` (BIR sequence), `total/cashier_id/is_synced`.
 
 ---
 
 # Business Rules
 
-## Quantity Handling
-
-If product already exists:
-
-Latte x1
-↓
-Tap Latte
-↓
-Latte x2
+*   Tap existing product → quantity increments (`Latte x1 → x2`); minus to zero removes.
+*   Different customizations remain separate cart entries (`Latte+Oat` ≠ `Latte+Soy`).
 
 ---
 
-## Quantity Reaches Zero
+# Hosting & Delivery
 
-Latte x1
-↓
-Press Minus
-↓
-Removed from Cart
-
----
-
-## Customizations
-
-Products with different customizations must remain separate.
-
-Example:
-
-Latte + Oat Milk
-Latte + Soy Milk
-
-These remain separate cart entries.
-
----
-
-# Future Modules
-
-* Receipt Printing
-* Sales Reporting
-* Daily Closing Reports
-* Product Management
-* Cloud Dashboard
-* Inventory Tracking (Optional Future Phase)
+*   **Cloud DB** lives in **your own Supabase project** (you own data). Installers (APK at `build/` + Windows EXE/MSIX via `msix_config` at `pubspec.yaml:83`) connect via your `.env` (`SUPABASE_URL`/`ANON_KEY` at `README.md`). Without it, each device is local-only.
+*   **Repo handed over:** Full `pos_flutter` repo included.
 
 ---
 
 # Current Development Status
 
 Completed:
-
-* Flutter Setup
-* Riverpod Setup
-* Product Models
-* Product Providers
-* Cart Models
-* Cart Controller
-* Add Product Logic
-* Quantity Management
-* Remove Item Logic
-* Cart Total Calculation
-* Product Grid UI
-* Cart Panel UI
-* Product Add-ons
-* Checkout Flow
-* Discounts
-* Isar Integration
-* Receipt Printing
-* Supabase Synchronization
-* Detailed Reporting
-* Product Management (CRUD)
-* Inventory Tracking
+*   Flutter/Riverpod/Cart/Quantity/Remove/Total/Product Grid/Cart Panel/Add-ons/Checkout/Discounts/Isar/Receipt/Supabase sync/Reporting/Product Management (CRUD)/Inventory/Single-session/Cross-device catalog sync (full, incl. ingredients) & RLS hardening
 
 In Progress:
-
-* Production Deployment Testing
+*   Production Deployment Testing (peripheral spike, UAT)
 
 ---
 
 # Project Vision
 
-To provide a reliable, modern, and easy-to-use POS solution specifically tailored for coffee shop operations while maintaining offline reliability and future scalability.
+Reliable, modern POS tailored for coffee shops — offline-reliable, single-menu everywhere, scalable for future phases.
