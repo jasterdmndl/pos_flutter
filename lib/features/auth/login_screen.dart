@@ -329,7 +329,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 }
 
-class _LoginField extends StatelessWidget {
+class _LoginField extends StatefulWidget {
   final String label;
   final String? hint;
   final TextEditingController controller;
@@ -349,29 +349,55 @@ class _LoginField extends StatelessWidget {
   });
 
   @override
+  State<_LoginField> createState() => _LoginFieldState();
+}
+
+class _LoginFieldState extends State<_LoginField> {
+  late bool _obscured;
+
+  @override
+  void initState() {
+    super.initState();
+    _obscured = widget.isPassword;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          label, 
+          widget.label,
           style: GoogleFonts.spaceGrotesk(
-            fontSize: 10, 
-            fontWeight: FontWeight.w900, 
+            fontSize: 10,
+            fontWeight: FontWeight.w900,
             letterSpacing: 1.5,
             color: AppTheme.ink.withValues(alpha: 0.4),
           ),
         ),
         const SizedBox(height: 12),
         TextFormField(
-          controller: controller,
-          obscureText: isPassword,
-          enabled: enabled,
-          validator: validator,
+          controller: widget.controller,
+          obscureText: widget.isPassword ? _obscured : false,
+          enabled: widget.enabled,
+          validator: widget.validator,
           style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.bold),
           decoration: InputDecoration(
-            hintText: hint,
-            prefixIcon: Icon(icon, size: 20),
+            hintText: widget.hint,
+            prefixIcon: Icon(widget.icon, size: 20),
+            suffixIcon: widget.isPassword
+                ? IconButton(
+                    icon: Icon(
+                      _obscured
+                          ? Icons.visibility_off_rounded
+                          : Icons.visibility_rounded,
+                      size: 20,
+                      color: AppTheme.ink.withValues(alpha: 0.5),
+                    ),
+                    onPressed: () => setState(() => _obscured = !_obscured),
+                    tooltip: _obscured ? 'Show password' : 'Hide password',
+                  )
+                : null,
             contentPadding: const EdgeInsets.all(20),
           ),
         ),
