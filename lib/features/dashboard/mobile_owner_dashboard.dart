@@ -6,6 +6,9 @@ import 'package:intl/intl.dart';
 import '../../core/theme/app_theme.dart';
 import '../auth/auth_provider.dart';
 import '../auth/login_screen.dart';
+import '../pos/pos_screen.dart';
+import '../pos/management_screen.dart';
+import '../sales/sales_history_screen.dart';
 import 'live_orders_provider.dart';
 import 'dashboard_provider.dart';
 import 'dashboard_summary.dart';
@@ -26,6 +29,28 @@ class MobileOwnerDashboard extends ConsumerWidget {
     final liveOrders = ref.watch(liveOrdersProvider);
     final summaryAsync = ref.watch(remoteDashboardProvider);
     final user = ref.watch(authProvider);
+
+    // Guard: only admin/owner can see this dashboard — cashier is POS-only
+    if (user == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+          );
+        }
+      });
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (user.role != 'admin' && user.role != 'owner') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const PosScreen()),
+          );
+        }
+      });
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     return Scaffold(
       backgroundColor: AppTheme.bone,
@@ -55,10 +80,28 @@ class MobileOwnerDashboard extends ConsumerWidget {
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.receipt_long_outlined, size: 20),
+            tooltip: 'HISTORY',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SalesHistoryScreen()),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings_outlined, size: 20),
+            tooltip: 'MANAGE',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ManagementScreen()),
+            ),
+          ),
+          const VerticalDivider(width: 24, indent: 16, endIndent: 16),
           const SyncStatusBadge(),
           const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.logout_rounded, size: 20),
+            tooltip: 'LOGOUT',
             onPressed: () {
               ref.read(authProvider.notifier).logout();
               Navigator.of(context).pushAndRemoveUntil(

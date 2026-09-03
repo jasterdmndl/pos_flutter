@@ -7,9 +7,9 @@ import '../sales/sales_history_screen.dart';
 import '../products/product_page.dart';
 import '../cart/cart_panel.dart';
 import '../dashboard/dashboard_screen.dart';
+import '../dashboard/mobile_owner_dashboard.dart';
 import '../auth/auth_provider.dart';
 import '../auth/login_screen.dart';
-import 'management_screen.dart';
 import '../../core/widgets/sync_status_badge.dart';
 
 class PosScreen extends ConsumerWidget {
@@ -18,6 +18,29 @@ class PosScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authProvider);
+
+    // Guard: admin/owner should never stay on POS — redirect to their dashboards
+    if (user?.role == 'admin') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const DashboardScreen()),
+          );
+        }
+      });
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (user?.role == 'owner') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const MobileOwnerDashboard()),
+          );
+        }
+      });
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -41,15 +64,6 @@ class PosScreen extends ConsumerWidget {
           ],
         ),
         actions: [
-          if (user?.role == 'admin' || user?.role == 'owner')
-            _NavIcon(
-              icon: Icons.analytics_outlined,
-              label: 'DASHBOARD',
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const DashboardScreen()),
-              ),
-            ),
           _NavIcon(
             icon: Icons.receipt_long_outlined,
             label: 'HISTORY',
@@ -58,15 +72,6 @@ class PosScreen extends ConsumerWidget {
               MaterialPageRoute(builder: (_) => const SalesHistoryScreen()),
             ),
           ),
-          if (user?.role == 'admin' || user?.role == 'owner')
-            _NavIcon(
-              icon: Icons.settings_outlined,
-              label: 'MANAGE',
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ManagementScreen()),
-              ),
-            ),
           const VerticalDivider(width: 32, indent: 24, endIndent: 24),
           _NavIcon(
             icon: Icons.logout_rounded,

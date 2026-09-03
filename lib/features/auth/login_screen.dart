@@ -6,6 +6,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/services/supabase_service.dart';
 import 'auth_provider.dart';
 import '../pos/pos_screen.dart';
+import '../dashboard/dashboard_screen.dart';
 import '../dashboard/mobile_owner_dashboard.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -44,12 +45,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (success) {
       if (mounted) {
         final user = ref.read(authProvider);
-        if (user?.role == 'owner') {
+        final role = user?.role;
+        if (role == 'admin') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const DashboardScreen()),
+          );
+        } else if (role == 'owner') {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const MobileOwnerDashboard()),
           );
         } else {
+          // cashier, guest, or fallback
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const PosScreen()),

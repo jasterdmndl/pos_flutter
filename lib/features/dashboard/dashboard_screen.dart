@@ -5,6 +5,10 @@ import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../auth/auth_provider.dart';
+import '../auth/login_screen.dart';
+import '../pos/pos_screen.dart';
+import '../pos/management_screen.dart';
+import '../sales/sales_history_screen.dart';
 import '../../core/theme/app_theme.dart';
 import 'dashboard_provider.dart';
 import 'dashboard_summary.dart';
@@ -16,34 +20,26 @@ class DashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authProvider);
 
-    // GUARD: Only admin/owner can see full analytics
-    if (user?.role != 'admin' && user?.role != 'owner') {
-      return Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.lock_outline_rounded, size: 64, color: AppTheme.error),
-              const SizedBox(height: 16),
-              Text(
-                "ACCESS DENIED",
-                style: GoogleFonts.spaceGrotesk(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 24,
-                  letterSpacing: 2,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text("You do not have permission to view analytics."),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("GO BACK"),
-              ),
-            ],
-          ),
-        ),
-      );
+    // GUARD: Only admin/owner can see dashboards — cashier is POS-only
+    if (user == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+          );
+        }
+      });
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (user.role != 'admin' && user.role != 'owner') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const PosScreen()),
+          );
+        }
+      });
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     final dashboard = ref.watch(dashboardProvider);
@@ -53,6 +49,37 @@ class DashboardScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text('ANALYTICS ENGINE', style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 16)),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.receipt_long_outlined, size: 20),
+            tooltip: 'HISTORY',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SalesHistoryScreen()),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings_outlined, size: 20),
+            tooltip: 'MANAGE',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ManagementScreen()),
+            ),
+          ),
+          const VerticalDivider(width: 24, indent: 16, endIndent: 16),
+          IconButton(
+            icon: const Icon(Icons.logout_rounded, size: 20),
+            tooltip: 'LOGOUT',
+            onPressed: () {
+              ref.read(authProvider.notifier).logout();
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                (route) => false,
+              );
+            },
+          ),
+          const SizedBox(width: 16),
+        ],
       ),
       body: dashboard.when(
         loading: () => const Center(child: CircularProgressIndicator()),
