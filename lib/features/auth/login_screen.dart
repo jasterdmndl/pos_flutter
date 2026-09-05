@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/theme/app_text_styles.dart';
 import '../../core/services/supabase_service.dart';
 import 'auth_provider.dart';
 import '../pos/pos_screen.dart';
@@ -120,7 +120,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               color: Colors.white,
                               height: 0.9,
                             ),
-                          ).animate().fadeIn(duration: 800.ms).slideX(begin: -0.2),
+                          ),
                           const SizedBox(height: 20),
                           Container(width: 80, height: 6, color: Colors.white),
                           const SizedBox(height: 20),
@@ -190,7 +190,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(Icons.coffee_rounded, size: 48, color: AppTheme.emerald),
-                            ).animate().scale(delay: 200.ms),
+                            ),
                             
                             const SizedBox(height: 32),
                             
@@ -202,7 +202,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 color: AppTheme.ink,
                                 letterSpacing: 1,
                               ),
-                            ).animate().fadeIn(delay: 400.ms),
+                            ),
                             
                             Text(
                               "MANAGEMENT TERMINAL",
@@ -212,7 +212,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 letterSpacing: 2,
                                 color: AppTheme.emerald,
                               ),
-                            ).animate().fadeIn(delay: 600.ms),
+                            ),
 
                             const SizedBox(height: 48),
 
@@ -236,7 +236,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                       }
                                       return null;
                                     },
-                                  ).animate().fadeIn(delay: 800.ms),
+                                  ),
                                   
                                   const SizedBox(height: 24),
                                   
@@ -251,7 +251,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                       if (value.length < 6) return 'Password too short';
                                       return null;
                                     },
-                                  ).animate().fadeIn(delay: 1000.ms),
+                                  ),
                                 ],
                               ),
                             ),
@@ -267,7 +267,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                                     : const Text("SIGN IN"),
                               ),
-                            ).animate().fadeIn(delay: 1.2.seconds),
+                            ),
                             
                             const SizedBox(height: 16),
                             
@@ -297,7 +297,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   ),
                                 ),
                               ),
-                            ).animate().fadeIn(delay: 1.4.seconds),
+                            ),
                             
                             const Spacer(),
                             const SizedBox(height: 48),
@@ -321,7 +321,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   ),
                                 ),
                               ],
-                            ).animate().fadeIn(delay: 1.5.seconds),
+                            ),
                           ],
                         ),
                       ),
@@ -376,12 +376,7 @@ class _LoginFieldState extends State<_LoginField> {
       children: [
         Text(
           widget.label,
-          style: GoogleFonts.spaceGrotesk(
-            fontSize: 10,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.5,
-            color: AppTheme.ink.withValues(alpha: 0.4),
-          ),
+          style: AppTextStyles.overlineBold(context),
         ),
         const SizedBox(height: 12),
         TextFormField(
@@ -448,6 +443,6 @@ class _ConfigErrorBox extends StatelessWidget {
           ),
         ],
       ),
-    ).animate().shake();
+    );
   }
 }

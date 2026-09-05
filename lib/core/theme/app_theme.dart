@@ -21,8 +21,9 @@ class AppTheme {
   static const double spacingLg = 24.0;
 
   static ThemeData get boutiqueTheme {
-    final baseTextTheme = GoogleFonts.spaceGroteskTextTheme();
-    
+    final base = GoogleFonts.spaceGroteskTextTheme();
+
+    // Fraunces = display / brand headlines, Space Grotesk = everything else
     return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
@@ -35,19 +36,41 @@ class AppTheme {
         error: error,
       ),
       scaffoldBackgroundColor: bone,
-      
-      // Typography
-      textTheme: baseTextTheme.copyWith(
-        displayLarge: GoogleFonts.fraunces(fontWeight: FontWeight.bold, color: ink),
-        displayMedium: GoogleFonts.fraunces(fontWeight: FontWeight.bold, color: ink),
-        headlineLarge: GoogleFonts.fraunces(fontWeight: FontWeight.bold, color: ink),
-        headlineMedium: GoogleFonts.fraunces(fontWeight: FontWeight.bold, color: ink),
-        titleLarge: GoogleFonts.fraunces(fontWeight: FontWeight.bold, color: ink),
-        labelLarge: baseTextTheme.labelLarge?.copyWith(
-          letterSpacing: 1.2,
-          fontWeight: FontWeight.bold,
-          color: emeraldDeep,
-        ),
+
+      // ── Typography — 15-slot Material3 system ──────────────────────────
+      // Display / Headline / Title-Large = Fraunces (brand)
+      // Title-Medium/Small + Body + Label = Space Grotesk (UI)
+      textTheme: base.copyWith(
+        displayLarge: GoogleFonts.fraunces(
+            fontSize: 57, fontWeight: FontWeight.w900, letterSpacing: -0.25, color: ink, height: 1.1),
+        displayMedium: GoogleFonts.fraunces(
+            fontSize: 45, fontWeight: FontWeight.w900, color: ink, height: 1.12),
+        displaySmall: GoogleFonts.fraunces(
+            fontSize: 36, fontWeight: FontWeight.bold, color: ink, height: 1.15),
+        headlineLarge: GoogleFonts.fraunces(
+            fontSize: 32, fontWeight: FontWeight.bold, color: ink, height: 1.2),
+        headlineMedium: GoogleFonts.fraunces(
+            fontSize: 28, fontWeight: FontWeight.bold, color: ink, height: 1.2),
+        headlineSmall: GoogleFonts.fraunces(
+            fontSize: 24, fontWeight: FontWeight.bold, color: ink, height: 1.25),
+        titleLarge: GoogleFonts.fraunces(
+            fontSize: 22, fontWeight: FontWeight.bold, color: ink, height: 1.25),
+        titleMedium: GoogleFonts.spaceGrotesk(
+            fontSize: 16, fontWeight: FontWeight.w800, letterSpacing: 0.15, color: ink, height: 1.3),
+        titleSmall: GoogleFonts.spaceGrotesk(
+            fontSize: 14, fontWeight: FontWeight.w700, letterSpacing: 0.1, color: ink, height: 1.3),
+        bodyLarge: GoogleFonts.spaceGrotesk(
+            fontSize: 16, fontWeight: FontWeight.w400, letterSpacing: 0.5, color: ink, height: 1.5),
+        bodyMedium: GoogleFonts.spaceGrotesk(
+            fontSize: 14, fontWeight: FontWeight.w400, letterSpacing: 0.25, color: ink, height: 1.4),
+        bodySmall: GoogleFonts.spaceGrotesk(
+            fontSize: 12, fontWeight: FontWeight.w400, letterSpacing: 0.4, color: ink.withValues(alpha: 0.7), height: 1.4),
+        labelLarge: GoogleFonts.spaceGrotesk(
+            fontSize: 14, fontWeight: FontWeight.w800, letterSpacing: 1.2, color: emeraldDeep, height: 1.2),
+        labelMedium: GoogleFonts.spaceGrotesk(
+            fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 0.8, color: ink, height: 1.2),
+        labelSmall: GoogleFonts.spaceGrotesk(
+            fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: ink.withValues(alpha: 0.5), height: 1.2),
       ),
 
       cardTheme: CardThemeData(

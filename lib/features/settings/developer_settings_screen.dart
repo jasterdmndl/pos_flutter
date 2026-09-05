@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/theme/app_text_styles.dart';
 import '../../core/database/isar_service.dart';
 import '../../core/database/collections/order_entity.dart';
 import '../../core/database/collections/order_item_entity.dart';
@@ -50,7 +51,7 @@ class DeveloperSettingsScreen extends ConsumerWidget {
               "To reset your Supabase cloud data, run this in your SQL Editor:\n\n"
               "TRUNCATE z_readings, orders, order_items, order_item_addons CASCADE;\n"
               "UPDATE running_totals SET lifetime_grand_total = 0, reset_counter = 0 WHERE id = 1;",
-              style: GoogleFonts.sourceCodePro(fontSize: 13, color: Colors.blue[900]),
+              style: AppTextStyles.captionMono(context).copyWith(color: Colors.blue[900], fontSize: 13),
             ),
           ),
         ],
